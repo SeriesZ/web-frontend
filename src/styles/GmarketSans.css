@@ -1,0 +1,27 @@
+@font-face {
+  font-family: 'GmarketSans';
+  font-weight: 300;
+  font-style: normal;
+  src: local('GmarketSans Light'),
+       url('/penad/fonts/GmarketSans/GmarketSansLight.woff2') format('woff2'),
+       url('/penad/fonts/GmarketSans/GmarketSansLight.woff') format('woff');
+  font-display: swap;
+} 
+@font-face {
+  font-family: 'GmarketSans';
+  font-weight: 500;
+  font-style: normal;
+  src: local('GmarketSans Medium'),
+       url('/penad/fonts/GmarketSans/GmarketSansMedium.woff2') format('woff2'),
+       url('/penad/fonts/GmarketSans/GmarketSansMedium.woff') format('woff');
+  font-display: swap;
+} 
+@font-face {
+  font-family: 'GmarketSans';
+  font-weight: 700;
+  font-style: normal;
+  src: local('GmarketSans Bold'),
+       url('/penad/fonts/GmarketSans/GmarketSansBold.woff2') format('woff2'),
+       url('/penad/fonts/GmarketSans/GmarketSansBold.woff') format('woff');
+  font-display: swap;
+} 

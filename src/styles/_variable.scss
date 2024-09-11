@@ -1,0 +1,377 @@
+$mobile: 767px;
+$tablet: 1023px;
+$desktop: 1024px;
+
+$maxWidth: 1400px;
+$maxHeader: 1400px;
+
+$mobileLayout: 1024px;
+$rightLayout: 1294px;
+$wideLayout: 1599px;
+
+/* mobile vw sizes */
+$headerHeight: 78px;    // 120px
+$iconSize64: 8.3333vw;    // 64px
+$iconSize32: 4.1667vw;    // 32px
+$iconSize28: 3.64583vw;   // 28px
+$vw46: 5.98958vw;
+$vw56: 7.29167vw;
+$vw40: 5.20833vw;
+$vw20: 2.60417vw;
+$vh40: 2.3447vh;
+$btnWidth: 89.58333vw;  // 688px
+$btnHeight: 15.625vw;    // 120px
+$btnRadius: 7.81250vw;  // 60px
+$text44: 5.72917vw;
+$text32: 4.16667vw;
+$text28: 3.64583vw;
+$text20: 2.6042vw;
+
+/* ios safeArea */
+$constTop: constant(safe-area-inset-top);
+$envTop: env(safe-area-inset-top);
+$constBottom: constant(safe-area-inset-bottom);
+$envBottom: env(safe-area-inset-bottom);
+$constLeft: constant(safe-area-inset-left);
+$envLeft: env(safe-area-inset-left);
+$constRight: constant(safe-area-inset-right);
+$envRight: env(safe-area-inset-right);
+/* android safeArea */
+$andTop: 2.3447vh;
+$andPaddingY: 12.7604vw;
+
+
+/* colors */
+$orange: #fd982d;
+$whiteF5: #f5f5f5;
+$grayDb: #dbdbdb;
+$grayCc: #cccccc;
+$gray93: #939393;
+$gray99: #999999;
+$gray8c: #8c8d8e;
+$gray89: #898b91;
+$gray4e: #4e5155;
+$black16: #161a1a;
+$black12: #121212;
+$black40: #404040;
+$yellow: #ffde83;
+$orangeFd: #fdaf62;
+$orangeE7: #e79a0b;
+$pink: #ff6f6f;
+$red: #ff0202;
+$purple82: #827aff;
+$purple8D: #8d1aff;
+$purple73: #735eff;
+$purple81: #8135e9;
+$purple91: #915CF1;
+$purple93: #932eff;
+$purpleE5: #e5e4fe;
+$purpleF0: #f0e7ff;
+$purple6C: #6c1ac4;
+
+$bottomSheet-zIndex: 20;
+$modal-zIndex: 30;
+
+@function rem($value) {
+    $remValue: calc($value / 16) + rem; 
+    @return $remValue;
+}
+
+@mixin mobile { 
+    @media (max-width: $mobile){ 
+        @content; 
+    }
+}
+
+@mixin tablet { 
+    @media (min-width: #{$mobile + 1px}) and (max-width: #{$tablet + 1px}) {
+        @content; 
+    }
+}
+
+@mixin desktop { 
+    @media (min-width: $desktop){ 
+        @content; 
+    }
+}
+
+@mixin max1024 { 
+    @media (max-width: #{$tablet + 1px}) {
+        @content; 
+    }
+}
+@mixin mobileLayout { 
+    @media (max-width: #{$tablet + 1px}) {
+        @content; 
+    }
+}
+
+@mixin maxContents { 
+    @media (max-width: #{$maxWidth}) {
+        @content; 
+    }
+}
+@mixin minContents { 
+    @media (min-width: #{$mobile + 1px}) {
+        @content; 
+    }
+}
+
+@mixin rightLayoutContents {
+    @media (max-width: #{$rightLayout}) {
+        @content;
+    }
+}
+
+/* detail break point */
+@mixin sm { 
+    @media (max-width: 640px){ 
+        @content; 
+    }
+}
+
+@mixin md { 
+    @media (min-width: 641px) and (max-width: #{$mobile}) {
+        @content; 
+    }
+}
+
+@mixin lg { 
+    @media (min-width: #{$mobile + 1px}) and (max-width: #{$tablet}) {
+        @content; 
+    }
+}
+
+@mixin xl { 
+    @media (min-width: #{$tablet + 1px}) and (max-width: 1280px) {
+        @content; 
+    }
+}
+
+@mixin xl2 { 
+    @media (min-width: 1280px){
+        @content; 
+    }
+}
+@mixin xl3 {
+    @media (min-width: 1440px) {
+        @content;
+    }
+}
+
+@mixin max1600 { 
+    @media (max-width: #{$wideLayout}){
+        @content; 
+    }
+}
+
+@mixin min1600 {
+    @media (min-width: #{$wideLayout + 1px}){ 
+        @content;
+    }
+}
+
+@mixin max1440 {
+    @media (min-width: 1281px) and (max-width: 1440px) {
+        @content;
+    }
+}
+
+@mixin max1280 {
+    @media (min-width: #{$mobile + 1px}) and (max-width: 1280px) {
+        @content;
+    }
+}
+
+/* flex */
+@mixin sb {
+    justify-content: space-between;
+}
+
+@mixin sa {
+    justify-content: space-around;
+}
+
+@mixin fs {
+    justify-content: flex-start;
+}
+@mixin fe {
+    justify-content: flex-end;
+}
+@mixin center {
+    justify-content: center;
+}
+
+@mixin top {
+    align-items: flex-start;
+}
+@mixin bottom {
+    align-items: flex-end;
+}
+@mixin col {
+    flex-direction: column;
+}
+
+@mixin flex {
+    position: relative;
+    -ms-display: flexbox; 
+    display: flex; 
+    flex-wrap: wrap; 
+    -webkit-justify-content: center; 
+    justify-content: center; 
+    -webkit-align-items: center; 
+    align-items: center;
+
+}
+
+@mixin background {
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
+}
+
+
+@mixin pseudo($img) {
+    position: absolute;
+    // display: inline-block;
+    content: '';
+    background-position: center;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-image: url($img);
+}
+
+@mixin btnform {
+  @include flex;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+@mixin aspect916 {
+    aspect-ratio: 9/16;
+}
+
+
+@keyframes floating {
+    0% {opacity: 1;}
+    50% {opacity: 0.4;}
+    100% {opacity: 1;}
+}
+@mixin blinkEffect {
+    animation: floating 2s ease-in-out infinite;
+}
+
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translate3d(0, 100%, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translateZ(0);
+    }
+}
+@mixin fadeInUpEffect {
+    animation: fadeInUp 1s;
+}
+
+@keyframes fadeOutDown {
+    0% {
+        opacity: 1;
+        transform: translateZ(0);
+    }
+    to {
+        opacity: 0;
+        transform: translate3d(0, 100%, 0);
+    }
+}
+@mixin fadeOutDownEffect {
+    animation: fadeOutDown 1s;
+}
+
+@mixin iosFillAvailable {
+  /* iOS only */
+    @supports (-webkit-touch-callout: none) { 
+        height: -webkit-fill-available;
+    }    
+}
+
+@mixin iosWrapper {
+  /* iOS only */
+    @supports (-webkit-touch-callout: none) { 
+        // height: -webkit-fill-available;
+        height: calc(100vh - 56px);
+    }      
+    // height: 80vh;
+}
+
+@mixin ios100vh {
+    /* iOS only */
+    @supports (-webkit-touch-callout: none) { 
+        // height: -webkit-fill-available;
+        height: 100vh;
+    }       
+}
+
+@mixin overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+@mixin fadeIn {
+    animation: fadeIn 0.4s ease forwards;    
+}
+@mixin fadeOut {
+    animation: fadeOut 0.4s ease forwards;    
+}
+
+@keyframes fadeIn {
+    from {
+    opacity: 0;
+    }
+    to {
+    opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+    opacity: 1;
+    }
+    to {
+    opacity: 0;
+    }
+}   
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+@mixin slideInRight {
+    animation: slideInRight 0.5s ease forwards;
+}
+
+@mixin slideOutRight {
+    animation: slideOutRight 0.5s ease forwards;
+}

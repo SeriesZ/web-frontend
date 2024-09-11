@@ -1,0 +1,64 @@
+@import "@/styles/variable.scss";
+
+.customSelectBox {
+  width: 100%;
+  //   max-width: 300px;
+  position: relative;
+  user-select: none;
+}
+
+.selected {
+  padding: 10px;
+  border: 1px solid #e8ecf2;
+  border-radius: 3px;
+  background-color: #fff;
+  cursor: pointer;
+  font-size: 12px;
+  &::after {
+    @include background;
+    content: "";
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    position: absolute;
+    right: 10px;
+    background-image: url("/images/icon-select-arrow-down.png");
+  }
+}
+
+.options {
+  position: absolute;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid #e8ecf2;
+  border-radius: 3px;
+  background-color: #fff;
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: 12px;
+  z-index: 10;
+  &::-webkit-scrollbar {
+    width: 6px; /* 스크롤바의 너비 */
+  }
+
+  &::-webkit-scrollbar-thumb {
+    height: 30%; /* 스크롤바의 길이 */
+    background: #ccc; /* 스크롤바의 색상 */
+
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1); /*스크롤바 뒷 배경 색상*/
+  }
+}
+
+.option {
+  padding: 8px;
+  cursor: pointer;
+  &:hover {
+    background-color: #f0f0f0;
+  }
+}

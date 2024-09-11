@@ -1,0 +1,452 @@
+@import "@/styles/variable.scss";
+
+.mainContainer {
+  width: 100%;
+}
+.headerWrap {
+  @include flex;
+  @include col;
+  @include sb;
+  width: 100%;
+  height: 288px;
+  background-color: #f9f9f9;
+  .titleWrap {
+    @include flex;
+    @include col;
+    @include top;
+    padding-top: 80px;
+    width: 880px;
+    margin: 0 auto;
+    .title {
+      font-size: 30px;
+      font-weight: 800;
+      margin-bottom: 18px;
+      color: #000;
+    }
+    .desc {
+      font-size: 16px;
+      font-weight: 400;
+      letter-spacing: -0.06px;
+      color: #2a2a2a;
+    }
+  }
+  .stepWrap {
+    @include flex;
+    @include sb;
+    width: 880px;
+    margin: 0 auto;
+    div {
+      @include flex;
+      width: 220px;
+      padding-bottom: 10px;
+      box-sizing: border-box;
+      border-bottom: 2px solid transparent;
+      font-size: 14px;
+      font-weight: 400;
+      color: #aaa;
+      cursor: pointer;
+      &:hover,
+      &.active {
+        font-size: 14px;
+        font-weight: 600;
+        color: #000;
+        border-bottom: 2px solid #000;
+      }
+    }
+  }
+}
+.sectionContents {
+  background-color: #fff;
+  width: 880px;
+  margin: 0 auto;
+  .btnWrap {
+    @include flex;
+    column-gap: 20px;
+    padding-bottom: 120px;
+    .btn {
+      @include btnform;
+      width: 140px;
+      height: 42px;
+      border: 1px solid transparent;
+      border-radius: 3px;
+      background-color: #1363df;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 500;
+      &.white {
+        background-color: #fff;
+        border: 1px solid #e8ecf2;
+        color: #aaa;
+      }
+    }
+  }
+  .section {
+    padding-top: 120px;
+    padding-bottom: 120px;
+    .sectionTitle {
+      @include flex;
+      @include fs;
+      font-size: 20px;
+      font-weight: 600;
+      color: #000;
+      line-height: 24.2px;
+      &.final {
+        font-size: 30px;
+      }
+      span {
+        font-weight: 400;
+        color: #1363df;
+        margin-right: 14px;
+      }
+    }
+    .sectionDesc {
+      font-size: 14px;
+      font-weight: 400;
+      color: #000;
+      margin-top: 20px;
+      margin-bottom: 80px;
+    }
+    .form {
+      padding-top: 60px;
+      &.select {
+        @include flex;
+        @include fs;
+        column-gap: 20px;
+        .label {
+          margin-bottom: 0;
+        }
+        .desc {
+          margin-bottom: 0;
+        }
+      }
+      .label {
+        font-size: 18px;
+        font-weight: 400;
+        color: #000;
+        margin-bottom: 14px;
+        &.hasDesc {
+          margin-bottom: 8px;
+        }
+      }
+      .desc {
+        margin-bottom: 14px;
+        font-size: 12px;
+        font-weight: 400;
+        color: #aaa;
+      }
+      input[type="text"],
+      textarea {
+        width: 100%;
+        box-sizing: 100%;
+        border: 1px solid #e8ecf2;
+        border-radius: 3px;
+        padding: 10px;
+        font-size: 12px;
+        color: #000;
+        resize: none;
+        outline: 0 none;
+        &::placeholder {
+          color: #aaa;
+        }
+      }
+      textarea {
+        height: 110px;
+      }
+      .selectBoxWrap {
+        width: 240px;
+      }
+    }
+  }
+  .uploadWrap {
+    input[type="file"] {
+      display: none;
+    }
+    .uploadBox {
+      width: 100%;
+      height: 140px;
+      border: 1px solid #e8ecf2;
+      border-radius: 3px;
+      padding: 24.5px 10px;
+      &.uploaded {
+        padding: 10px;
+      }
+      .dropZone {
+        @include flex;
+        @include col;
+        row-gap: 20px;
+        .uploadTxt {
+          font-size: 12px;
+          font-weight: 400;
+          color: #aaa;
+        }
+        .uploadIcon {
+          @include background;
+          display: block;
+          width: 57px;
+          height: 57px;
+          background-image: url("/images/icon-fild-dnd.png");
+          cursor: pointer;
+        }
+        .uploadList {
+          @include flex;
+          @include fs;
+          @include top;
+          width: 100%;
+          column-gap: 10px;
+          row-gap: 10px;
+          .filename {
+            @include flex;
+            padding: 5px;
+            background-color: #e8ecf2;
+            border-radius: 3px;
+            color: #000;
+            font-size: 14px;
+            line-height: 18px;
+            cursor: pointer;
+            .delete {
+              display: none;
+            }
+            &:hover {
+              .delete {
+                @include flex;
+                font-size: 10px;
+                line-height: 10px;
+                color: #fff;
+                background-color: #ff0000;
+                width: 14px;
+                height: 14px;
+                border-radius: 50%;
+                cursor: pointer;
+                position: absolute;
+                right: -5px;
+                top: -5px;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.tableContainer {
+  .tableTitleWrap {
+    @include flex;
+    @include sb;
+    margin-bottom: 14px;
+    .tableTitle {
+      @include flex;
+      @include fs;
+      @include bottom;
+      column-gap: 8px;
+      font-size: 18px;
+      color: #000;
+      span {
+        @include background;
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        background-image: url("/images/icon-text-info.png");
+      }
+    }
+    .tableInfo {
+      font-size: 12px;
+      color: #aaa;
+    }
+  }
+  .tableContentsWrap {
+    .xScroll {
+      overflow-y: hidden;
+      overflow-x: auto;
+      &::-webkit-scrollbar {
+        height: 6px; /* 스크롤바의 너비 */
+      }
+
+      &::-webkit-scrollbar-thumb {
+        height: 30%; /* 스크롤바의 길이 */
+        background: #ccc; /* 스크롤바의 색상 */
+
+        border-radius: 10px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1); /*스크롤바 뒷 배경 색상*/
+      }
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      &.years10 {
+        width: 1600px;
+        table-layout: fixed;
+        th,
+        td {
+          width: auto;
+        }
+      }
+      th,
+      td {
+        width: calc(100% / 3);
+        font-size: 14px;
+        font-weight: 400;
+        color: #000;
+        padding: 10px;
+        border: 1px solid #e8ecf2;
+        text-align: center;
+      }
+      thead {
+        th {
+          font-weight: 800;
+          background-color: rgba(232, 236, 242, 0.5);
+        }
+      }
+      tbody {
+        th {
+          background-color: rgba(232, 236, 242, 0.2);
+        }
+        td {
+          background-color: #fff;
+          &.em {
+            font-weight: 800;
+            color: #1363df;
+          }
+        }
+        .total {
+          font-weight: 800;
+          background-color: rgba(232, 236, 242, 0.5);
+        }
+      }
+    }
+  }
+}
+
+.inputContainer {
+  margin-top: 40px;
+  .inputHeader {
+    @include flex;
+    @include fe;
+    width: 100%;
+    margin-bottom: 12px;
+    &.left {
+      @include fs;
+      .title {
+        color: #000;
+        font-size: 18px;
+        padding: 8.5px 0 3.5px 0;
+      }
+    }
+    .btnInput {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1363df;
+      padding: 10px;
+      cursor: pointer;
+    }
+  }
+  .inputWrap {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 92px;
+    row-gap: 18px;
+    &.cnt {
+      column-gap: 150px;
+      .inputItem {
+        column-gap: 20px;
+        .title {
+          width: 105px;
+        }
+      }
+    }
+    .inputItem {
+      @include flex;
+      @include sb;
+      column-gap: 2px;
+      .iconInfo {
+        @include background;
+        width: 24px;
+        height: 24px;
+        background-image: url("/images/icon-text-info.png");
+        cursor: pointer;
+      }
+      .title {
+        width: 100px;
+        font-size: 14px;
+        color: #000;
+      }
+      .input {
+        width: 240px;
+        input[type="text"],
+        input[type="number"] {
+          width: 100%;
+          box-sizing: 100%;
+          border: 1px solid #e8ecf2;
+          border-radius: 3px;
+          padding: 10px;
+          font-size: 12px;
+          color: #000;
+          resize: none;
+          outline: 0 none;
+          &::placeholder {
+            color: #aaa;
+          }
+        }
+      }
+      .iconRemove {
+        @include background;
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        background-image: url("/images/icon-text-delete.png");
+      }
+    }
+  }
+}
+
+.totalContainer {
+  @include flex;
+  @include sb;
+  @include top;
+  padding: 40px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #000;
+  border-bottom: 1px solid #e8ecf2;
+  margin-bottom: 80px;
+  .title {
+    span {
+      font-weight: 400;
+      color: #aaa;
+    }
+  }
+  .amount {
+    @include flex;
+    @include fe;
+    font-size: 20px;
+    font-weight: 400;
+    span {
+      font-weight: 600;
+      color: #1363df;
+      margin-right: 6px;
+    }
+  }
+  .amounts {
+    width: calc(100% - 180px);
+    .item {
+      @include flex;
+      @include sb;
+      &:not(:last-child) {
+        margin-bottom: 18px;
+      }
+      div {
+        @include flex;
+        @include sb;
+        span {
+          font-weight: 600;
+          color: #1363df;
+          margin-right: 6px;
+        }
+      }
+    }
+  }
+}

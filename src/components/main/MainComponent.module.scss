@@ -1,0 +1,383 @@
+@import "@/styles/variable.scss";
+
+// 공통 컨테이너/래퍼
+.mainContainer {
+  background-color: #fff;
+}
+.wrapper {
+  width: 880px;
+  margin: 0 auto 100px;
+}
+
+// swiper영역
+.mainSwiper {
+  width: 100%;
+  height: 600px;
+  background-color: #e2f5fa;
+  padding: 60px 0;
+  .swiperWrap {
+    width: 880px;
+    margin: 0 auto;
+  }
+  .swiperItem {
+    .text {
+      font-size: 30px;
+      font-weight: 400;
+      color: #000;
+      line-height: 38px;
+      text-align: center;
+      .bold {
+        font-weight: 800;
+      }
+    }
+    .icon {
+      @include background;
+      margin: 60px auto;
+      width: 426.67px;
+      height: 240px;
+      background-image: url("/images/img-main-1.png");
+    }
+  }
+}
+
+// 섹션별 제목 컴포넌트
+.sectionTitle {
+  margin-bottom: 20px;
+  .title {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    color: #000;
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 23.87px;
+    cursor: pointer;
+    &::after {
+      content: "";
+      display: inline-block;
+      margin-left: 6px;
+      width: 24px;
+      height: 24px;
+      background: url("/images/icon-arrow-next.svg") no-repeat center;
+      background-size: 100% 100%;
+    }
+  }
+  .desc {
+    color: #6c6c6c;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 16.71px;
+  }
+}
+
+// 카드 래퍼
+.cardWrap {
+  // width: 100%;
+  // display: flex;
+  // justify-content: flex-start;
+  // align-items: center;
+  // column-gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  column-gap: 16px;
+  row-gap: 16px;
+}
+
+// 테마 카테고리 목록
+.themeIdea {
+  margin-top: 100px;
+  .mainTheme {
+    margin-bottom: 20px;
+
+    .themeWrap {
+      display: flex;
+      column-gap: 8px;
+      row-gap: 8px;
+      flex-wrap: wrap;
+      .themeItem {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: max-content;
+        height: 30px;
+        background-color: #f4f5f7;
+        border-radius: 5px;
+        padding: 6.5px 10px;
+        color: #6c6c6c;
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 16.71px;
+        box-sizing: border-box;
+        &:hover,
+        &.active {
+          cursor: pointer;
+          background-color: #1363df;
+          color: #fff;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+}
+
+// 공지사항
+.noticeWrap {
+  .noticeRow {
+    cursor: pointer;
+    padding: 20px 0;
+    border-top: 1px solid #e8ecf2;
+    &:last-child {
+      border-bottom: 1px solid #e8ecf2;
+    }
+    .top {
+      margin-bottom: 20px;
+      .category {
+        margin-bottom: 10px;
+        color: #1363df;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 14.32px;
+      }
+      .title {
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 19.09px;
+        color: #000;
+      }
+    }
+    .bottom {
+      .date {
+        color: #6c6c6c;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 14.32px;
+        span {
+          color: #1363df;
+        }
+      }
+    }
+  }
+}
+
+// 아이디어 리스트
+.ideaList {
+  width: 100%;
+  .swiperWrap {
+    height: 530px;
+    background-color: #fff;
+    margin: 0 auto;
+    padding: 60px 0;
+    .swiperItem {
+      position: relative;
+      width: 640px;
+      height: 410px;
+      box-sizing: border-box;
+      .info {
+        @include flex;
+        @include col;
+        @include fe;
+        text-align: center;
+        color: #fff;
+        position: absolute;
+        z-index: 2;
+        width: 100%;
+        height: 100%;
+        padding-bottom: 92px;
+        .ad {
+          @include flex;
+          position: absolute;
+          top: 7.2px;
+          right: 7.2px;
+          padding: 2px 8px;
+          border-radius: 12px;
+          border: 1px solid #fff;
+          box-sizing: border-box;
+          color: #fff;
+          font-size: 12px;
+          line-height: 18px;
+        }
+        .title {
+          font-size: 20px;
+          font-weight: 600;
+          line-height: 23.87px;
+          margin-bottom: 14px;
+          color: #fff;
+        }
+        .desc {
+          font-size: 14px;
+          font-weight: 400;
+          line-height: 16.71px;
+          color: #fff;
+        }
+        font-size: 30px;
+        font-weight: 400;
+        color: #000;
+        line-height: 38px;
+        text-align: center;
+        .bold {
+          font-weight: 800;
+        }
+      }
+      .bg {
+        position: absolute;
+        z-index: 1;
+        width: 100%;
+        height: 100%;
+        border-radius: 8px;
+        background-color: #999;
+      }
+    }
+  }
+  .categoryWrap {
+    width: 1280px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    column-gap: 4px;
+    .categoryItem {
+      width: 76px;
+      height: 70px;
+      box-sizing: border-box;
+      padding-top: 4px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      cursor: pointer;
+      &:hover,
+      &.active {
+        .name {
+          font-weight: 700;
+          color: #212529;
+          position: relative;
+          &::after {
+            content: "";
+            width: 100%;
+            height: 2px;
+            background-color: #212529;
+            position: absolute;
+            bottom: -10px;
+          }
+        }
+      }
+      .icon {
+        width: 40px;
+        height: 40px;
+        background-color: #eee;
+        background-size: 100% 100%;
+        &.all {
+          background: url("/images/category/icon-category-all.png") no-repeat
+            center;
+        }
+        &.best {
+          background: url("/images/category/icon-category-best.png") no-repeat
+            center;
+        }
+        &.agriculture {
+          background: url("/images/category/item-agriculture.png") no-repeat
+            center;
+        }
+        &.mining {
+          background: url("/images/category/item-mining.png") no-repeat center;
+        }
+        &.manufacturing {
+          background: url("/images/category/item-manufacturing.png") no-repeat
+            center;
+        }
+        &.food {
+          background: url("/images/category/item-food.png") no-repeat center;
+        }
+        &.apparel {
+          background: url("/images/category/item-apparel.png") no-repeat center;
+        }
+        &.wood {
+          background: url("/images/category/item-wood.png") no-repeat center;
+        }
+        &.publishing {
+          background: url("/images/category/item-publishing.png") no-repeat
+            center;
+        }
+        &.chemicals {
+          background: url("/images/category/item-chemicals.png") no-repeat
+            center;
+        }
+        &.herbal {
+          background: url("/images/category/item-herbal.png") no-repeat center;
+        }
+        &.nonmetals {
+          background: url("/images/category/item-nonmetals.png") no-repeat
+            center;
+        }
+        &.metals {
+          background: url("/images/category/item-metals.png") no-repeat center;
+        }
+        &.mechanical {
+          background: url("/images/category/item-mechanical.png") no-repeat
+            center;
+        }
+        &.electrical {
+          background: url("/images/category/item-electrical.png") no-repeat
+            center;
+        }
+        &.medical {
+          background: url("/images/category/item-medical.png") no-repeat center;
+        }
+      }
+      .name {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 4px;
+        font-size: 12px;
+        line-height: 14.32px;
+        font-weight: 400;
+        line-height: 18px;
+        text-align: center;
+        color: #868e96;
+      }
+    }
+  }
+  .listWrap {
+    width: 880px;
+    margin: 100px auto;
+    .sortWrap {
+      @include flex;
+      @include fs;
+      margin-bottom: 20px;
+      .iconArrow {
+        @include background;
+        width: 12px;
+        height: 12px;
+        background-image: url("/images/icon-sort-arrow-up.png");
+        margin-right: 24px;
+        cursor: pointer;
+        &.close {
+          transform: rotate(180deg);
+        }
+      }
+      .sortItems {
+        @include flex;
+        @include fs;
+        div {
+          font-size: 12px;
+          font-weight: 400;
+          color: #000;
+          cursor: pointer;
+          &:not(:last-child) {
+            &::after {
+              content: "|";
+              color: #e8ecf2;
+              margin: 0 8px;
+            }
+          }
+          &:hover,
+          &.active {
+            font-weight: 700;
+          }
+        }
+      }
+    }
+  }
+}
