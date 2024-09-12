@@ -294,6 +294,13 @@
         padding: 10px;
         border: 1px solid #e8ecf2;
         text-align: center;
+        &.em {
+          color: #1363df;
+          background-color:  #fff;
+        }
+        &.remk {
+          background-color: rgba(232, 236, 242, 0.2);
+        }
       }
       thead {
         th {
@@ -315,6 +322,9 @@
         .total {
           font-weight: 800;
           background-color: rgba(232, 236, 242, 0.5);
+          &.em {
+            color: #1363df;
+          }
         }
       }
     }

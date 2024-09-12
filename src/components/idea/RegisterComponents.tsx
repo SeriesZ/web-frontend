@@ -9,6 +9,7 @@ import useIdeaPriceStore from "@/store/useIdeaPriceStore";
 import PerformanceCalculator from "./PerformanceCalculator";
 import IncreaseRateCalulator from "./IncreaseRateCalulator";
 import FinanceCaculator from "./FinanceCaculator";
+import PsrCalulator from "./PsrCalulator";
 
 type Props = {
   activeIndex: number;
@@ -334,6 +335,18 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
             합니다.
             <br />본 매출계획은 간단한 입력만으로 자동화될 수 있게 설계되어
             있으며, 각 항목 별 설명을 쉽게 확인할 수 있습니다.
+          </div>
+          <div className={styled.tableContainer}>
+            <div className={styled.tableTitleWrap}>
+              <div className={styled.tableTitle}>
+                PSR 가치평가<span></span>
+              </div>
+              <div className={styled.tableInfo}>단위: 원</div>
+            </div>
+            <div className={styled.tableContentsWrap}>
+              {/* <PriceTable /> */}
+              <PsrCalulator />
+            </div>
           </div>
         </div>
         <div className={`${styled.section} ${styled.goal}`}>
