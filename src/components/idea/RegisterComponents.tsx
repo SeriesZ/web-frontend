@@ -10,6 +10,7 @@ import PerformanceCalculator from "./PerformanceCalculator";
 import IncreaseRateCalulator from "./IncreaseRateCalulator";
 import FinanceCaculator from "./FinanceCaculator";
 import PsrCalulator from "./PsrCalulator";
+import StockCalulator from "./StockCalulator";
 
 type Props = {
   activeIndex: number;
@@ -346,6 +347,18 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
             <div className={styled.tableContentsWrap}>
               {/* <PriceTable /> */}
               <PsrCalulator />
+            </div>
+          </div>
+          <div className={styled.tableContainer}>
+            <div className={styled.tableTitleWrap}>
+              <div className={styled.tableTitle}>
+                발행주식 수 설정<span></span>
+              </div>
+              <div className={styled.tableInfo}>단위: 원</div>
+            </div>
+            <div className={styled.tableContentsWrap}>
+              {/* <PriceTable /> */}
+              <StockCalulator />
             </div>
           </div>
         </div>
