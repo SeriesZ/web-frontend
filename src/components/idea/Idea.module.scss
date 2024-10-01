@@ -92,6 +92,7 @@
       line-height: 24.2px;
       &.final {
         font-size: 30px;
+        margin-bottom: 80px;
       }
       span {
         font-weight: 400;
@@ -119,6 +120,9 @@
           margin-bottom: 0;
         }
       }
+      &.final {
+        padding-top: 0px;
+      }
       .label {
         font-size: 18px;
         font-weight: 400;
@@ -126,6 +130,10 @@
         margin-bottom: 14px;
         &.hasDesc {
           margin-bottom: 8px;
+        }
+        &.final {
+          font-size: 14px;
+          color: #1363DF;
         }
       }
       .desc {
@@ -155,6 +163,9 @@
       .selectBoxWrap {
         width: 240px;
       }
+    }
+    .finalContent {
+      font-size: 20px;
     }
   }
   .uploadWrap {
@@ -248,6 +259,10 @@
         height: 24px;
         cursor: pointer;
         background-image: url("/images/icon-text-info.png");
+      }
+      &.final {
+        font-size: 14px;
+        color: #1363DF;
       }
     }
     .tableInfo {
@@ -457,6 +472,71 @@
           margin-right: 6px;
         }
       }
+    }
+  }
+  &.final {
+    margin-bottom: 0px;
+    padding-bottom: 0px;
+  }
+}
+
+.listContainer {
+  display: flex;            
+  justify-content: center; 
+
+  table {
+    margin: 10px;
+    border-radius: 10px;
+    width: 70%;
+    height: Hug (60px)px;
+    font-size: 14px;
+    font-weight: 400;
+    text-align: center;
+    border: 1px solid #E8ECF2;
+    border-collapse: collapse;
+    .tableTitle {
+      padding: 10px 16px 10px 16px;
+      height: 60px;
+      background: #F6FAFF;
+    }
+    td {
+      border-top: 1px solid #F5F5F5;
+      padding: 20px 15px 20px 15px;   
+      
+    }
+    .longText {
+      max-width: 150px; 
+      white-space: nowrap; 
+      overflow: hidden; 
+      text-overflow: ellipsis; 
+    }
+    .shortText {
+      max-width: auto;
+    }
+    .statusContainer {
+      display: flex;               
+      justify-content: center;    
+      align-items: center;        
+    }
+    .status {
+      width: 58px;
+      height: 28px;
+      line-height: 28px; 
+      gap: 10px;
+      border-radius: 6px;
+      opacity: 0px;
+      font-weight: bold;
+      &.doing {
+        background: #1363DF1A;
+        color:  #1363DF;
+      }
+      &.done {
+        background: #E8E8E8;
+        color: #555555;
+      }
+    }
+    tbody tr:hover {
+      color: #1363DF;
     }
   }
 }
