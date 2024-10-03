@@ -4,11 +4,7 @@ import CustomSelectBox from "../common/CustomSelectBox";
 import styled from "@/components/idea/Idea.module.scss";
 import useIdeaPriceStore from "@/store/useIdeaPriceStore";
 
-interface Props {
-  inputHide: string;
-}
-
-const PsrCalulator: React.FC<Props> = ({ inputHide }) => {
+const PsrCalulator: React.FC = () => {
   const { setTotalMarketPrice } = useIdeaPriceStore();
 
   const themeData = [
@@ -47,32 +43,6 @@ const PsrCalulator: React.FC<Props> = ({ inputHide }) => {
     setTotalMarketPrice(sellingPrice);
   }, [sellingPrice]);
 
-  // 변수에 따라 원가 항목 입력을 숨긴다
-  function chkInputHide() {
-    if (inputHide == "N")
-      return (
-        <div className={styled.inputContainer}>
-          <div className={styled.inputWrap}>
-            <div className={`${styled.form} ${styled.select}`}>
-              <div className={styled.left}>
-                <div className={styled.label}>산업군 선택</div>
-                <div className={styled.desc}>(1개만 선택 가능)</div>
-              </div>
-              <div className={styled.selectBoxWrap}>
-                <CustomSelectBox
-                  options={themeData}
-                  value={selectedTheme}
-                  onSelect={handleSelectTheme}
-                  placeholder="산업군을 선택하세요"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    else return;
-  }
-
   return (
     <div>
       <table>
@@ -96,7 +66,25 @@ const PsrCalulator: React.FC<Props> = ({ inputHide }) => {
           </tr>
         </tbody>
       </table>
-      {chkInputHide()}
+
+      <div className={styled.inputContainer}>
+        <div className={styled.inputWrap}>
+          <div className={`${styled.form} ${styled.select}`}>
+            <div className={styled.left}>
+              <div className={styled.label}>산업군 선택</div>
+              <div className={styled.desc}>(1개만 선택 가능)</div>
+            </div>
+            <div className={styled.selectBoxWrap}>
+              <CustomSelectBox
+                options={themeData}
+                value={selectedTheme}
+                onSelect={handleSelectTheme}
+                placeholder="산업군을 선택하세요"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
       <div className={styled.totalContainer}>
         <div className={styled.title}>시가총액</div>
         <div className={styled.amount}>

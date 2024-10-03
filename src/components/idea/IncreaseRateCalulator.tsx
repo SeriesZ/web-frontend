@@ -3,11 +3,9 @@ import React, { useEffect, useState } from "react";
 import useIdeaPriceStore from "@/store/useIdeaPriceStore";
 import styled from "@/components/idea/Idea.module.scss";
 
-interface Props {
-  inputHide: string;
-}
+type Props = {};
 
-const IncreaseRateCalulator: React.FC<Props> = ({ inputHide }) => {
+const IncreaseRateCalulator = (props: Props) => {
   const { setSgnaExpenses, totalPrice, sellingPrice } = useIdeaPriceStore();
   // 원가 항목을 관리하는 상태
   const [costItems, setCostItems] = useState<ICostItem[]>([
@@ -71,48 +69,6 @@ const IncreaseRateCalulator: React.FC<Props> = ({ inputHide }) => {
     const costRate = (costUnit / salesUnit) * 100;
     return costRate;
   }
-  // 변수에 따라 원가 항목 입력을 숨긴다
-  function chkInputHide() {
-    if (inputHide == "N")
-      return (
-        <div className={styled.inputContainer}>
-          <div className={styled.inputHeader}>
-            <button className={styled.btnInput} onClick={handleAddCostItem}>
-              + 원가 항목 추가
-            </button>
-          </div>
-          <div className={styled.inputWrap}>
-            {costItems.map((item, index) => (
-              <div key={index} className={styled.inputItem}>
-                <div className={styled.iconInfo}></div>
-                <div className={styled.title}>
-                  <input
-                    type="text"
-                    value={item.name}
-                    onChange={(e) => handleNameChange(index, e.target.value)}
-                  />
-                </div>
-                <div className={styled.input}>
-                  <input
-                    type="number"
-                    value={item.amount}
-                    onChange={(e) =>
-                      handleCostChange(index, Number(e.target.value))
-                    }
-                    placeholder="금액을 입력하세요."
-                  />
-                </div>
-                <div
-                  className={styled.iconRemove}
-                  onClick={() => handleRemoveCostItem(index)}
-                ></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    else return;
-  }
 
   return (
     <div>
@@ -136,7 +92,42 @@ const IncreaseRateCalulator: React.FC<Props> = ({ inputHide }) => {
           ))}
         </tbody>
       </table>
-      {chkInputHide()}
+
+      <div className={styled.inputContainer}>
+        <div className={styled.inputHeader}>
+          <button className={styled.btnInput} onClick={handleAddCostItem}>
+            + 원가 항목 추가
+          </button>
+        </div>
+        <div className={styled.inputWrap}>
+          {costItems.map((item, index) => (
+            <div key={index} className={styled.inputItem}>
+              <div className={styled.iconInfo}></div>
+              <div className={styled.title}>
+                <input
+                  type="text"
+                  value={item.name}
+                  onChange={(e) => handleNameChange(index, e.target.value)}
+                />
+              </div>
+              <div className={styled.input}>
+                <input
+                  type="number"
+                  value={item.amount}
+                  onChange={(e) =>
+                    handleCostChange(index, Number(e.target.value))
+                  }
+                  placeholder="금액을 입력하세요."
+                />
+              </div>
+              <div
+                className={styled.iconRemove}
+                onClick={() => handleRemoveCostItem(index)}
+              ></div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

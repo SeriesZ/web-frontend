@@ -11,7 +11,6 @@ import IncreaseRateCalulator from "./IncreaseRateCalulator";
 import FinanceCaculator from "./FinanceCaculator";
 import PsrCalulator from "./PsrCalulator";
 import StockCalulator from "./StockCalulator";
-import { useRouter } from "next/navigation";
 
 type Props = {
   activeIndex: number;
@@ -19,7 +18,6 @@ type Props = {
 };
 
 const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
-  const router = useRouter();
   const isBrowser = () => typeof window !== "undefined";
   const [repreFiles, setRepreFiles] = useState<File[]>([]);
   const [detailFiles, setDetailFiles] = useState<File[]>([]);
@@ -62,7 +60,6 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
   };
   const onSubmit = () => {
     console.log("최종 업로드");
-    router.push("./registerList");
   };
   const tempSave = () => {
     console.log("임시 저장 현재 인덱스 :: ", activeIndex);
@@ -193,7 +190,7 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
             </div>
             <div className={styled.tableContentsWrap}>
               {/* <PriceTable /> */}
-              <PriceCalculator inputHide="N" />
+              <PriceCalculator />
             </div>
           </div>
           <div className={styled.totalContainer}>
@@ -212,7 +209,7 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
               <div className={styled.tableInfo}>단위: 원, %</div>
             </div>
             <div className={styled.tableContentsWrap}>
-              <PerformanceCalculator inputHide="N" />
+              <PerformanceCalculator />
             </div>
           </div>
           <div className={styled.totalContainer}>
@@ -231,7 +228,7 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
               <div className={styled.tableInfo}>단위: %</div>
             </div>
             <div className={styled.tableContentsWrap}>
-              <IncreaseRateCalulator inputHide="N" />
+              <IncreaseRateCalulator />
             </div>
           </div>
         </div>
@@ -349,7 +346,7 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
             </div>
             <div className={styled.tableContentsWrap}>
               {/* <PriceTable /> */}
-              <PsrCalulator inputHide="N" />
+              <PsrCalulator />
             </div>
           </div>
           <div className={styled.tableContainer}>
@@ -361,7 +358,7 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
             </div>
             <div className={styled.tableContentsWrap}>
               {/* <PriceTable /> */}
-              <StockCalulator name="stock" inputHide="N" />
+              <StockCalulator />
             </div>
           </div>
         </div>
@@ -376,18 +373,6 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
             <br />본 매출계획은 간단한 입력만으로 자동화될 수 있게 설계되어
             있으며, 각 항목 별 설명을 쉽게 확인할 수 있습니다.
           </div>
-          <div className={styled.tableContainer}>
-            <div className={styled.tableTitleWrap}>
-              <div className={styled.tableTitle}>
-                투자목표 설정<span></span>
-              </div>
-              <div className={styled.tableInfo}>단위: 원</div>
-            </div>
-            <div className={styled.tableContentsWrap}>
-              {/* <PriceTable /> */}
-              <StockCalulator name="investGoal" inputHide="N" />
-            </div>
-          </div>
         </div>
         <div className={styled.btnWrap}>
           <div className={`${styled.btn} ${styled.white}`} onClick={tempSave}>
@@ -401,233 +386,31 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
     );
   };
   const Step4 = () => {
-    const { sellingPrice, sgnaExpenses } = useIdeaPriceStore();
     return (
       <>
         <div className={`${styled.section} ${styled.final}`}>
           <div className={`${styled.sectionTitle} ${styled.final}`}>
             <span>1</span> 아이디어 입력
           </div>
-          <div className={`${styled.form} ${styled.final}`}>
-            <div className={`${styled.label} ${styled.final}`}>아이디어명</div>
-            <div className={styled.finalContent}>홈짐 (Home Gym)</div>
-          </div>
-          <div className={styled.form}>
-            <div className={`${styled.label} ${styled.final}`}>
-              아이디어 설명
-            </div>
-            <div className={styled.finalContent}>
-              모바일 디바이스에서 컴퓨터 비전 기술 기반으로 사용자의 체형을
-              분석하고 알맞은 운동을 제시해주는 특정 개인만의 운동의 방법을
-              제공하는 헬스 어플리케이션
-            </div>
-          </div>
-          <div className={styled.form}>
-            <div className={`${styled.label} ${styled.final}`}>대표 이미지</div>
-            <div className={styled.desc}></div>
-            <FileUpload
-              uploadData={repreFiles}
-              setUploadData={setRepreFiles}
-              // setReadyUpload={}
-              extList={["jpeg", "jpg", "png"]}
-              limitCnt={10}
-              type={"image"}
-              id={"representative"}
-            />
-          </div>
-          <div className={styled.form}>
-            <div className={`${styled.label} ${styled.final}`}>
-              아이디어 상세 이미지
-            </div>
-            <FileUpload
-              uploadData={detailFiles}
-              setUploadData={setDetailFiles}
-              // setReadyUpload={}
-              extList={["jpeg", "jpg", "png"]}
-              limitCnt={10}
-              type={"image"}
-              id={"detail"}
-            />
-          </div>
-          <div className={styled.form}>
-            <div className={`${styled.label} ${styled.final}`}>산업군</div>
-            <div className={styled.finalContent}>예술/스포츠업</div>
-          </div>
-
-          <div className={styled.form}>
-            <div className={`${styled.label} ${styled.final}`}>
-              아이디어 첨부파일
-            </div>
-            <FileUpload
-              uploadData={attachFiles}
-              setUploadData={setAttachFiles}
-              // setReadyUpload={}
-              extList={[]}
-              limitCnt={10}
-              type={"etc"}
-              id={"attach"}
-            />
-          </div>
         </div>
         <div className={`${styled.section} ${styled.final}`}>
           <div className={`${styled.sectionTitle} ${styled.final}`}>
             <span>2-1</span> 상품가격결정
           </div>
-          <div className={styled.tableContainer}>
-            <div className={styled.tableTitleWrap}>
-              <div className={`${styled.tableTitle} ${styled.final}`}>
-                상품가격결정
-              </div>
-              <div className={styled.tableInfo}>단위: 원, %</div>
-            </div>
-            <div className={styled.tableContentsWrap}>
-              {/* <PriceTable /> */}
-              <PriceCalculator inputHide="Y" />
-            </div>
-          </div>
-          <div className={styled.totalContainer}>
-            <div className={styled.title}>
-              판매가<span>(소비자가격)</span>
-            </div>
-            <div className={styled.amount}>
-              <span>{sellingPrice ? sellingPrice.toLocaleString() : 0}</span>원
-            </div>
-          </div>
-          <div className={styled.tableContainer}>
-            <div className={styled.tableTitleWrap}>
-              <div className={`${styled.tableTitle} ${styled.final}`}>
-                실적 단위 계산
-              </div>
-              <div className={styled.tableInfo}>단위: 원, %</div>
-            </div>
-            <div className={styled.tableContentsWrap}>
-              <PerformanceCalculator inputHide="Y" />
-            </div>
-          </div>
-          <div className={styled.totalContainer}>
-            <div className={styled.title}>
-              판관비 계<span>(연비용)</span>
-            </div>
-            <div className={styled.amount}>
-              <span>{sgnaExpenses ? sgnaExpenses.toLocaleString() : 0}</span>원
-            </div>
-          </div>
-          <div className={styled.tableContainer}>
-            <div className={styled.tableTitleWrap}>
-              <div className={`${styled.tableTitle} ${styled.final}`}>
-                인상율 설정
-              </div>
-              <div className={styled.tableInfo}>단위: %</div>
-            </div>
-            <div className={styled.tableContentsWrap}>
-              <IncreaseRateCalulator inputHide="Y" />
-            </div>
-          </div>
         </div>
-
         <div className={`${styled.section} ${styled.final}`}>
           <div className={`${styled.sectionTitle} ${styled.final}`}>
             <span>2-2</span> 매출계획 수립
-          </div>
-          <div className={styled.tableContainer}>
-            <div className={styled.tableTitleWrap}>
-              <div className={`${styled.tableTitle} ${styled.final}`}>
-                매출계획표
-              </div>
-              <div className={styled.tableInfo}>단위: 수, 원, %</div>
-            </div>
-            <div className={styled.tableContentsWrap}>
-              <FinanceCaculator />
-            </div>
-          </div>
-          <div className={`${styled.totalContainer} ${styled.final}`}>
-            <div className={styled.title}>
-              BEP 달성<span>(4년차)</span>
-            </div>
-            <div className={styled.amounts}>
-              <div className={styled.item}>
-                <div>매출</div>
-                <div>
-                  <span>600,000,000</span>원
-                </div>
-              </div>
-              <div className={styled.item}>
-                <div>매출원가</div>
-                <div>
-                  <span>240,000,000</span>원
-                </div>
-              </div>
-              <div className={styled.item}>
-                <div>매출총이익</div>
-                <div>
-                  <span>240,000,000</span>원
-                </div>
-              </div>
-              <div className={styled.item}>
-                <div>판관비</div>
-                <div>
-                  <span>360,000,000</span>원
-                </div>
-              </div>
-              <div className={styled.item}>
-                <div>영업이익</div>
-                <div>
-                  <span>3,975,525</span>원
-                </div>
-              </div>
-              <div className={styled.item}>
-                <div>영업이익률</div>
-                <div>
-                  <span>1</span>%
-                </div>
-              </div>
-            </div>
           </div>
         </div>
         <div className={`${styled.section} ${styled.final}`}>
           <div className={`${styled.sectionTitle} ${styled.final}`}>
             <span>3-1</span> 기업가치평가
           </div>
-          <div className={styled.tableContainer}>
-            <div className={styled.tableTitleWrap}>
-              <div className={`${styled.tableTitle} ${styled.final}`}>
-                PSR 가치평가
-              </div>
-              <div className={styled.tableInfo}>단위: 원</div>
-            </div>
-            <div className={styled.tableContentsWrap}>
-              {/* <PriceTable /> */}
-              <PsrCalulator inputHide="Y" />
-            </div>
-          </div>
-          <div className={styled.tableContainer}>
-            <div className={styled.tableTitleWrap}>
-              <div className={`${styled.tableTitle} ${styled.final}`}>
-                발행주식 수 설정
-              </div>
-              <div className={styled.tableInfo}>단위: 원</div>
-            </div>
-            <div className={styled.tableContentsWrap}>
-              {/* <PriceTable /> */}
-              <StockCalulator name="stock" inputHide="Y" />
-            </div>
-          </div>
         </div>
         <div className={`${styled.section} ${styled.final}`}>
           <div className={`${styled.sectionTitle} ${styled.final}`}>
             <span>3-2</span> 투자목표 설정
-          </div>
-          <div className={styled.tableContainer}>
-            <div className={styled.tableTitleWrap}>
-              <div className={`${styled.tableTitle} ${styled.final}`}>
-                투자목표 설정
-              </div>
-              <div className={styled.tableInfo}>단위: 원</div>
-            </div>
-            <div className={styled.tableContentsWrap}>
-              {/* <PriceTable /> */}
-              <StockCalulator name="investGoal" inputHide="Y" />
-            </div>
           </div>
         </div>
         <div className={styled.btnWrap}>
