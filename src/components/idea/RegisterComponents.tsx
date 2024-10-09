@@ -11,7 +11,6 @@ import IncreaseRateCalulator from "./IncreaseRateCalulator";
 import FinanceCaculator from "./FinanceCaculator";
 import PsrCalulator from "./PsrCalulator";
 import StockCalulator from "./StockCalulator";
-import { useRouter } from "next/navigation";
 
 type Props = {
   activeIndex: number;
@@ -19,7 +18,6 @@ type Props = {
 };
 
 const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
-  const router = useRouter();
   const isBrowser = () => typeof window !== "undefined";
   const [repreFiles, setRepreFiles] = useState<File[]>([]);
   const [detailFiles, setDetailFiles] = useState<File[]>([]);
@@ -62,7 +60,6 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
   };
   const onSubmit = () => {
     console.log("최종 업로드");
-    router.push("./registerList");
   };
   const tempSave = () => {
     console.log("임시 저장 현재 인덱스 :: ", activeIndex);
