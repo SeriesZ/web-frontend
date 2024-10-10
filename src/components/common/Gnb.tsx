@@ -12,10 +12,13 @@ const Gnb = (props: Props) => {
   };
   const userInfo = {
     userNm: "김시리즈제로",
-  }
+  };
   const moveMakeIdea = () => {
     router.push("/idea/register");
-  }
+  };
+  const moveExpertPage = () => {
+    router.push("/header/expert");
+  };
   return (
     <div className={styled.gnbContainer}>
       <div className={styled.gnbWrap}>
@@ -23,7 +26,9 @@ const Gnb = (props: Props) => {
           <div className={styled.logo} onClick={moveMain}></div>
           <div className={styled.menuWrap}>
             <div className={styled.menuItem}>투자하기</div>
-            <div className={styled.menuItem}>전문가 자문</div>
+            <div className={styled.menuItem} onClick={moveExpertPage}>
+              전문가 자문
+            </div>
             <div className={styled.menuItem}>표절 신고</div>
             <div className={styled.menuItem}>더보기</div>
           </div>
@@ -33,21 +38,26 @@ const Gnb = (props: Props) => {
           </div>
         </div>
         <div className={styled.right}>
-          {
-            userInfo ?
+          {userInfo ? (
             <>
-            <div className={styled.myinfo}>
-              <div className={styled.name}>{userInfo.userNm}</div>
-              <div className={`${styled.btnArrow} ${styled.isUserOpen ? styled.isOpen : ''}`}></div>
-            </div>
-            <div className={styled.btn} onClick={moveMakeIdea}>아이디어 만들기</div>
+              <div className={styled.myinfo}>
+                <div className={styled.name}>{userInfo.userNm}</div>
+                <div
+                  className={`${styled.btnArrow} ${
+                    styled.isUserOpen ? styled.isOpen : ""
+                  }`}
+                ></div>
+              </div>
+              <div className={styled.btn} onClick={moveMakeIdea}>
+                아이디어 만들기
+              </div>
             </>
-            :
+          ) : (
             <>
-            <div className={styled.btnText}>로그인</div>
-            <div className={styled.btnText}>회원가입</div>
+              <div className={styled.btnText}>로그인</div>
+              <div className={styled.btnText}>회원가입</div>
             </>
-          }
+          )}
         </div>
       </div>
     </div>
