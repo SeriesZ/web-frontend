@@ -27,45 +27,46 @@ const IdeaContentsComponents = ({ activeIndex, setActiveIndex }: Props) => {
   const ideaDetailWithLineBreaks = ideaData.idea_detail
     .split("\n")
     .map((line, index) => (
-      <React.Fragment key={index}>
+      <div key={index}>
         {line}
         <br />
         <br />
-      </React.Fragment>
+      </div>
     ));
 
   const attachSetArray = ideaData.attach_file.map((file, index) => (
-    <React.Fragment key={index}>
+    <div key={index}>
       <div className={styled.attachArryWrap}>
         <div className={styled.attachFileIcon}></div>
         <div className={styled.attachFileText}>{file}</div>
       </div>
-    </React.Fragment>
+    </div>
   ));
 
   const teamMemberSetArray = ideaData.team_member.map((member, index) => (
-    <React.Fragment key={index}>
+    <div key={index}>
       <div className={styled.memberWrap}>
         <div className={styled.memberImg}>{member.member_img}</div>
         <div className={styled.memberName}>{member.name}</div>
         <div className={styled.memberPositonWrap}>
           {member.member_position.map((item, index) => (
-            <div className={styled.memberPosition}>{item}</div>
+            <div key={index} className={styled.memberPosition}>
+              {item}
+            </div>
           ))}
         </div>
       </div>
-    </React.Fragment>
+    </div>
   ));
 
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
   const showModal = () => {
-    console.log("모달 호출");
-    setModalIsOpen(true); // Open the modal
+    setModalIsOpen(true);
   };
 
   const closeModal = () => {
-    setModalIsOpen(false); // Close the modal
+    setModalIsOpen(false);
   };
 
   const Step1 = () => {
@@ -76,17 +77,7 @@ const IdeaContentsComponents = ({ activeIndex, setActiveIndex }: Props) => {
             <div className={styled.title}>{ideaData.title}의 기업 분석</div>
             <div className={styled.ideaSummery}>{ideaData.idea_summery}</div>
             <div className={styled.ideaDetail}>{ideaDetailWithLineBreaks}</div>
-            <div className={styled.ideaVideo}>
-              <ReactPlayer
-                className="player"
-                url={ideaData.idea_video}
-                width="680px"
-                heigth="382px"
-                playing={false}
-                muted={true}
-                controls={true}
-              />
-            </div>
+            <div className={styled.ideaVideo}>{/* 화상채팅 */}</div>
             <div className={styled.title}>첨부파일</div>
             <div className={styled.attachWrap}>
               <div className={styled.attachFile}>{attachSetArray}</div>
@@ -139,47 +130,55 @@ const IdeaContentsComponents = ({ activeIndex, setActiveIndex }: Props) => {
             <div className={styled.side2}>
               <div className={styled.sideTitle}>딜 조건</div>
               <table>
-                <tr>
-                  <td>지분율</td>
-                  <td className={styled.tableRight}>40%</td>
-                </tr>
-                <tr>
-                  <td>주당 액면가</td>
-                  <td className={styled.tableRight}>1,000원</td>
-                </tr>
-                <tr>
-                  <td>최소 투자금액</td>
-                  <td className={styled.tableRight}>10,000원</td>
-                </tr>
-                <tr>
-                  <td>최대 투자금액</td>
-                  <td className={styled.tableRight}>2,000,000,000원</td>
-                </tr>
+                <thead>
+                  <tr>
+                    <td>지분율</td>
+                    <td className={styled.tableRight}>40%</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>주당 액면가</td>
+                    <td className={styled.tableRight}>1,000원</td>
+                  </tr>
+                  <tr>
+                    <td>최소 투자금액</td>
+                    <td className={styled.tableRight}>10,000원</td>
+                  </tr>
+                  <tr>
+                    <td>최대 투자금액</td>
+                    <td className={styled.tableRight}>2,000,000,000원</td>
+                  </tr>
+                </tbody>
               </table>
             </div>
             <div className={styled.side3}>
               <div className={styled.sideTitle}>진행상태</div>
               <table>
-                <tr>
-                  <td>2024년 12월 3일</td>
-                  <td className={styled.tableRight}>진행중</td>
-                </tr>
-                <tr>
-                  <td>투자자 수</td>
-                  <td className={styled.tableRight}>100명</td>
-                </tr>
-                <tr>
-                  <td>최대 투자자 수</td>
-                  <td className={styled.tableRight}>120명</td>
-                </tr>
-                <tr>
-                  <td>모집금액</td>
-                  <td className={styled.tableRight}>30,000,000원</td>
-                </tr>
-                <tr>
-                  <td>온라인사업설명회</td>
-                  <td className={styled.tableRight}>D-30일</td>
-                </tr>
+                <thead>
+                  <tr>
+                    <td>2024년 12월 3일</td>
+                    <td className={styled.tableRight}>진행중</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>투자자 수</td>
+                    <td className={styled.tableRight}>100명</td>
+                  </tr>
+                  <tr>
+                    <td>최대 투자자 수</td>
+                    <td className={styled.tableRight}>120명</td>
+                  </tr>
+                  <tr>
+                    <td>모집금액</td>
+                    <td className={styled.tableRight}>30,000,000원</td>
+                  </tr>
+                  <tr>
+                    <td>온라인사업설명회</td>
+                    <td className={styled.tableRight}>D-30일</td>
+                  </tr>
+                </tbody>
               </table>
               <div className={`${styled.btn} ${styled.blueBtn}`}>
                 온라인 사업설명회
