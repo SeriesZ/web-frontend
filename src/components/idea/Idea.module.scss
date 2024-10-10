@@ -1087,3 +1087,20 @@
     }
   }
 }
+.modalBtn {
+  width: 960px;
+  display: flex;
+  justify-content: center;
+  margin-top: 80px;
+  .closeBtn{
+    width: 140px;
+    height: 42px;
+    border-radius: 3px;
+    border: 1px solid #E8ECF2;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 19.36px;
+    text-align: center;
+    color: #AAAAAA;
+  }
+}

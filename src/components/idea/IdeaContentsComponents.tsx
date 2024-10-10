@@ -310,8 +310,6 @@ const IdeaContentsComponents = ({ activeIndex, setActiveIndex }: Props) => {
             content: {
               top: "50%",
               left: "50%",
-              right: "auto",
-              bottom: "auto",
               marginRight: "-50%",
               transform: "translate(-50%, -50%)",
               width: "960px", // Set your width
@@ -323,7 +321,11 @@ const IdeaContentsComponents = ({ activeIndex, setActiveIndex }: Props) => {
           contentLabel="투자 시뮬레이션 모달"
         >
           <InvestSimulationPop />
-          <button onClick={closeModal}>닫기</button>
+          <div className={styled.modalBtn}>
+            <button onClick={closeModal} className={styled.closeBtn}>
+              닫기
+            </button>
+          </div>
         </Modal>
       </div>
     );

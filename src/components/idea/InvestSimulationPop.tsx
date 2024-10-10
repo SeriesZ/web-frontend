@@ -1,5 +1,7 @@
 import React from "react";
 import styled from "@/components/idea/InvestPop.module.scss";
+import styledFinance from "@/components/idea/Idea.module.scss";
+import FinanceCaculator from "./FinanceCaculator";
 
 const InvestSimulationPop: React.FC = () => {
   return (
@@ -156,6 +158,22 @@ const InvestSimulationPop: React.FC = () => {
             </tr>
           </tbody>
         </table>
+      </div>
+      <div className={styled.inputWrap}>
+        <label>개인 투자금액</label>
+        <input type="text" id="investment" placeholder="금액을 입력하세요." />
+        <button type="button">입력</button>
+      </div>
+      <div className={styled.majorTitle}>
+        EXIT 시뮬레이션<span></span>
+        <div className={styled.unit}>단위 : 원, %</div>
+      </div>
+      <div>
+        <div className={styledFinance.tableContainer}>
+          <div className={styledFinance.tableContentsWrap}>
+            <FinanceCaculator />
+          </div>
+        </div>
       </div>
     </div>
   );
