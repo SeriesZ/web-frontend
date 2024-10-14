@@ -26,9 +26,12 @@
         color: #000;
       }
       .desc {
+        font-family: Pretendard;
         font-size: 16px;
         font-weight: 400;
-        letter-spacing: -0.06px;
+        line-height: 22.4px;
+        letter-spacing: -0.06400000303983688px;
+        text-align: left;
         color: #2a2a2a;
       }
     }
@@ -61,73 +64,119 @@
   } 
 
 }
-  .sectionContents {
-    background-color: #fff;
-    width: 880px;
-    margin: 0 auto;
-    padding: 20px 0 100px 0;
+
+.sectionContents {
+  background-color: #fff;
+  width: 880px;
+  margin: 0 auto;
+  padding: 20px 0 100px 0;
+
   .section {
     width: Hug (880px)px;
     height: Hug (346px)px;
     padding: 100px 0px 0px 0px;
     gap: 20px;
-    opacity: 0px;    
-}
-.section h2 {
-    margin-bottom: 10px;
-    font-size: 24px;
-}
-.cardWrap {
+    opacity: 0px;   
+   h2 {
+      margin-bottom: 10px;
+      font-size: 24px;
+    }
+  }
+
+  .cardWrap {
     @include flex;
     gap: 10px;
-}
-.card {
-    width: 432px;
-    height: 182px;
-    padding: 20px 12px 20px 12px;
-    gap: 18px;
-    border-radius: 6px;
-    border: 1px 0px 0px 0px;
-    opacity: 0px;
-    background: #FFFFFF;
-    border: 1px solid #E8ECF2
-}
-.card h3 {
-    margin: 0;
-    font-size: 18px;
-}
-.card p {
-    margin: 5px 0;
-    color: #555;
-}
-.lawyer {
+    flex-wrap: wrap; 
+    .card {
+      position: relative;
+      width: 432px;
+      height: 182px;
+      padding: 20px 12px 20px 12px;
+      gap: 18px;
+      border-radius: 6px;
+      opacity: 0px;
+      background: #FFFFFF;
+      border: 1px solid #E8ECF2;
+      cursor: pointer;
+    }
+  }
+
+  .lawyer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      .lawyerCard {
+        width: 208px;
+        height: 115px;
+        padding: 20px 12px 20px 12px;
+        gap: 14px;
+        border-radius: 6px;
+        border: 1px 0px 0px 0px;
+        opacity: 0px;
+        border: 1px solid #E8ECF2;
+        cursor: pointer;
+      }
+      .lawyerCardInnerWrap {
+        @include flex;
+        gap: 10px;
+      }
+      .lawyerImg {
+        @include background;
+        width: 60px;
+        height: 60px;
+        background-image: url("/images/icon-checker.png");
+      }
+      .lawyerText {
+        width: 110px;
+        height: 60px;
+        gap: 10px;
+      }
+  }
+
+  /* 상담 후기*/
+  .feedback {
     display: flex;
-    flex-wrap: wrap;
     gap: 10px;
-}
-.lawyerCard {
-    width: 208px;
-    height: 115px;
-    padding: 20px 12px 20px 12px;
-    gap: 14px;
-    border-radius: 6px;
-    border: 1px 0px 0px 0px;
-    opacity: 0px;
-    border: 1px solid #E8ECF2;
-}
-.feedback {
-    display: flex;
-    gap: 10px;
-}
-.feedbackCard {
-    width: 282.67px;
-    height: 182px;
-    padding: 20px 12px 20px 12px;
-    gap: 18px;
-    border-radius: 6px;
-    border: 1px 0px 0px 0px;
-    opacity: 0px;
-    border: 1px solid #E8ECF2
-}
+    .feedbackCard {
+      position: relative;
+      width: 282.67px;
+      height: 182px;
+      padding: 20px 12px 20px 12px;
+      gap: 18px;
+      border-radius: 6px;
+      opacity: 0px;
+      border: 1px solid #E8ECF2;
+      cursor: pointer;
+    }
+  }
+  h3 {
+    font-family: Pretendard;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 19.09px;
+    text-align: left;
+    margin-bottom: 10px;
+  }
+  p {
+    font-family: Pretendard;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 14.32px;
+    text-align: left;    
+    margin-bottom: 10px;    
+  }
+  .blueText {
+    color: var(--main-color, #1363DF);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 14.32px;
+    text-align: left;
+    margin-bottom: 10px;
+  }
+  .bottomText {
+    position: absolute;
+    bottom: 5px;
+    left: 10px;
+  }
 }
 

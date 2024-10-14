@@ -27,12 +27,14 @@ const ExpertCategoryComponent = ({ activeIndex, setActiveIndex }: Props) => {
         <div className={expertStyled.section}>
           <SectionTitle title={"최신상담글"} desc={""} moveUrl={"/idea/list"} />
           <div className={expertStyled.cardWrap}>
-            {expertCounselData.map((item, index) => (
+            {expertCounselData.slice(0, 2).map((item, index) => (
               <div className={expertStyled.card}>
-                <p>{item.category}</p>
+                <p className={expertStyled.blueText}>{item.category}</p>
                 <h3>{item.title}</h3>
                 <p>{item.detail}</p>
-                <p>답변+{item.answer_cnt}</p>
+                <p className={expertStyled.bottomText}>
+                  답변+{item.answer_cnt}
+                </p>
               </div>
             ))}
           </div>
@@ -45,11 +47,15 @@ const ExpertCategoryComponent = ({ activeIndex, setActiveIndex }: Props) => {
             moveUrl={"/idea/list"}
           />
           <div className={expertStyled.cardWrap}>
-            {expertSolutionData.map((item, index) => (
+            {expertSolutionData.slice(0, 2).map((item, index) => (
               <div className={expertStyled.card}>
                 <h3>{item.title}</h3>
                 <p>{item.detail}</p>
-                <p>{item.statue}</p>
+                <p
+                  className={`${expertStyled.blueText} ${expertStyled.bottomText} `}
+                >
+                  {item.statue}
+                </p>
               </div>
             ))}
           </div>
@@ -62,10 +68,15 @@ const ExpertCategoryComponent = ({ activeIndex, setActiveIndex }: Props) => {
             moveUrl={"/idea/list"}
           />
           <div className={expertStyled.lawyer}>
-            {expertProfileData.map((item, index) => (
+            {expertProfileData.slice(0, 4).map((item, index) => (
               <div className={expertStyled.lawyerCard}>
-                <h3>{item.name}</h3>
-                <p>{item.detail}</p>
+                <div className={expertStyled.lawyerCardInnerWrap}>
+                  <div className={expertStyled.lawyerImg}></div>
+                  <div className={expertStyled.lawyerText}>
+                    <h3>{item.name}</h3>
+                    <p>{item.detail}</p>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -78,12 +89,12 @@ const ExpertCategoryComponent = ({ activeIndex, setActiveIndex }: Props) => {
             moveUrl={"/idea/list"}
           />
           <div className={expertStyled.feedback}>
-            {expertReviewData.map((item, index) => (
+            {expertReviewData.slice(0, 3).map((item, index) => (
               <div className={expertStyled.feedbackCard}>
-                <h3>{item.expert_name}</h3>
+                <h3 className={expertStyled.blueText}>{item.expert_name}</h3>
                 <h3>{item.title}</h3>
                 <p>{item.detail}</p>
-                <p>{item.writer}의 후기</p>
+                <p className={expertStyled.bottomText}>{item.writer}의 후기</p>
               </div>
             ))}
           </div>
@@ -101,7 +112,7 @@ const ExpertCategoryComponent = ({ activeIndex, setActiveIndex }: Props) => {
       case 0:
         return <Step1 />;
       case 1:
-        return <Step2 />;
+        return <Step1 />;
       default:
         return <Step1 />;
     }
