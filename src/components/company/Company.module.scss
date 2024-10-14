@@ -1,0 +1,266 @@
+@import "@/styles/variable.scss";
+
+.mainContainer {
+    background-color: #ffffff;
+    border-bottom: 1px solid #DFDFDF;
+    @include flex;
+  .headerWrap {
+    @include flex;
+    @include col;
+    @include sb;
+    width: 100%;
+    height: 282px;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #F9F9F9;
+    .titleWrap {
+      @include flex;
+      @include col;
+      @include top;
+      padding-top: 80px;
+      width: 880px;
+      margin: 0 auto;
+      .title {
+        font-size: 30px;
+        font-weight: 800;
+        margin-bottom: 18px;
+        color: #000;
+      }
+      .desc {
+        font-family: Pretendard;
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 22.4px;
+        letter-spacing: -0.06400000303983688px;
+        text-align: left;
+        color: #2a2a2a;
+      }
+    }
+  }
+  .stepWrap {
+    @include flex;
+    justify-content: left;
+    width: 880px;
+    div {
+        @include flex;
+        display: inline-block;
+        padding: 14px 20px 14px 20px;
+        padding-bottom: 10px;
+        box-sizing: border-box;
+        border-bottom: 2px solid transparent;
+        font-size: 16px;
+        font-weight: 500;
+        font-family: Pretendard;
+        color: #616161;
+        gap: 20px;
+        cursor: pointer;
+        &:hover,
+        &.active {
+          font-size: 16px;
+          font-weight: 500;
+          color: #1363DF;
+          border-bottom: 2px solid #1363DF;
+        }
+     }
+  } 
+}
+
+.contentContainer {
+  width: Fixed (1,920px)px;
+  height: Hug (1,203px)px;
+  padding: 40px 20px 100px 20px;
+  gap: 40px;
+  opacity: 0px;
+  .contentWrap {
+    width: 880px;
+    height: Hug (1,203px)px;
+    padding: 40px 0px 80px 0px;
+    gap: 80px;
+  }
+  h2 {
+    font-family: Pretendard;
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 28.64px;
+    text-align: left;
+    margin-bottom: 20px;
+  }
+  .steps {
+    display: flex;
+    flex-wrap: wrap; /* 줄 바꿈 가능하도록 설정 */
+    width: Fill (880px)px;
+    height: Hug (415px)px;
+    justify-content: center; 
+    position: relative;  
+    .step {
+      width: 215px;
+      height: 190px;
+      padding: 20px;
+      border-radius: 4px 0px 0px 0px;
+      border: 1px 0px 0px 0px;
+      opacity: 0px;
+      border: 1px solid #E8ECF2;
+      position: relative;
+      ul {
+        list-style-type: disc; /* 기본 점 스타일 */
+        padding-left: 20px; /* 왼쪽 여백 추가 */
+      }
+      li {
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 20px;
+        text-align: left;
+        color: #1A1A1A;
+      }
+      ul li::marker {
+        font-size: 0.8em; /* 점 크기를 작게 설정 (기본 크기의 80%) */
+      }
+    }
+    .step h4 {
+      font-family: Pretendard;
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 19.09px;
+      text-align: left;
+      color: #1A1A1A;
+      margin-bottom: 10px;
+      span {
+        font-family: Pretendard;
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 19.09px;
+        text-align: left;
+        color: var(--main-color, #1363DF);
+      }
+    }
+    .stepBlank {
+      width: 100%;
+      height: 35px;
+    }
+  }
+  .shortArrow {
+    @include background;
+    width: 35px; /* 화살표의 너비 */
+    height:10px; /* 화살표의 두께 */
+    background-image: url("/images/icon-short-arrow.svg");
+    align-self: center;
+  }
+  .stepLongArrow {
+    @include background;
+    position: absolute; /* 절대 위치로 설정 */
+    top: 50%; /* 수직 가운데 위치 */
+    left: 50%; /* 수평 가운데 위치 */
+    transform: translate(-50%, -50%); /* 절대 위치로 인해 중앙 정렬 */
+    width: 800px; /* 원하는 길이로 조정 */
+    height: 233.5px;
+    background-image: url("/images/icon-long-arrow.svg");
+  }
+}
+
+.estimateSection {
+  display: flex;
+  align-items: left;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-direction: column;
+  padding: 0px 0px 80px 0px;
+  label {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 19.09px;
+    text-align: left;
+    color: #1A1A1A;
+  }
+  .inputContainer {
+    display: flex;
+    align-items: center; 
+    gap: 20px;
+    .searchWrap {
+      width: 320px;
+      position: relative;
+      input {
+        width: 100%;
+        height: 40px;
+        border-radius: 3px;
+        box-sizing: border-box;
+        border: 1px solid #e8ecf2;
+        padding: 13px 10px;
+        color: #000;
+        font-size: 12px;
+        &::placeholder {
+          color: #aaa;
+        }
+      }
+      .iconSearch {
+        @include background;
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        top: 10px;
+        right: 10px;
+        cursor: pointer;
+        background-image: url("/images/icon-search-gnb.png");
+      }
+    }
+  }
+  .calculateBtn {
+    width: 165px;
+    height: 42px;
+    padding: 9px 20px 9px 20px;
+    gap: 10px;
+    border-radius: 6px;
+    opacity: 0px;
+    background: #1363DF;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 16.71px;
+    text-align: center;
+    color: #FFFFFF;
+  }
+}
+
+.result {
+  font-family: Pretendard;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 28.64px;
+  text-align: left;
+  color: #1A1A1A;
+  strong {
+    color: #0066ff;
+  }
+  
+}
+
+
+.estimateTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  margin: 20px 0 20px 0;
+  th, td {
+    border: 1px solid #E8ECF2;
+    padding: 10px;
+    text-align: center;
+    width: Fill (680px)px;
+    height: Fixed (38px)px;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 16.94px;
+  }
+  th {
+    background-color: #F6FAFF;
+    font-weight: bold;
+  }
+  .tableTitle {
+    width: 200px;
+  }
+}
+
+.disclaimer {
+  font-family: Pretendard;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 22px;
+  text-align: left;
+  color: #AAAAAA;
+}  

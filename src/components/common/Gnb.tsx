@@ -19,6 +19,9 @@ const Gnb = (props: Props) => {
   const moveExpertPage = () => {
     router.push("/header/expert");
   };
+  const moveCompanyGuide = () => {
+    router.push("/header/company");
+  };
   return (
     <div className={styled.gnbContainer}>
       <div className={styled.gnbWrap}>
@@ -30,7 +33,17 @@ const Gnb = (props: Props) => {
               전문가 자문
             </div>
             <div className={styled.menuItem}>표절 신고</div>
-            <div className={styled.menuItem}>더보기</div>
+            <div className={`${styled.menuItem} ${styled.seeMore}`}>
+              더보기
+              <div className={styled.dropdownMenu}>
+                <div className={styled.menuOption} onClick={moveCompanyGuide}>
+                  법인 설립 가이드
+                </div>
+                <div className={styled.menuOption}>법인 설립 신청</div>
+                <div className={styled.menuOption}>팀 빌딩</div>
+                <div className={styled.menuOption}>창업 커뮤니티</div>
+              </div>
+            </div>
           </div>
           <div className={styled.searchWrap}>
             <input type="text" placeholder="아이디어 찾기" />

@@ -38,6 +38,43 @@
             font-weight: 800;
           }
         }
+        .seeMore {
+          position: relative;
+          .dropdownMenu {
+            display: none; /* 기본적으로 안 보이게 설정 */
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: white;
+            border: 1px solid #ddd;
+            border-bottom: 1px solid #E8ECF2;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            .menuOption {
+              width: 140px;
+              height: 42px;
+              padding: 10px 20px 10px 20px;
+              opacity: 0px;
+              border-bottom: 1px solid #E8ECF2;
+              text-align: center;
+              font-size: 14px;
+              font-weight: 600;
+              line-height: 21px;         
+            }
+            
+            .selected {
+              color: #1363DF;
+            }
+            
+            .menuOption:hover {
+              background-color: #f0f0f0;
+            }
+          }
+        }
+        .seeMore:hover .dropdownMenu {
+          display: block; /* hover 시 메뉴가 보이게 설정 */
+        }
       }
       .searchWrap {
         width: 320px;
