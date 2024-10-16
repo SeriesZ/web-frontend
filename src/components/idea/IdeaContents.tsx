@@ -2,6 +2,10 @@
 import React, { useEffect, useState } from "react";
 import styled from "@/components/idea/Idea.module.scss";
 import IdeaContentsComponents from "./IdeaContentsComponents";
+import { useSearchParams } from "next/navigation";
+import ideaData_HomeGym from "../../store/ideaContentsSampleData_HomeGym.json";
+import ideaData_MyFootball from "../../store/ideaContentsSampleData_MyFootball.json";
+import { IdeaDataType } from "../../model/IdeaDataType";
 
 type Props = {};
 
@@ -11,18 +15,31 @@ const IdeaContents = (props: Props) => {
     setActiveIndex(index);
   };
 
+  // 데이터 셋팅
+  const router = useSearchParams();
+  const id = router.get("id") || "1";
+  const dataMap: { [key: string]: IdeaDataType } = {
+    "1": ideaData_HomeGym,
+    "2": ideaData_MyFootball,
+  };
+  const data = dataMap[id] || null;
+
   return (
     <div>
       <div className={`${styled.ideaContents}`}>
         <div className={styled.headerWrap}>
           <div className={styled.titleWrap}>
-            <div className={styled.titleImg}>이미지</div>
+            <div className={styled.titleImg}>
+              {data.img_url ? (
+                <img src={data.img_url} alt={data.title} />
+              ) : (
+                <div>이미지가 없습니다.</div>
+              )}
+            </div>
             <div className={styled.titleTextWrap}>
-              <div className={styled.title}>홈짐 (Home Gym)</div>
-              <div className={styled.desc}>
-                서브컬처 도메인 기반 CaaC/C2C 창작 중개 플랫폼
-              </div>
-              <div className={styled.divCd}>오락/문화</div>
+              <div className={styled.title}>{data.title}</div>
+              <div className={styled.desc}>{data.desc}</div>
+              <div className={styled.divCd}>{data.div_cd}</div>
             </div>
           </div>
         </div>
@@ -43,6 +60,7 @@ const IdeaContents = (props: Props) => {
       </div>
       <IdeaContentsComponents
         activeIndex={activeIndex}
+        data={data}
         setActiveIndex={setActiveIndex}
       />
     </div>

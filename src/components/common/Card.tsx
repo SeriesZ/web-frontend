@@ -1,5 +1,7 @@
+"use client";
 import React from "react";
 import styled from "@/components/common/Card.module.scss";
+import { useRouter } from "next/navigation";
 
 type Props = {
   data: any;
@@ -7,6 +9,10 @@ type Props = {
 };
 // 나중에 Props 그냥 data로 받아서 뿌려야함. type만 따로 받아서 하단 상세 정보 유무 파악
 const CompanyCard = ({ data, type }: Props) => {
+  const router = useRouter();
+  const moveIdeaContents = (id: String) => {
+    router.push(`/idea/ideaContents?id=${id}`);
+  };
   const SubInfo = () => {
     if (!type) {
       return <></>;
@@ -51,7 +57,10 @@ const CompanyCard = ({ data, type }: Props) => {
     }
   };
   return (
-    <div className={styled.companyCard}>
+    <div
+      className={styled.companyCard}
+      onClick={() => moveIdeaContents(data.id)}
+    >
       <div className={styled.thumbWrap}></div>
       <div className={styled.infoWrap}>
         <div className={`${styled.top} ${!type ? styled.notype : ""}`}>

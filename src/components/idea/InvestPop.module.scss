@@ -172,3 +172,610 @@
       background-color: #0056b3;
     }
 }
+
+/* 투자신청현황 모달 */
+.investStatusContainer {
+  background-color: #ffffff;
+  border-radius: 8px;
+  .closeBtnWarp {
+    @include flex;
+    height: 20px;
+    justify-content: flex-end;
+    margin-bottom: 30px;
+    div {
+      @include background;
+      width: 14px;
+      height: 14px;
+      background-image: url("/images/icon-modal-close-btn.svg");
+      cursor: pointer;
+    }
+  }
+  .header {
+    margin-bottom: 30px;
+    h1 {
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 24px;
+      text-align: left;
+      color: #424242;
+      margin-bottom: 10px;
+    }
+    .summary {
+      text-align: right;
+      margin-bottom: 20px;
+      p {
+        display: flex; 
+        justify-content: space-between; 
+        width: 100%; 
+        font-size: 20px;
+        font-weight: 400;
+        line-height: 23.87px;
+        text-align: left;
+        color: #616161;
+        margin-bottom: 10px;
+      }
+    }
+    .highlight {
+      color: #007bff;
+      font-weight: bold;
+    }
+    .finalBtnHeader {
+      display: flex; 
+      gap: 10px;
+      justify-content: space-between; 
+      button {
+        flex: 1;
+        height: 42px;
+        padding: 9px 10px;
+        border-radius: 6px;   
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 16.71px;
+        text-align: center;
+      }
+      button:first-child {
+        color: #FFFFFF;
+        background: #1363DF;
+      }
+      
+      button:last-child {
+        align-items: right;
+        color: #373E44;
+        background: #FFFFFF;
+        border: 1px solid #B6BDC4
+      }
+    }
+  }
+
+  .investorList {
+    margin-bottom: 30px;
+    .investorItem {
+      padding: 20px 0 20px 0;
+      border-top: 1px solid #E8ECF2;
+      .investorTable {
+        width: 100%;
+        border-collapse: collapse; 
+        .label {
+          font-size: 14px;
+          font-weight: 400;
+          line-height: 16.71px;
+          text-align: left;
+          color: #616161;
+        }
+        .value {
+          font-size: 14px;
+          font-weight: 600;
+          line-height: 16.71px;
+          text-align: left;
+          color: #000000;
+        }
+        tr:nth-child(even) td {
+          padding: 10px 0 0px 0;
+        }
+        td:nth-child(1) {
+          width: 11%; 
+        }
+        td:nth-child(2) {
+          width: 45%;
+        }
+        td:nth-child(3) {
+          width: 11%; 
+        }
+        td:nth-child(4) {
+          width: 33%; 
+        }
+        .actionCell {
+          display: table-cell;
+          padding-top: 10px;
+          .button {
+            flex: 1;
+            height: 34px;
+            padding: 9px 10px;
+            border-radius: 6px;
+            border: none; 
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 16.71px;
+            text-align: center;            
+          }
+          .button:first-child {
+            color: #FFFFFF;
+            background: #1363DF;
+          }
+          
+          .button:last-child {
+            align-items: right;
+            color: #373E44;
+            background: #FFFFFF;
+            border: 1px solid #B6BDC4
+          }
+        } 
+        .actionCell > .buttonWrapper {
+          display: flex; 
+          gap: 10px;
+          justify-content: space-between; 
+        }
+      }
+    }
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    button {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      border: none;
+      margin: 0 5px;
+      font-size: 18px;
+      font-weight: 400;
+      line-height: 18px;
+      letter-spacing: -0.01em;
+      text-align: center;
+      color: #78829D;
+      cursor: pointer;
+    }
+    button.active {
+      color: white;
+      background: var(--main-color, #1363DF);
+    }
+    button:hover {
+      color: var(--main-color, #1363DF);
+      background: #1363DF1A;
+    }
+    .paginationLeft {
+      @include background;
+      width: 36px;
+      height: 36px;
+      background-size: 24px 24px;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-image: url("/images/icon-modal-page-left.svg");
+      cursor: pointer;
+    }
+    .paginationRight {
+      @include background;
+      width: 36px;
+      height: 36px;
+      background-size: 24px 24px;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-image: url("/images/icon-modal-page-right.svg");
+      cursor: pointer;
+    }
+  }
+}
+
+/* 투자의향계약서 전 확인 팝업 */
+.beforeCheckContractPopContainer {
+  display: flex;
+  flex-direction: column; 
+  gap: 30px;
+  .modalContent {
+    display: flex;
+    flex-direction: column; 
+    gap: 20px;
+    h2 {
+      font-family: Inter;
+      font-size: 22px;
+      font-weight: 600;
+      line-height: 32px;
+      text-align: center;
+      span {
+        text-align: center;   
+        color: #1363DF;   
+      }    
+    }
+    p {
+      font-family: Pretendard;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 23px;
+      letter-spacing: -0.06400000303983688px;
+      text-align: center;
+      color: #616161;
+    }
+  }
+  .actionCell {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    button {
+      width: 140px;
+      height: 42px;
+      padding: 9px 10px;
+      border-radius: 6px;
+      border: none; 
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 16.71px;
+      text-align: center;            
+    }
+    button:first-child {
+      color: #FFFFFF;
+      background: #1363DF;
+    }
+    
+    button:last-child {
+      align-items: right;
+      color: #373E44;
+      background: #FFFFFF;
+      border: 1px solid #B6BDC4
+    }
+  } 
+}
+
+/* 투자의향계약서 작성 팝업 */
+.contractWritePopContainer {
+  .container {
+    display: flex;
+    flex-direction: column; 
+    gap: 20px;
+    h1 {
+      font-family: Inter;
+      font-size: 22px;
+      font-weight: 600;
+      line-height: 32px;
+    }
+    .subTitle {
+      font-family: Pretendard;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 23px;
+      letter-spacing: -0.06400000303983688px;
+      color: #616161;  
+      strong {
+        color: var(--main-color, #1363DF);
+      }
+    }
+    .contents {
+      font-family: Pretendard;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 23px;
+      letter-spacing: -0.06400000303983688px;
+      text-align: left;    
+    }
+    .note {
+      font-family: Pretendard;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 23px;
+      letter-spacing: -0.06400000303983688px;
+      text-align: center;      
+    }
+    .date {
+      font-family: Pretendard;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 23px;
+      letter-spacing: -0.06400000303983688px;
+      text-align: left;      
+    }
+    .signatures {
+      display: flex;
+      height: Hug (251px)px;
+      padding: 20px 0px 20px 0px;
+      justify-content: space-between;
+      opacity: 0px;
+      h3 {
+        font-family: Pretendard;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 23px;
+        letter-spacing: -0.06400000303983688px;
+        text-align: left;    
+        margin-bottom: 16px;      
+      }
+      .signatureText {
+        margin-left: 8px;
+      }
+      .signature {
+        display: flex;
+        flex-direction: column; 
+        p {
+          font-family: Pretendard;
+          font-size: 14px;
+          font-weight: bolder;
+          line-height: 16.71px;
+          text-align: left;      
+          margin-bottom: 10px;
+        }
+        span {
+          display: inline-block;
+          width: 28px;
+          font-family: Pretendard;
+          font-size: 14px;
+          font-weight: 400;
+          line-height: 16.71px;
+          text-align: left;
+          margin-right: 14px;
+        }
+      }
+      .founderInfo {
+        width: 383px;
+        .info {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 12px;
+          span {
+            display: inline-block;
+            font-family: Pretendard;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 34px;
+            text-align: left;
+            color: #616161;
+          }
+          input {
+            width: 260px;
+            height: 34px;
+            padding: 10px;
+            border-radius: 3px;
+            opacity: 0px;
+            background: #E8ECF24D;
+            border: 1px solid #E8ECF2;
+            font-family: Pretendard;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 14.32px;
+            text-align: left;
+            color: #4C4C4C;
+          }
+          &.sign p {
+            width: 260px;
+            font-family: Pretendard;
+            font-size: 14px;
+            font-weight: bolder;
+            line-height: 16.71px;
+            text-align: left;      
+          }
+          &.addr input {
+            width: 260px;
+            font-family: Pretendard;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 14.32px;
+            text-align: left;      
+            background: #FFFFFF;
+            border: 1px solid #E8ECF2;
+            color: #AAAAAA;
+            cursor: pointer;
+          }
+        }
+      }
+    }
+    .actionCell {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      button {
+        width: 140px;
+        height: 42px;
+        padding: 9px 10px;
+        border-radius: 6px;
+        border: none; 
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 16.71px;
+        text-align: center;            
+      }
+      button:first-child {
+        color: #FFFFFF;
+        background: #1363DF;
+      }
+      
+      button:last-child {
+        align-items: right;
+        color: #373E44;
+        background: #FFFFFF;
+        border: 1px solid #B6BDC4
+      }
+    } 
+  }
+}
+
+.contractSignPopContainer {
+  display: flex;
+  flex-direction: column; 
+  align-items: center;
+  gap: 20px;
+  h1 {
+    font-family: Inter;
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 32px;
+    text-align: center;
+  }
+  .canvas {
+    width: 360px;
+    height: 200px;
+    gap: 10px;
+    border-radius: 6px;
+    border: 1px solid #B6BDC4; 
+  }
+  .actionCell {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+    button {
+      width: 140px;
+      height: 42px;
+      padding: 9px 10px;
+      border-radius: 6px;
+      border: none; 
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 16.71px;
+      text-align: center;            
+    }
+    button:first-child {
+      color: #FFFFFF;
+      background: #1363DF;
+    }
+    
+    button:last-child {
+      align-items: right;
+      color: #373E44;
+      background: #FFFFFF;
+      border: 1px solid #B6BDC4
+    }
+  } 
+}
+
+.chatContainer {
+  @include flex;
+  flex-direction: column; 
+  gap: 20px;;
+  .closeBtnWarp {
+    @include flex;
+    justify-content: flex-end;  
+    gap: 10px;
+    width: 100%;
+    height: 20px;
+    div {
+      @include background;
+      width: 14px;
+      height: 14px;
+      background-image: url("/images/icon-modal-close-btn.svg");
+      cursor: pointer;
+    }
+    h3 {
+      width: 100%;
+      font-family: Pretendard;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 24px;
+      text-align: left;
+      color: #424242;
+      margin: 0;
+    }
+  }
+
+  .messageContainer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 403px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #E8ECF2;
+    margin-top: 30px; 
+    overflow-y: auto; 
+    .investorName {
+      font-family: Pretendard;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 16.71px;
+      text-align: left;
+      color: #616161;
+      margin-bottom: 10px;
+    }
+    .detail {
+      padding: 10px;
+      border-radius: 6px ;
+      box-shadow: 0px 1px 4px 0px #00000033;
+      font-family: Pretendard;
+      font-size: 14px;
+      font-weight: 100;
+      line-height: 16.71px;
+    }
+    .time {
+      margin: 8px 0 8px 0;
+      font-family: Pretendard;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 16.71px;
+    }
+    .recievedWrap {
+      width: auto;
+      max-width: 70%;
+      margin-bottom: 30px;
+      align-self: flex-start;
+      .detail {
+        color: #000000;
+      }
+      .time {
+        text-align: left;
+        color: #616161;
+      }
+    }
+    .sentWrap {
+      width: auto;
+      max-width: 70%;
+      align-self: flex-end;
+      .detail {    
+        background: var(--main-color, #1363DF);
+        color: #FFFFFF;
+      }
+      .time {
+        text-align: right;
+        color: #616161;
+      }
+    }
+    &::-webkit-scrollbar {
+      width: 6px; 
+      height: 6px; 
+    }
+    &::-webkit-scrollbar-thumb {
+      height: 30%; 
+      background: #ccc; 
+      border-radius: 10px;
+    }
+  }
+  input {
+    width: 100%;
+    height: 40px;
+    padding: 10px;
+    border-radius: 3px;
+    border: 1px solid #E8ECF2;
+    font-family: Pretendard;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 16.71px;
+    text-align: left;    
+  }
+  button {
+    align-self: flex-end;
+    width: 140px;
+    height: 42px;
+    padding: 9px 10px 9px 10px;
+    gap: 10px;
+    border-radius: 6px;
+    font-family: Pretendard;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 16.71px;
+    text-align: center;
+  }
+  .activeBtn {
+    background: #1363DF;
+    color: #FFFFFF;
+  }
+  .disabledBtn {
+    background: #B6BDC433;
+    color: #A2A9B0;
+  }
+}

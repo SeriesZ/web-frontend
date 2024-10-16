@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import styled from "@/components/idea/Idea.module.scss";
-import ideaData from "../../store/ideaContentsSampleData.json";
 import ReactPlayer from "react-player";
 import PriceCalculator from "./PriceCalculator";
 import PerformanceCalculator from "./PerformanceCalculator";
@@ -10,21 +9,25 @@ import PsrCalulator from "./PsrCalulator";
 import StockCalulator from "./StockCalulator";
 import InvestSimulationPop from "./InvestSimulationPop";
 import Modal from "react-modal";
+import { IdeaDataType } from "../../model/IdeaDataType";
+import InvestStatusPop from "./InvestStatusPop";
+import BeforeCheckContractPop from "./BeforeCheckContractPop";
+import ContractWritePop from "./ContractWritePop";
+import ContractSignPop from "./ContractSignPop";
+import ChatPop from "./ChatPop";
 
 type Props = {
   activeIndex: number;
+  data: IdeaDataType;
   setActiveIndex: React.Dispatch<React.SetStateAction<number>>;
 };
 
-const IdeaContentsComponents = ({ activeIndex, setActiveIndex }: Props) => {
-  const isBrowser = () => typeof window !== "undefined";
-  const handleChangeNextStep = () => {
-    setActiveIndex(activeIndex + 1);
-    if (!isBrowser()) return;
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const ideaDetailWithLineBreaks = ideaData.idea_detail
+const IdeaContentsComponents = ({
+  activeIndex,
+  data,
+  setActiveIndex,
+}: Props) => {
+  const ideaDetailWithLineBreaks = data.idea_detail
     .split("\n")
     .map((line, index) => (
       <div key={index}>
@@ -34,7 +37,7 @@ const IdeaContentsComponents = ({ activeIndex, setActiveIndex }: Props) => {
       </div>
     ));
 
-  const attachSetArray = ideaData.attach_file.map((file, index) => (
+  const attachSetArray = data.attach_file.map((file, index) => (
     <div key={index}>
       <div className={styled.attachArryWrap}>
         <div className={styled.attachFileIcon}></div>
@@ -43,7 +46,7 @@ const IdeaContentsComponents = ({ activeIndex, setActiveIndex }: Props) => {
     </div>
   ));
 
-  const teamMemberSetArray = ideaData.team_member.map((member, index) => (
+  const teamMemberSetArray = data.team_member.map((member, index) => (
     <div key={index}>
       <div className={styled.memberWrap}>
         <div className={styled.memberImg}>{member.member_img}</div>
@@ -59,14 +62,139 @@ const IdeaContentsComponents = ({ activeIndex, setActiveIndex }: Props) => {
     </div>
   ));
 
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-
-  const showModal = () => {
-    setModalIsOpen(true);
+  const renderOnlineInfoRow = (onlineYn: string) => {
+    if (onlineYn === "Y") {
+      return (
+        <tr>
+          <td>온라인사업설명회</td>
+          <td className={styled.tableRight}>D-30일</td>
+        </tr>
+      );
+    }
+    return null;
   };
 
-  const closeModal = () => {
-    setModalIsOpen(false);
+  const renderOnlineBtn = (onlineYn: string) => {
+    if (onlineYn === "Y") {
+      return (
+        <div className={`${styled.btn} ${styled.blueBtn}`}>
+          온라인 사업설명회
+        </div>
+      );
+    } else {
+      return (
+        <div className={`${styled.btn} ${styled.blueBtn}`}>
+          온라인 사업설명회 일정 선택
+        </div>
+      );
+    }
+  };
+
+  interface CustomModalProps {
+    isOpen: boolean;
+    closeModal: () => void;
+    content: React.ReactNode; // or React.ReactElement if you want to be more specific
+    customStyles?: React.CSSProperties; // Optional, as not all modals may need custom styles
+  }
+
+  /* 모달 재사용 */
+  const ModalComponent: React.FC<CustomModalProps> = ({
+    isOpen,
+    closeModal,
+    content,
+    customStyles,
+  }) => (
+    <Modal
+      isOpen={isOpen}
+      ariaHideApp={false}
+      onRequestClose={closeModal}
+      style={{
+        content: {
+          top: "50%",
+          left: "50%",
+          marginRight: "-50%",
+          transform: "translate(-50%, -50%)",
+          ...customStyles,
+          borderRadius: "8px",
+          boxShadow: "0px 6px 16px 0px #A5ABBA4D",
+        },
+      }}
+    >
+      {content}
+    </Modal>
+  );
+
+  const [isInvestSimulationOpen, setInvestSimulationOpen] = useState(false); // 투자 시뮬레이션 모달
+  const [isInvestmentStatusOpen, setInvestmentStatusOpen] = useState(false); // 투자신청현황 모달
+  const [isFinalInvestStatusOpen, setFinalInvestStatusOpen] = useState(false); // 최종매칭신청현황 모달
+  const [isBeforeContractOpen, setBeforeContractOpen] = useState(false); // 투자의향서 작성 전 확인 모달
+  const [isContractWriteOpen, setContractWriteOpen] = useState(false); // 투자의향계약서 작성 모달
+  const [isContractSignOpen, setContractSignOpen] = useState(false); // 전자서명 모달
+  const [isChatOpen, setChatOpen] = useState(false); // 채팅방 모달
+  const [investorInfo, setInvestorInfo] = useState<any>(null);
+
+  const showInvestSimulationModal = () => {
+    setInvestSimulationOpen(true);
+  };
+  const closInvestSimulationModal = () => {
+    setInvestSimulationOpen(false);
+  };
+  const showInvestmentStatusModal = () => {
+    setInvestmentStatusOpen(true);
+  };
+  const closInvestmentStatusModal = () => {
+    setInvestmentStatusOpen(false);
+  };
+  const showFinalInvestStatusModal = () => {
+    setFinalInvestStatusOpen(true);
+  };
+  const closFinalInvestStatusModal = () => {
+    setFinalInvestStatusOpen(false);
+  };
+  const showBeforeContractModal = () => {
+    setBeforeContractOpen(true);
+  };
+  const closBeforeContractModal = () => {
+    setBeforeContractOpen(false);
+  };
+  const showContractWriteModal = () => {
+    setContractWriteOpen(true);
+  };
+  const closContractWriteModal = () => {
+    setContractWriteOpen(false);
+  };
+  const showContractSignModal = () => {
+    setContractSignOpen(true);
+  };
+  const closContractSignModal = () => {
+    setContractSignOpen(false);
+  };
+  const showChatModal = () => {
+    setChatOpen(true);
+  };
+  const closChatModal = () => {
+    setChatOpen(false);
+  };
+
+  const openBeforeCheckContractPop = (data: any) => {
+    setInvestorInfo(data);
+    setFinalInvestStatusOpen(false);
+    showBeforeContractModal();
+  };
+  const openContractWritePop = (data: any) => {
+    setInvestorInfo(data);
+    setBeforeContractOpen(false);
+    showContractWriteModal();
+  };
+  const openContractSignPop = (data: any) => {
+    setInvestorInfo(data);
+    setContractWriteOpen(false);
+    showContractSignModal();
+  };
+  const openChatPop = (data: any) => {
+    setInvestorInfo(data);
+    setContractSignOpen(false);
+    showChatModal();
   };
 
   const Step1 = () => {
@@ -74,8 +202,8 @@ const IdeaContentsComponents = ({ activeIndex, setActiveIndex }: Props) => {
       <div>
         <div className={styled.ideaContentsContainer}>
           <div className={styled.contentsMainWrap}>
-            <div className={styled.title}>{ideaData.title}의 기업 분석</div>
-            <div className={styled.ideaSummery}>{ideaData.idea_summery}</div>
+            <div className={styled.title}>{data.title}의 기업 분석</div>
+            <div className={styled.ideaSummery}>{data.idea_summery}</div>
             <div className={styled.ideaDetail}>{ideaDetailWithLineBreaks}</div>
             <div className={styled.ideaVideo}>{/* 화상채팅 */}</div>
             <div className={styled.title}>첨부파일</div>
@@ -94,26 +222,32 @@ const IdeaContentsComponents = ({ activeIndex, setActiveIndex }: Props) => {
                   <div
                     className={`${styled.statusImg} ${styled.bookmark}`}
                   ></div>
-                  북마크 수<div>{ideaData.bookmark_cnt}</div>
+                  북마크 수<div>{data.bookmark_cnt}</div>
                 </div>
                 <div className={styled.statusComponent}>
                   <div
                     className={`${styled.statusImg} ${styled.viewsCnt}`}
                   ></div>
-                  조회 수<div>{ideaData.views_cnt}</div>
+                  조회 수<div>{data.views_cnt}</div>
                 </div>
                 <div className={styled.statusComponent}>
                   <div
                     className={`${styled.statusImg} ${styled.updateDt}`}
                   ></div>
                   업데이트
-                  <div>{ideaData.update_dt}</div>
+                  <div>{data.update_dt}</div>
                 </div>
               </div>
-              <div className={`${styled.btn} ${styled.whithBtn}`}>
+              <div
+                className={`${styled.btn} ${styled.whithBtn}`}
+                onClick={showInvestmentStatusModal}
+              >
                 투자 신청현황
               </div>
-              <div className={`${styled.btn} ${styled.blueBtn}`}>
+              <div
+                className={`${styled.btn} ${styled.blueBtn}`}
+                onClick={showFinalInvestStatusModal}
+              >
                 최종 매칭신청형황
               </div>
               <div className={styled.bookMarkShareWrap}>
@@ -133,21 +267,21 @@ const IdeaContentsComponents = ({ activeIndex, setActiveIndex }: Props) => {
                 <thead>
                   <tr>
                     <td>지분율</td>
-                    <td className={styled.tableRight}>40%</td>
+                    <td className={styled.tableRight}>{data.share_ratio}</td>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
                     <td>주당 액면가</td>
-                    <td className={styled.tableRight}>1,000원</td>
+                    <td className={styled.tableRight}>{data.par_amt}</td>
                   </tr>
                   <tr>
                     <td>최소 투자금액</td>
-                    <td className={styled.tableRight}>10,000원</td>
+                    <td className={styled.tableRight}>{data.min_invest_amt}</td>
                   </tr>
                   <tr>
                     <td>최대 투자금액</td>
-                    <td className={styled.tableRight}>2,000,000,000원</td>
+                    <td className={styled.tableRight}>{data.max_invest_amt}</td>
                   </tr>
                 </tbody>
               </table>
@@ -158,37 +292,135 @@ const IdeaContentsComponents = ({ activeIndex, setActiveIndex }: Props) => {
                 <thead>
                   <tr>
                     <td>2024년 12월 3일</td>
-                    <td className={styled.tableRight}>진행중</td>
+                    <td className={styled.tableRight}>
+                      {data.progress_status}
+                    </td>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
                     <td>투자자 수</td>
-                    <td className={styled.tableRight}>100명</td>
+                    <td className={styled.tableRight}>
+                      {data.investors_number}
+                    </td>
                   </tr>
                   <tr>
                     <td>최대 투자자 수</td>
-                    <td className={styled.tableRight}>120명</td>
+                    <td className={styled.tableRight}>
+                      {data.max_investors_number}
+                    </td>
                   </tr>
                   <tr>
                     <td>모집금액</td>
-                    <td className={styled.tableRight}>30,000,000원</td>
+                    <td className={styled.tableRight}>{data.raised_amt}</td>
                   </tr>
-                  <tr>
-                    <td>온라인사업설명회</td>
-                    <td className={styled.tableRight}>D-30일</td>
-                  </tr>
+                  {/* 온라인사업설명회 D-day */}
+                  {renderOnlineInfoRow(data.online_meeting_yn)}
                 </tbody>
               </table>
-              <div className={`${styled.btn} ${styled.blueBtn}`}>
-                온라인 사업설명회
-              </div>
+              {/* 온라인사업설명회 버튼 */}
+              {renderOnlineBtn(data.online_meeting_yn)}
+
               <div className={`${styled.btn} ${styled.whithBtn}`}>
                 아이디어 보유자정보확인
               </div>
             </div>
           </div>
         </div>
+
+        {/* 투자신청현황 */}
+        <ModalComponent
+          isOpen={isInvestmentStatusOpen}
+          closeModal={closInvestmentStatusModal}
+          content={
+            <InvestStatusPop
+              closeModal={closInvestmentStatusModal}
+              viewOption={""}
+              openBeforeCheckContractPop={openBeforeCheckContractPop}
+            />
+          }
+          customStyles={{ width: "468px", height: "90%", padding: "20px 40px" }}
+        />
+
+        {/* 최종 매칭신청현황 */}
+        <ModalComponent
+          isOpen={isFinalInvestStatusOpen}
+          closeModal={closFinalInvestStatusModal}
+          content={
+            <InvestStatusPop
+              closeModal={closFinalInvestStatusModal}
+              viewOption={"final"}
+              openBeforeCheckContractPop={openBeforeCheckContractPop}
+            />
+          }
+          customStyles={{ width: "468px", height: "90%", padding: "20px 40px" }}
+        />
+
+        {/* 투자의향서 작성 전 확인 */}
+        <ModalComponent
+          isOpen={isBeforeContractOpen}
+          closeModal={closBeforeContractModal}
+          content={
+            <BeforeCheckContractPop
+              closeModal={closBeforeContractModal}
+              data={investorInfo}
+              openContractWritePop={openContractWritePop}
+            />
+          }
+          customStyles={{
+            width: "770px",
+            height: "305px",
+            padding: "40px 40px 0 40px",
+          }}
+        />
+
+        {/* 투자의향계약서 */}
+        <ModalComponent
+          isOpen={isContractWriteOpen}
+          closeModal={closContractWriteModal}
+          content={
+            <ContractWritePop
+              closeModal={closContractWriteModal}
+              data={investorInfo}
+              openContractSignPop={openContractSignPop}
+            />
+          }
+          customStyles={{
+            width: "800px",
+            height: "90%",
+            padding: "40px 30px",
+          }}
+        />
+
+        {/* 전자서명 */}
+        <ModalComponent
+          isOpen={isContractSignOpen}
+          closeModal={closContractSignModal}
+          content={
+            <ContractSignPop
+              closeModal={closContractSignModal}
+              data={investorInfo}
+              openChatPop={openChatPop}
+            />
+          }
+          customStyles={{
+            width: "440px",
+            height: "404px",
+            padding: "40px 0 0 0",
+          }}
+        />
+
+        {/* 채팅 */}
+        <ModalComponent
+          isOpen={isChatOpen}
+          closeModal={closChatModal}
+          content={<ChatPop closeModal={closChatModal} data={investorInfo} />}
+          customStyles={{
+            width: "478px",
+            height: "649px",
+            padding: "20px",
+          }}
+        />
       </div>
     );
   };
@@ -206,7 +438,6 @@ const IdeaContentsComponents = ({ activeIndex, setActiveIndex }: Props) => {
                 <div className={styled.tableInfo}>단위: 원, %</div>
               </div>
               <div className={styled.tableContentsWrap}>
-                {/* <PriceTable /> */}
                 <PriceCalculator inputHide="Y" />
               </div>
             </div>
@@ -259,7 +490,6 @@ const IdeaContentsComponents = ({ activeIndex, setActiveIndex }: Props) => {
                 <div className={styled.tableInfo}>단위: 원</div>
               </div>
               <div className={styled.tableContentsWrap}>
-                {/* <PriceTable /> */}
                 <PsrCalulator inputHide="Y" />
               </div>
             </div>
@@ -271,7 +501,6 @@ const IdeaContentsComponents = ({ activeIndex, setActiveIndex }: Props) => {
                 <div className={styled.tableInfo}>단위: 원</div>
               </div>
               <div className={styled.tableContentsWrap}>
-                {/* <PriceTable /> */}
                 <StockCalulator name="stock" inputHide="Y" />
               </div>
             </div>
@@ -287,7 +516,6 @@ const IdeaContentsComponents = ({ activeIndex, setActiveIndex }: Props) => {
                 <div className={styled.tableInfo}>단위: 원</div>
               </div>
               <div className={styled.tableContentsWrap}>
-                {/* <PriceTable /> */}
                 <StockCalulator name="investGoal" inputHide="Y" />
               </div>
             </div>
@@ -295,37 +523,38 @@ const IdeaContentsComponents = ({ activeIndex, setActiveIndex }: Props) => {
           <div className={styled.btnWrap}>
             <div
               className={`${styled.btn} ${styled.white}`}
-              onClick={showModal}
+              onClick={showInvestSimulationModal}
             >
               투자 시뮬레이션
             </div>
           </div>
         </div>
 
-        <Modal
-          isOpen={modalIsOpen}
-          onRequestClose={closeModal}
-          style={{
-            content: {
-              top: "50%",
-              left: "50%",
-              marginRight: "-50%",
-              transform: "translate(-50%, -50%)",
-              width: "960px", // Set your width
-              height: "800px", // Adjust height as needed
-              padding: "40px", // Padding for content
-              borderRadius: "8px",
-            },
+        {/* 투자 시뮬레이션 모달 */}
+        <ModalComponent
+          isOpen={isInvestSimulationOpen}
+          closeModal={closInvestSimulationModal}
+          content={
+            <div>
+              {" "}
+              <InvestSimulationPop />
+              <div className={styled.modalBtn}>
+                <button
+                  onClick={closInvestSimulationModal}
+                  className={styled.closeBtn}
+                >
+                  닫기
+                </button>
+              </div>
+            </div>
+          }
+          customStyles={{
+            width: "960px",
+            height: "800px",
+            padding: "40px",
+            borderRadius: "8px",
           }}
-          contentLabel="투자 시뮬레이션 모달"
-        >
-          <InvestSimulationPop />
-          <div className={styled.modalBtn}>
-            <button onClick={closeModal} className={styled.closeBtn}>
-              닫기
-            </button>
-          </div>
-        </Modal>
+        />
       </div>
     );
   };

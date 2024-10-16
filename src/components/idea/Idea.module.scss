@@ -659,15 +659,16 @@
       justify-content: left;
       gap: 20px;               /* 이미지와 텍스트 사이 간격 */
       .titleImg {
-        @include background;
-        width: 420px;
-        height: 236.31px;
-        border-radius: 8px;
-        border: 1px 0px 0px 0px;
-        opacity: 0px;
-        background-image: url("/images/ideaContents_homeGyn.png");
-        border: 1px solid #F5F5F5;
-        margin-bottom: 40px;
+        img {
+          @include background;
+          width: 420px;
+          height: 236.31px;
+          border-radius: 8px;
+          border: 1px 0px 0px 0px;
+          opacity: 0px;
+          border: 1px solid #F5F5F5;
+          margin-bottom: 40px;
+        }
       }
       .title {
         font-family: Pretendard;
@@ -904,7 +905,6 @@
         width: Fill (272px)px;
         height: Fixed (42px)px;
         padding: 9px 20px 9px 20px;
-        gap: 10px;
         border-radius: 6px;
         border: 1px 0px 0px 0px;
         opacity: 0px;
@@ -913,7 +913,7 @@
         font-weight: 600;
         line-height: 16.71px;
         text-align: center;
-        margin: 10px 0 10px 0;
+        margin: 10px 0 0px 0;
         &.whithBtn {
           background: #FFFFFF;
           border: 1px solid var(--main-color, #1363DF);
@@ -1044,7 +1044,7 @@
         font-weight: 600;
         line-height: 16.71px;
         text-align: center;
-        margin: 20px 0 0px 0;
+        margin: 10px 0 1px 0;
         &.whithBtn {
           background: #FFFFFF;
           border: 1px solid var(--main-color, #1363DF);
