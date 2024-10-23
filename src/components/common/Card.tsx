@@ -7,12 +7,35 @@ type Props = {
   data: any;
   type?: string;
 };
-// 나중에 Props 그냥 data로 받아서 뿌려야함. type만 따로 받아서 하단 상세 정보 유무 파악
+
 const CompanyCard = ({ data, type }: Props) => {
   const router = useRouter();
   const moveIdeaContents = (id: String) => {
     router.push(`/idea/ideaContents?id=${id}`);
   };
+
+  const stripHtmlTags = (html: string) => {
+    if (!html) return "";
+    return html.replace(/<\/?[^>]+(>|$)/g, ""); // 정규식을 사용하여 태그 제거
+  };
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "";
+    return dateString.split("T")[0]; // "T"를 기준으로 문자열을 분리하여 날짜 부분만 반환
+  };
+  const calculateDday = (targetDateString: string) => {
+    if (!targetDateString) {
+      return "0";
+    }
+    const targetDate = new Date(formatDate(targetDateString));
+    const currentDate = new Date();
+    // 시간 차이를 계산하고 일 단위로 변환
+    const timeDifference = targetDate.getTime() - currentDate.getTime();
+    const daysDifference = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+    return daysDifference >= 0
+      ? `${daysDifference}`
+      : `${Math.abs(daysDifference)}`;
+  };
+
   const SubInfo = () => {
     if (!type) {
       return <></>;
@@ -21,19 +44,19 @@ const CompanyCard = ({ data, type }: Props) => {
         return (
           <div className={styled.bottom}>
             <div className={styled.row}>
-              <div className={styled.info}>
-                D-<span>{data?.dday}</span>
+              <div className={`${styled.info}`}>
+                D-<span>{calculateDday(data?.close_date)}</span>
               </div>
               <div className={styled.info}>
-                투자 라운드 마감 <span>{data?.dueDt}</span>
+                투자 라운드 마감 <span>{formatDate(data?.close_date)}</span>
               </div>
             </div>
             <div className={styled.row}>
               <div className={styled.info}>
-                조회수 <span>{data?.hits}</span>
+                조회수 <span>{data?.view_count}</span>
               </div>
               <div className={styled.info}>
-                달성율 <span>{data?.rate}</span>
+                달성율 <span>{data?.investment_goal}</span>
               </div>
             </div>
           </div>
@@ -61,11 +84,16 @@ const CompanyCard = ({ data, type }: Props) => {
       className={styled.companyCard}
       onClick={() => moveIdeaContents(data.id)}
     >
-      <div className={styled.thumbWrap}></div>
+      <div className={styled.thumbWrap}>
+        <img
+          className={styled.img}
+          src={data.images ? data.images[0].file_path : ""}
+        />
+      </div>
       <div className={styled.infoWrap}>
         <div className={`${styled.top} ${!type ? styled.notype : ""}`}>
           <div className={styled.title}>{data?.title}</div>
-          <div className={styled.desc}>{data?.desc}</div>
+          <div className={styled.desc}>{stripHtmlTags(data.content)}</div>
         </div>
         <SubInfo />
       </div>

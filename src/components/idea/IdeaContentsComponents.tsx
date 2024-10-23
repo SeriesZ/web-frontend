@@ -9,16 +9,18 @@ import PsrCalulator from "./PsrCalulator";
 import StockCalulator from "./StockCalulator";
 import InvestSimulationPop from "./InvestSimulationPop";
 import Modal from "react-modal";
-import { IdeaDataType } from "../../model/IdeaDataType";
+import { IdeaContentsType, Attachment } from "@/model/IdeaList";
 import InvestStatusPop from "./InvestStatusPop";
+import PopupIframe from "./PopupIframe";
 import BeforeCheckContractPop from "./BeforeCheckContractPop";
 import ContractWritePop from "./ContractWritePop";
 import ContractSignPop from "./ContractSignPop";
 import ChatPop from "./ChatPop";
+import { Viewer } from "@toast-ui/react-editor";
 
 type Props = {
   activeIndex: number;
-  data: IdeaDataType;
+  data: IdeaContentsType;
   setActiveIndex: React.Dispatch<React.SetStateAction<number>>;
 };
 
@@ -27,36 +29,30 @@ const IdeaContentsComponents = ({
   data,
   setActiveIndex,
 }: Props) => {
-  const ideaDetailWithLineBreaks = data.idea_detail
-    .split("\n")
-    .map((line, index) => (
-      <div key={index}>
-        {line}
-        <br />
-        <br />
-      </div>
-    ));
-
-  const attachSetArray = data.attach_file.map((file, index) => (
+  // 화면 동적 구성
+  const attachSetArray = data.attachments.map((file, index) => (
     <div key={index}>
-      <div className={styled.attachArryWrap}>
+      <div
+        className={styled.attachArryWrap}
+        onClick={() => clickFileDownload(file)}
+      >
         <div className={styled.attachFileIcon}></div>
-        <div className={styled.attachFileText}>{file}</div>
+        <div className={styled.attachFileText}>{file.file_name}</div>
       </div>
     </div>
   ));
 
-  const teamMemberSetArray = data.team_member.map((member, index) => (
+  const teamMemberSetArray = data.investments.map((member, index) => (
     <div key={index}>
       <div className={styled.memberWrap}>
-        <div className={styled.memberImg}>{member.member_img}</div>
-        <div className={styled.memberName}>{member.name}</div>
+        <div className={styled.memberImg}>{member.ideation_id}</div>
+        <div className={styled.memberName}>{member.investor.name}</div>
         <div className={styled.memberPositonWrap}>
-          {member.member_position.map((item, index) => (
+          {/* {member.member_position.map((item, index) => (
             <div key={index} className={styled.memberPosition}>
               {item}
             </div>
-          ))}
+          ))} */}
         </div>
       </div>
     </div>
@@ -88,6 +84,37 @@ const IdeaContentsComponents = ({
         </div>
       );
     }
+  };
+
+  // 기타 함수
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "";
+    return dateString.split("T")[0]; // "T"를 기준으로 문자열을 분리하여 날짜 부분만 반환
+  };
+
+  const showLiveStreaming = () => {
+    const popupWidth = 800;
+    const popupHeight = 600;
+    const left = (window.screen.width - popupWidth) / 2;
+    const top = (window.screen.height - popupHeight) / 2;
+
+    // 새 창에서 URL 열기
+    window.open(
+      "https://meet.google.com/nou-stdt-ipm",
+      "GoogleMeetPopup",
+      `width=${popupWidth},height=${popupHeight},top=${top},left=${left},resizable=yes,scrollbars=yes`
+    );
+  };
+
+  const clickFileDownload = (value: Attachment) => {
+    console.log("눌렀니?" + value.id);
+    const downloadUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/attachment/${value.id}`;
+    // 파일 다운로드를 위한 `a` 태그 생성 및 클릭
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.target = "_blank"; // 새 창에서 열기 (필요한 경우)
+    link.download = ""; // 파일 이름을 지정할 수도 있습니다
+    link.click();
   };
 
   interface CustomModalProps {
@@ -202,10 +229,13 @@ const IdeaContentsComponents = ({
       <div>
         <div className={styled.ideaContentsContainer}>
           <div className={styled.contentsMainWrap}>
-            <div className={styled.title}>{data.title}의 기업 분석</div>
-            <div className={styled.ideaSummery}>{data.idea_summery}</div>
-            <div className={styled.ideaDetail}>{ideaDetailWithLineBreaks}</div>
-            <div className={styled.ideaVideo}>{/* 화상채팅 */}</div>
+            <div className={styled.ideaDetail}>
+              <Viewer initialValue={data.content} />
+            </div>
+
+            <div className={styled.ideaVideo} onClick={showLiveStreaming}>
+              {/* 화상채팅 */}
+            </div>
             <div className={styled.title}>첨부파일</div>
             <div className={styled.attachWrap}>
               <div className={styled.attachFile}>{attachSetArray}</div>
@@ -222,20 +252,20 @@ const IdeaContentsComponents = ({
                   <div
                     className={`${styled.statusImg} ${styled.bookmark}`}
                   ></div>
-                  북마크 수<div>{data.bookmark_cnt}</div>
+                  북마크 수<div>{data.view_count}</div>
                 </div>
                 <div className={styled.statusComponent}>
                   <div
                     className={`${styled.statusImg} ${styled.viewsCnt}`}
                   ></div>
-                  조회 수<div>{data.views_cnt}</div>
+                  조회 수<div>{data.view_count}</div>
                 </div>
                 <div className={styled.statusComponent}>
                   <div
                     className={`${styled.statusImg} ${styled.updateDt}`}
                   ></div>
                   업데이트
-                  <div>{data.update_dt}</div>
+                  <div>{formatDate(data.close_date)}</div>
                 </div>
               </div>
               <div
@@ -267,21 +297,21 @@ const IdeaContentsComponents = ({
                 <thead>
                   <tr>
                     <td>지분율</td>
-                    <td className={styled.tableRight}>{data.share_ratio}</td>
+                    <td className={styled.tableRight}>{0}</td>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
                     <td>주당 액면가</td>
-                    <td className={styled.tableRight}>{data.par_amt}</td>
+                    <td className={styled.tableRight}>{0}</td>
                   </tr>
                   <tr>
                     <td>최소 투자금액</td>
-                    <td className={styled.tableRight}>{data.min_invest_amt}</td>
+                    <td className={styled.tableRight}>{0}</td>
                   </tr>
                   <tr>
                     <td>최대 투자금액</td>
-                    <td className={styled.tableRight}>{data.max_invest_amt}</td>
+                    <td className={styled.tableRight}>{0}</td>
                   </tr>
                 </tbody>
               </table>
@@ -292,34 +322,32 @@ const IdeaContentsComponents = ({
                 <thead>
                   <tr>
                     <td>2024년 12월 3일</td>
-                    <td className={styled.tableRight}>
-                      {data.progress_status}
-                    </td>
+                    <td className={styled.tableRight}>{data.status}</td>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
                     <td>투자자 수</td>
                     <td className={styled.tableRight}>
-                      {data.investors_number}
+                      {data.investments.length}
                     </td>
                   </tr>
                   <tr>
                     <td>최대 투자자 수</td>
                     <td className={styled.tableRight}>
-                      {data.max_investors_number}
+                      {data.investments.length}
                     </td>
                   </tr>
                   <tr>
                     <td>모집금액</td>
-                    <td className={styled.tableRight}>{data.raised_amt}</td>
+                    <td className={styled.tableRight}>{0}</td>
                   </tr>
                   {/* 온라인사업설명회 D-day */}
-                  {renderOnlineInfoRow(data.online_meeting_yn)}
+                  {renderOnlineInfoRow("Y")}
                 </tbody>
               </table>
               {/* 온라인사업설명회 버튼 */}
-              {renderOnlineBtn(data.online_meeting_yn)}
+              {renderOnlineBtn("Y")}
 
               <div className={`${styled.btn} ${styled.whithBtn}`}>
                 아이디어 보유자정보확인

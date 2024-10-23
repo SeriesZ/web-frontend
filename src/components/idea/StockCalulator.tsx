@@ -13,18 +13,21 @@ const StockCalulator: React.FC<Props> = ({ name, inputHide }) => {
   // 발행주식 수 설정 테이블 컬럼
   const [stockItems, setStockItems] = useState<ICostItem[]>([
     {
+      id: 9999,
       name: "액면가",
       amount: 0,
       description: "1주의 최소금액은 상법상 100원 이상",
       focus: true,
     },
     {
+      id: 9999,
       name: "총 발생주식 수",
       amount: 0,
       description: "5년차까지 평균매출 x PSR",
       focus: false,
     },
     {
+      id: 9999,
       name: "지분율 당 주식수",
       amount: 0,
       description: "",
@@ -35,6 +38,7 @@ const StockCalulator: React.FC<Props> = ({ name, inputHide }) => {
   // 투자목표 설정 테이블 컬럼
   const [investItems, setInvestItems] = useState<ICostItem[]>([
     {
+      id: 9999,
       name: "목표 투자자 지분율",
       amount: 40,
       description: "경영권 유지를 위해 49%이하를 가정해야 함",
@@ -42,30 +46,35 @@ const StockCalulator: React.FC<Props> = ({ name, inputHide }) => {
       strType: "%",
     },
     {
+      id: 9999,
       name: "투자자 지분 총 주식 수",
       amount: 386568,
       description: "",
       focus: false,
     },
     {
+      id: 9999,
       name: "목표 투자자 조달금액",
       amount: 386568000,
       description: "",
       focus: false,
     },
     {
+      id: 9999,
       name: "1인당 최소투자금",
       amount: 0,
       description: "액면가를 기준으로 자동으로 설정됨",
       focus: false,
     },
     {
+      id: 9999,
       name: "1인당 최대투자금",
       amount: 200000000,
       description: "",
       focus: true,
     },
     {
+      id: 9999,
       name: "최대 투자자 수 설정(명)",
       amount: 1000,
       description: "",
@@ -75,14 +84,30 @@ const StockCalulator: React.FC<Props> = ({ name, inputHide }) => {
 
   // 발행주식 수 설정 입력항목
   const [stockInputItems, setStockInputItems] = useState<ICostItem[]>([
-    { name: "액면가", amount: 0 },
+    {
+      id: 9999,
+      name: "액면가",
+      amount: 0,
+    },
   ]);
 
   // 투자목표 설정 입력항목
   const [investInputItems, setInvestInputItems] = useState<ICostItem[]>([
-    { name: "목표투자자 지분율", amount: 0 },
-    { name: "1인당 최대 투자금", amount: 0 },
-    { name: "최대 투자자 수 설정", amount: 0 },
+    {
+      id: 9999,
+      name: "목표투자자 지분율",
+      amount: 0,
+    },
+    {
+      id: 9999,
+      name: "1인당 최대 투자금",
+      amount: 0,
+    },
+    {
+      id: 9999,
+      name: "최대 투자자 수 설정",
+      amount: 0,
+    },
   ]);
 
   // 재사용 하기 위함

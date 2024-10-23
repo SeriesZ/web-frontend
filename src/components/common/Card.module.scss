@@ -9,12 +9,18 @@
     height: 84px;
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
-    background-color: #000;
+    background-color: #bababa;
     img {
       width: 100%;
       height: 100%;
       border-top-left-radius: 6px;
       border-top-right-radius: 6px;
+    }
+    div {
+      line-height: 84px;
+      text-align: center;
+      color: #c9c9c9;
+      font-size: 10px;
     }
   }
 
@@ -27,6 +33,9 @@
         font-weight: 600;
         margin-bottom: 10px;
         line-height: 19.09px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
       .desc {
         width: 100%;
@@ -57,9 +66,7 @@
       margin-top: 21px;
       .row {
         display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        align-items: center;
+        width: 100%;
         column-gap: 5px;
         .info {
           font-size: 9px;

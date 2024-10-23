@@ -1,78 +1,448 @@
 "use client";
-import React, { ChangeEvent, act, useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import styled from "@/components/idea/Idea.module.scss";
 import FileUpload from "./FileUpload";
 import CustomSelectBox from "../common/CustomSelectBox";
 import PriceTable from "./PriceTable";
 import PriceCalculator from "./PriceCalculator";
-import useIdeaPriceStore from "@/store/useIdeaPriceStore";
+// import useIdeaPriceStore from "@/store/useIdeaPriceStore";
 import PerformanceCalculator from "./PerformanceCalculator";
 import IncreaseRateCalulator from "./IncreaseRateCalulator";
 import FinanceCaculator from "./FinanceCaculator";
 import PsrCalulator from "./PsrCalulator";
 import StockCalulator from "./StockCalulator";
 import { useRouter } from "next/navigation";
+import ToolTipComponent from "./ToolTipComponent";
+import YearUserCnt from "./YearUserCnt";
+import { Category, IdeaContentsType, Attachment } from "@/model/IdeaList";
+import userStore from "@/store/userLoginInfo";
+import dynamic from "next/dynamic";
+import { useFinanceStore, ICostInputItem } from "@/store/financeStore";
 
 type Props = {
   activeIndex: number;
+  ideaId: string;
   setActiveIndex: React.Dispatch<React.SetStateAction<number>>;
 };
 
-const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
+const NoSsrEditor = dynamic(() => import("./ToastEditor"), {
+  ssr: false,
+});
+
+const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
+  // 선언
   const router = useRouter();
   const isBrowser = () => typeof window !== "undefined";
   const [repreFiles, setRepreFiles] = useState<File[]>([]);
   const [detailFiles, setDetailFiles] = useState<File[]>([]);
   const [attachFiles, setAttachFiles] = useState<File[]>([]);
-  const [selectedTheme, setSelectedTheme] = useState("");
-  const themeData = [
-    { value: "1", label: "농업/어업" },
-    { value: "2", label: "광업" },
-    { value: "3", label: "제조업" },
-    { value: "4", label: "전기/가스업" },
-    { value: "5", label: "수도/재생업" },
-    { value: "6", label: "건설업" },
-    { value: "7", label: "도매/소매업" },
-    { value: "8", label: "운수/창고업" },
-    { value: "9", label: "숙박/음식점업" },
-    { value: "10", label: "정보통신업" },
-    { value: "11", label: "금융/보험업" },
-    { value: "12", label: "부동산업" },
-    { value: "13", label: "과학 기술업" },
-    { value: "14", label: "시설관리업" },
-    { value: "15", label: "교육서비스업" },
-    { value: "16", label: "보건업" },
-    { value: "17", label: "예술/스포츠업" },
-    { value: "18", label: "기타" },
-  ];
+  const [editorContent, setEditorContent] = useState<string>("");
+  const [categoryData, setCategoryData] = useState<Category[]>([]);
+  const [contents, setIdeaContents] = useState<IdeaContentsType>();
+  const [selectedTheme, setSelectedTheme] = useState<Category>();
+  const [ideaName, setIdeaName] = useState("");
+  const [repreFilesMap, setRepreFilesMap] = useState<Map<string, string>>(
+    new Map()
+  );
+  const [attachFilesMap, setAttachFilesMap] = useState<Map<string, string>>(
+    new Map()
+  );
+  const [repreReadyUpload, setRepreReadyUpload] = useState(false);
+  const [detailReadyUpload, setDetailReadyUpload] = useState(false);
+  const [attachReadyUpload, setAttachReadyUpload] = useState(false);
+  const { userInfo } = userStore();
+  const editorRef = useRef<any>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // step2 데이터
+  const [performanceData, setPerformanceData] = useState(null);
+  const [increaseRateData, setIncreaseRateData] = useState(null);
+  const [tradeCountsData, setTradeCountsData] = useState(null);
+  const [employeeData, setEmployeeData] = useState(null);
+  const { costData } = useFinanceStore();
+
+  const [profitMargin, setProfitMargin] = useState(0);
+  const [totalCost, setTotalCost] = useState(0);
+  const [sellingPrice, setSellingPrice] = useState(0);
+  const [totalSelYear, setTotalSelYear] = useState(0);
+  const [costItems, setCostItems] = useState<ICostInputItem[]>([]);
+  const performanceParams = {
+    costItems,
+    setCostItems,
+    profitMargin,
+    setProfitMargin,
+    totalCost,
+    setTotalCost,
+    sellingPrice,
+    setSellingPrice,
+    totalSelYear,
+    setTotalSelYear,
+  };
+
+  // 상태
+  useEffect(() => {
+    console.log("부모컴포넌트 최초실행");
+    const fetchCategoryData = async () => {
+      try {
+        // 산업군 로드
+        const response1 = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/themes`
+        );
+        const data1 = await response1.json();
+        setCategoryData(data1);
+
+        // 아이디어ID가 있으면 데이터 로딩
+        const response2 = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/${ideaId}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${userInfo.bearer}`,
+              Accept: "application/json",
+              "Content-Type": "application/json;charset=utf-8",
+            },
+            mode: "cors",
+          }
+        );
+
+        if (response2.ok) {
+          const data2 = await response2.json();
+          setIdeaContents(data2);
+        } else {
+          console.error("아이디어 불러오기 실패:", response2.statusText);
+        }
+      } catch (error) {
+        console.error("Error fetching category data:", error);
+      } finally {
+      }
+    };
+    fetchCategoryData();
+
+    const initialPriceData: ICostInputItem[] = [
+      {
+        id: 1,
+        name: "직접재료비",
+        amount: 0,
+        apiId: "direct_material",
+        formPath: "PriceCalculator",
+      },
+      {
+        id: 2,
+        name: "직접노무비",
+        amount: 0,
+        apiId: "direct_labor",
+        formPath: "PriceCalculator",
+      },
+      {
+        id: 3,
+        name: "직접경비",
+        amount: 0,
+        apiId: "direct_expense",
+        formPath: "PriceCalculator",
+      },
+      {
+        id: 4,
+        name: "제조간접비",
+        amount: 0,
+        apiId: "manufacturing_cost",
+        formPath: "PriceCalculator",
+      },
+      {
+        id: 11,
+        name: "급여(1인 평균)",
+        amount: 0,
+        apiId: "salary",
+        formPath: "PerformanceCalculator",
+      },
+      {
+        id: 12,
+        name: "업무추진비",
+        amount: 0,
+        apiId: "maintenance_cost",
+        formPath: "PerformanceCalculator",
+      },
+      {
+        id: 13,
+        name: "사무실 임차료",
+        amount: 0,
+        apiId: "office_rent",
+        formPath: "PerformanceCalculator",
+      },
+      {
+        id: 14,
+        name: "접대비",
+        amount: 0,
+        apiId: "business_expense",
+        formPath: "PerformanceCalculator",
+      },
+      {
+        id: 15,
+        name: "광고선전비",
+        amount: 0,
+        apiId: "ad_cost",
+        formPath: "PerformanceCalculator",
+      },
+      {
+        id: 16,
+        name: "예비비용",
+        amount: 0,
+        apiId: "contingency",
+        formPath: "PerformanceCalculator",
+      },
+      {
+        id: 9999,
+        name: "급여인상율",
+        amount: 0,
+        description: "직원 1명당 연봉 인상율",
+        apiId: "salary_increase_rate",
+        formPath: "IncreaseRateCalulator",
+      },
+      {
+        id: 9999,
+        name: "업무추진비 인상율",
+        amount: 0,
+        description: "직원 증가 시 인상되도록 설정",
+        apiId: "maintenance_cost_increase_rate",
+        formPath: "IncreaseRateCalulator",
+      },
+      {
+        id: 9999,
+        name: "사무실 임차료 인상율",
+        amount: 0,
+        description: "직원 증가 시 인상되도록 설정",
+        apiId: "office_rent_increase_rate",
+        formPath: "IncreaseRateCalulator",
+      },
+      {
+        id: 9999,
+        name: "접대비 인상율",
+        amount: 0,
+        description: "예상 및 추정",
+        apiId: "business_expense_increase_rate",
+        formPath: "IncreaseRateCalulator",
+      },
+      {
+        id: 9999,
+        name: "광고선전비 인상율",
+        amount: 0,
+        description: "예상 및 추정",
+        apiId: "ad_cost_increase_rate",
+        formPath: "IncreaseRateCalulator",
+      },
+      {
+        id: 9999,
+        name: "예비비 인상율",
+        amount: 0,
+        description: "예상 및 추정",
+        apiId: "contingency_increase_rate",
+        formPath: "IncreaseRateCalulator",
+      },
+    ];
+
+    setCostItems(initialPriceData);
+  }, []);
 
   useEffect(() => {
     console.log("repreFiles :: ", repreFiles);
+    if (ideaId && repreReadyUpload) {
+      const formData = new FormData();
+      repreFiles.forEach((file, index) => {
+        formData.append(`file`, file, file.name);
+      });
+      fetchUploadFile("image", formData);
+    }
   }, [repreFiles]);
   useEffect(() => {
     console.log("detailFiles :: ", detailFiles);
   }, [detailFiles]);
   useEffect(() => {
     console.log("attachFiles :: ", attachFiles);
+    if (ideaId && attachReadyUpload) {
+      const formData = new FormData();
+      attachFiles.forEach((file, index) => {
+        formData.append(`file`, file, file.name);
+      });
+      fetchUploadFile("attach", formData);
+    }
   }, [attachFiles]);
+  useEffect(() => {
+    if (contents) {
+      setIdeaName(contents?.title);
+      setSelectedTheme({
+        id: contents?.theme.id,
+        name: contents?.theme.name,
+        image: "",
+        description: "",
+      });
+      setEditorContent(contents?.content);
+    }
+    if (contents?.images) {
+      const files = contents.images.map((images) => {
+        const { file_name } = images;
+        return new File([], file_name);
+      });
+      setRepreFiles(files);
+
+      const newMap = new Map<string, string>();
+      contents.images.map((images) => {
+        const { file_name, id } = images;
+        newMap.set(file_name, id);
+      });
+      setRepreFilesMap(newMap);
+    }
+    if (contents?.attachments) {
+      const files = contents.attachments.map((attachment) => {
+        const { file_name } = attachment;
+        return new File([], file_name);
+      });
+      setAttachFiles(files);
+
+      const newMap = new Map<string, string>();
+      contents.attachments.map((attachment) => {
+        const { file_name, id } = attachment;
+        newMap.set(file_name, id);
+      });
+      setAttachFilesMap(newMap);
+    }
+  }, [contents]);
+
+  // 이벤트
   const handleChangeNextStep = () => {
     setActiveIndex(activeIndex + 1);
     if (!isBrowser()) return;
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+  const handleSelectTheme = (value: Category) => {
+    setSelectedTheme(value);
+  };
+  const handleBlur = () => {
+    if (inputRef.current) setIdeaName(inputRef.current.value);
+  };
+  const handleBlurEditor = () => {
+    if (editorRef.current) {
+      setEditorContent(editorRef.current.getInstance().getHTML());
+    }
+  };
+
+  // 버튼
   const onSubmit = () => {
     console.log("최종 업로드");
     router.push("./registerList");
   };
-  const tempSave = () => {
-    console.log("임시 저장 현재 인덱스 :: ", activeIndex);
+  const tempSave = async (data: any) => {
+    try {
+      console.log("임시 저장 현재 인덱스 :: ", activeIndex);
+
+      switch (activeIndex) {
+        case 0:
+          // 저장 전 확인
+          if (!ideaName) {
+            alert("아이디어 제목을 입력해주세요.");
+            return;
+          }
+          if (!editorContent) {
+            alert("내용을 입력해주세요.");
+            return;
+          }
+          if (!selectedTheme) {
+            alert("테마를 선택해주세요.");
+            return;
+          }
+          if (!repreFiles) {
+            alert("대표 이미지를 선택해주세요.");
+            return;
+          }
+
+          let method = "";
+          let url = "";
+          const formData = new FormData();
+          formData.append("title", ideaName);
+          formData.append("content", editorContent);
+          formData.append("theme_id", selectedTheme.id);
+
+          // 최초 등록
+          if (!ideaId) {
+            method = "POST";
+            url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation`;
+            repreFiles.forEach((file, index) => {
+              formData.append(`images`, file, file.name);
+            });
+            attachFiles.forEach((file, index) => {
+              formData.append(`files`, file, file.name);
+            });
+          } else {
+            const queryParams = new URLSearchParams({
+              title: ideaName,
+              content: editorContent,
+              theme_id: selectedTheme.id,
+            }).toString();
+
+            method = "PUT";
+            url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/${ideaId}?${queryParams}`;
+            formData.append("ideation_id", ideaId);
+          }
+
+          // 아이디어 내용 저장
+          const response = await fetch(url, {
+            method: method,
+            headers: {
+              Authorization: `Bearer ${userInfo.bearer}`,
+              Accept: "application/json",
+            },
+            body: method === "POST" ? formData : undefined,
+          });
+
+          // 응답 처리
+          if (response.ok) {
+            // 성공 시 처리
+            const data = await response.json();
+            alert("임시저장 되었습니다.");
+          } else {
+            // 실패 시 처리
+            alert("임시 저장 실패:" + response.statusText);
+          }
+          break;
+        case 1:
+          console.log("저장할 데이터:", data);
+          break;
+
+        default:
+          break;
+      }
+    } catch (error) {
+      // 오류 처리
+      console.error("서버 요청 오류:", error);
+    }
   };
+
   const preview = () => {
     console.log("미리보기");
   };
-  const handleSelectTheme = (value: string) => {
-    setSelectedTheme(value);
+
+  // 파일 수정
+  const fetchUploadFile = async (path: string, form: FormData) => {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/${path}/${ideaId}`,
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+          },
+          body: form,
+        }
+      );
+      if (res.ok) {
+        console.info("파일 업로드 성공:", res.statusText);
+      } else {
+        console.error("파일 업로드 실패:", res.statusText);
+      }
+    } catch (error) {
+      console.error("Error fetching update data:", error);
+    } finally {
+    }
   };
+
   const Step1 = () => {
     return (
       <>
@@ -82,11 +452,23 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
           </div>
           <div className={styled.form}>
             <div className={styled.label}>아이디어명</div>
-            <input type="text" placeholder="아이디어명을 입력하세요" />
+            <input
+              type="text"
+              placeholder="아이디어명을 입력하세요"
+              ref={inputRef}
+              defaultValue={ideaName}
+              onBlur={handleBlur}
+            />
           </div>
           <div className={styled.form}>
             <div className={styled.label}>아이디어 설명</div>
-            <textarea placeholder="아이디어 설명을 입력하세요" />
+            <div className={styled.editorWrap}>
+              <NoSsrEditor
+                content={editorContent}
+                editorRef={editorRef}
+                onChange={handleBlurEditor}
+              ></NoSsrEditor>
+            </div>
           </div>
           <div className={styled.form}>
             <div className={`${styled.label} ${styled.hasDesc}`}>
@@ -99,8 +481,9 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
             </div>
             <FileUpload
               uploadData={repreFiles}
+              uploadDataMap={repreFilesMap}
               setUploadData={setRepreFiles}
-              // setReadyUpload={}
+              setReadyUpload={setRepreReadyUpload}
               extList={["jpeg", "jpg", "png"]}
               limitCnt={10}
               type={"image"}
@@ -117,8 +500,9 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
             </div>
             <FileUpload
               uploadData={detailFiles}
+              uploadDataMap={repreFilesMap}
               setUploadData={setDetailFiles}
-              // setReadyUpload={}
+              setReadyUpload={setDetailReadyUpload}
               extList={["jpeg", "jpg", "png"]}
               limitCnt={10}
               type={"image"}
@@ -132,7 +516,7 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
             </div>
             <div className={styled.selectBoxWrap}>
               <CustomSelectBox
-                options={themeData}
+                options={categoryData}
                 value={selectedTheme}
                 onSelect={handleSelectTheme}
                 placeholder="산업군을 선택하세요"
@@ -149,8 +533,9 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
             </div>
             <FileUpload
               uploadData={attachFiles}
+              uploadDataMap={attachFilesMap}
               setUploadData={setAttachFiles}
-              // setReadyUpload={}
+              setReadyUpload={setAttachReadyUpload}
               extList={[]}
               limitCnt={10}
               type={"etc"}
@@ -170,7 +555,7 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
     );
   };
   const Step2 = () => {
-    const { sellingPrice, sgnaExpenses } = useIdeaPriceStore();
+    //const { sellingPrice, sgnaExpenses } = useIdeaPriceStore();
     return (
       <>
         <div className={`${styled.section} ${styled.price}`}>
@@ -187,13 +572,16 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
           <div className={styled.tableContainer}>
             <div className={styled.tableTitleWrap}>
               <div className={styled.tableTitle}>
-                상품가격결정<span></span>
+                상품가격결정
+                <span>
+                  <ToolTipComponent index={0} />
+                </span>
               </div>
               <div className={styled.tableInfo}>단위: 원, %</div>
             </div>
             <div className={styled.tableContentsWrap}>
               {/* <PriceTable /> */}
-              <PriceCalculator inputHide="N" />
+              <PriceCalculator inputHide="N" itemData={performanceParams} />
             </div>
           </div>
           <div className={styled.totalContainer}>
@@ -201,18 +589,24 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
               판매가<span>(소비자가격)</span>
             </div>
             <div className={styled.amount}>
-              <span>{sellingPrice ? sellingPrice.toLocaleString() : 0}</span>원
+              <span>{sellingPrice}</span>원
             </div>
           </div>
           <div className={styled.tableContainer}>
             <div className={styled.tableTitleWrap}>
               <div className={styled.tableTitle}>
-                실적 단위 계산<span></span>
+                실적 단위 계산
+                <span>
+                  <ToolTipComponent index={7} />
+                </span>
               </div>
               <div className={styled.tableInfo}>단위: 원, %</div>
             </div>
             <div className={styled.tableContentsWrap}>
-              <PerformanceCalculator inputHide="N" />
+              <PerformanceCalculator
+                inputHide="N"
+                itemData={performanceParams}
+              />
             </div>
           </div>
           <div className={styled.totalContainer}>
@@ -220,18 +614,24 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
               판관비 계<span>(연비용)</span>
             </div>
             <div className={styled.amount}>
-              <span>{sgnaExpenses ? sgnaExpenses.toLocaleString() : 0}</span>원
+              <span>{totalSelYear.toLocaleString()}</span>원
             </div>
           </div>
           <div className={styled.tableContainer}>
             <div className={styled.tableTitleWrap}>
               <div className={styled.tableTitle}>
-                인상율 설정<span></span>
+                인상율 설정
+                <span>
+                  <ToolTipComponent index={17} />
+                </span>
               </div>
               <div className={styled.tableInfo}>단위: %</div>
             </div>
             <div className={styled.tableContentsWrap}>
-              <IncreaseRateCalulator inputHide="N" />
+              <IncreaseRateCalulator
+                inputHide="N"
+                itemData={performanceParams}
+              />
             </div>
           </div>
         </div>
@@ -262,14 +662,7 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
             <div className={`${styled.inputHeader} ${styled.left}`}>
               <div className={styled.title}>거래발생 수</div>
             </div>
-            <div className={`${styled.inputWrap} ${styled.cnt}`}>
-              <div className={styled.inputItem}>
-                <div className={styled.title}>1년차</div>
-                <div className={styled.input}>
-                  <input type="text" placeholder="금액을 입력하세요." />
-                </div>
-              </div>
-            </div>
+            <YearUserCnt onSaveData={setTradeCountsData} />
           </div>
           <div className={styled.totalContainer}>
             <div className={styled.title}>
@@ -401,7 +794,7 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
     );
   };
   const Step4 = () => {
-    const { sellingPrice, sgnaExpenses } = useIdeaPriceStore();
+    //const { sellingPrice, sgnaExpenses } = useIdeaPriceStore();
     return (
       <>
         <div className={`${styled.section} ${styled.final}`}>
@@ -427,8 +820,9 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
             <div className={styled.desc}></div>
             <FileUpload
               uploadData={repreFiles}
+              uploadDataMap={repreFilesMap}
               setUploadData={setRepreFiles}
-              // setReadyUpload={}
+              setReadyUpload={setRepreReadyUpload}
               extList={["jpeg", "jpg", "png"]}
               limitCnt={10}
               type={"image"}
@@ -441,8 +835,9 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
             </div>
             <FileUpload
               uploadData={detailFiles}
+              uploadDataMap={repreFilesMap}
               setUploadData={setDetailFiles}
-              // setReadyUpload={}
+              setReadyUpload={setDetailReadyUpload}
               extList={["jpeg", "jpg", "png"]}
               limitCnt={10}
               type={"image"}
@@ -460,8 +855,9 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
             </div>
             <FileUpload
               uploadData={attachFiles}
+              uploadDataMap={repreFilesMap}
               setUploadData={setAttachFiles}
-              // setReadyUpload={}
+              setReadyUpload={setAttachReadyUpload}
               extList={[]}
               limitCnt={10}
               type={"etc"}
@@ -482,7 +878,7 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
             </div>
             <div className={styled.tableContentsWrap}>
               {/* <PriceTable /> */}
-              <PriceCalculator inputHide="Y" />
+              <PriceCalculator inputHide="Y" itemData={performanceParams} />
             </div>
           </div>
           <div className={styled.totalContainer}>
@@ -490,7 +886,7 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
               판매가<span>(소비자가격)</span>
             </div>
             <div className={styled.amount}>
-              <span>{sellingPrice ? sellingPrice.toLocaleString() : 0}</span>원
+              <span>{sellingPrice.toLocaleString()}</span>원
             </div>
           </div>
           <div className={styled.tableContainer}>
@@ -501,7 +897,10 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
               <div className={styled.tableInfo}>단위: 원, %</div>
             </div>
             <div className={styled.tableContentsWrap}>
-              <PerformanceCalculator inputHide="Y" />
+              <PerformanceCalculator
+                inputHide="Y"
+                itemData={performanceParams}
+              />
             </div>
           </div>
           <div className={styled.totalContainer}>
@@ -509,7 +908,7 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
               판관비 계<span>(연비용)</span>
             </div>
             <div className={styled.amount}>
-              <span>{sgnaExpenses ? sgnaExpenses.toLocaleString() : 0}</span>원
+              <span>{sellingPrice.toLocaleString()}</span>원
             </div>
           </div>
           <div className={styled.tableContainer}>
@@ -520,7 +919,10 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
               <div className={styled.tableInfo}>단위: %</div>
             </div>
             <div className={styled.tableContentsWrap}>
-              <IncreaseRateCalulator inputHide="Y" />
+              <IncreaseRateCalulator
+                inputHide="Y"
+                itemData={performanceParams}
+              />
             </div>
           </div>
         </div>
