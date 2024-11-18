@@ -1,73 +1,58 @@
 "use client";
-import React, { useRef, useEffect } from "react";
-import debounce from "lodash/debounce";
+import React, { useEffect, useState } from "react";
+import useIdeaPriceStore from "@/store/useIdeaPriceStore";
 import styled from "@/components/idea/Idea.module.scss";
-import ToolTipComponent from "./ToolTipComponent";
-import { ICostInputItem, ICostData } from "@/store/financeStore";
 
 interface Props {
   inputHide: string;
-  itemData: {
-    costItems: ICostInputItem[];
-    setCostItems: React.Dispatch<React.SetStateAction<ICostInputItem[]>>;
-    totalCost: number;
-    setTotalCost: React.Dispatch<React.SetStateAction<number>>;
-    sellingPrice: number;
-    setSellingPrice: React.Dispatch<React.SetStateAction<number>>;
-    totalSelYear: number;
-    setTotalSelYear: React.Dispatch<React.SetStateAction<number>>;
-  };
 }
 
-// [실적 단위 계산]
-const PerformanceCalculator: React.FC<Props> = ({ inputHide, itemData }) => {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const {
-    costItems,
-    setCostItems,
-    totalCost,
-    setTotalCost,
-    sellingPrice,
-    totalSelYear,
-    setTotalSelYear,
-  } = itemData;
+const PerformanceCalculator: React.FC<Props> = ({ inputHide }) => {
+  const { setSgnaExpenses, totalPrice, sellingPrice } = useIdeaPriceStore();
+  // 원가 항목을 관리하는 상태
+  const [costItems, setCostItems] = useState<ICostItem[]>([
+    { name: "급여(1인 평균)", amount: 35000000 },
+    { name: "업무추진비", amount: 3600000 },
+    { name: "사무실 임차료", amount: 6000000 },
+    { name: "접대비", amount: 5000000 },
+    { name: "광고선전비", amount: 12000000 },
+    { name: "예비비용", amount: 3000000 },
+  ]);
 
-  // 기존 원가 항목의 금액을 변경
-  const handleCostChange = (id: number, amount: number) => {
-    debouncedUpdateCost(id, amount);
+  // 기존 원가 항목의 금액을 변경할 수 있는 입력 필드와 핸들러
+  const handleCostChange = (index: number, amount: number) => {
+    const newCostItems = [...costItems];
+    newCostItems[index].amount = amount;
+    setCostItems(newCostItems);
   };
 
-  // 기존 원가 항목의 이름을 변경
-  const handleNameChange = (id: number, name: string) => {
-    const newCostItems = costItems.map((item) =>
-      item.id === id ? { ...item, name } : item
-    );
+  const handleNameChange = (index: number, name: string) => {
+    const newCostItems = [...costItems];
+    newCostItems[index].name = name;
     setCostItems(newCostItems);
   };
 
   // 새 원가 항목을 추가할 수 있는 입력 필드와 핸들러
   const handleAddCostItem = () => {
-    const maxId = Math.max(...costItems.map((item) => item.id));
-    const newId = maxId + 1;
-    const randomId = Math.floor(1000 + Math.random() * 9000).toString();
-    setCostItems([
-      ...costItems,
-      {
-        id: newId,
-        name: "항목입력",
-        amount: 0,
-        apiId: `custom_${randomId}` as keyof ICostData,
-        formPath: "PerformanceCalculator",
-      },
-    ]);
+    console.log("handleAddCostItem");
+    setCostItems([...costItems, { name: "항목입력", amount: 0 }]);
   };
 
-  const handleRemoveCostItem = (id: number) => {
-    const newCostItems = [...costItems].filter((item, index) => item.id !== id);
+  const handleRemoveCostItem = (targetIndex: number) => {
+    const newCostItems = [...costItems].filter(
+      (item, index) => index !== targetIndex
+    );
     setCostItems(newCostItems);
   };
 
-  // 원가율 계산(원가계/매출단위)
+  // 모든 원가 항목의 합계
+  const totalCost = costItems.reduce((sum, item) => sum + item.amount, 0);
+
+  useEffect(() => {
+    console.log("S&GA Expenses :: ", totalCost);
+    setSgnaExpenses(totalCost);
+  }, [totalCost]);
+
   function calculateCostRate(salesUnit: number, costUnit: number): number {
     if (salesUnit === 0) {
       throw new Error("Sales unit cannot be zero");
@@ -75,22 +60,6 @@ const PerformanceCalculator: React.FC<Props> = ({ inputHide, itemData }) => {
     const costRate = (costUnit / salesUnit) * 100;
     return costRate;
   }
-
-  // 디바운스
-  const debouncedUpdateCost = debounce((id: number, amount: number) => {
-    const newCostItems = costItems.map((item) =>
-      item.id === id ? { ...item, amount } : item
-    );
-    setCostItems(newCostItems);
-  }, 400);
-
-  // 모든 원가 항목의 합계
-  useEffect(() => {
-    const totalTotal = costItems
-      .filter((item) => item.formPath === "PerformanceCalculator")
-      .reduce((sum, item) => sum + (item.amount ? item.amount : 0), 0);
-    setTotalSelYear(totalTotal);
-  }, [costItems]);
 
   function chkInputHide() {
     if (inputHide == "N")
@@ -102,39 +71,32 @@ const PerformanceCalculator: React.FC<Props> = ({ inputHide, itemData }) => {
             </button>
           </div>
           <div className={styled.inputWrap}>
-            {costItems
-              .filter((item) => item.formPath === "PerformanceCalculator")
-              .map((item, index) => (
-                <div key={index} className={styled.inputItem}>
-                  <div className={styled.iconInfo}>
-                    <ToolTipComponent index={item.id} />
-                  </div>
-                  <div className={styled.title}>
-                    <input
-                      type="text"
-                      value={item.name}
-                      onChange={(e) =>
-                        handleNameChange(item.id, e.target.value)
-                      }
-                    />
-                  </div>
-                  <div className={styled.input}>
-                    <input
-                      type="number"
-                      ref={inputRef}
-                      defaultValue={item.amount}
-                      placeholder="금액을 입력하세요."
-                      onChange={(e) =>
-                        handleCostChange(item.id, Number(e.target.value))
-                      }
-                    />
-                  </div>
-                  <div
-                    className={styled.iconRemove}
-                    onClick={() => handleRemoveCostItem(item.id)}
-                  ></div>
+            {costItems.map((item, index) => (
+              <div key={index} className={styled.inputItem}>
+                <div className={styled.iconInfo}></div>
+                <div className={styled.title}>
+                  <input
+                    type="text"
+                    value={item.name}
+                    onChange={(e) => handleNameChange(index, e.target.value)}
+                  />
                 </div>
-              ))}
+                <div className={styled.input}>
+                  <input
+                    type="number"
+                    value={item.amount}
+                    onChange={(e) =>
+                      handleCostChange(index, Number(e.target.value))
+                    }
+                    placeholder="금액을 입력하세요."
+                  />
+                </div>
+                <div
+                  className={styled.iconRemove}
+                  onClick={() => handleRemoveCostItem(index)}
+                ></div>
+              </div>
+            ))}
           </div>
         </div>
       );
@@ -154,70 +116,39 @@ const PerformanceCalculator: React.FC<Props> = ({ inputHide, itemData }) => {
         <tbody>
           <tr>
             <th>수익</th>
-            <th>
-              <div className={styled.thWrap}>
-                매출 단위
-                <span>
-                  <ToolTipComponent index={8} />
-                </span>
-              </div>
-            </th>
+            <th>매출 단위</th>
             <td>{sellingPrice ? sellingPrice.toLocaleString() : 0}</td>
           </tr>
           <tr>
             <th rowSpan={2}>매출원가</th>
-            <th>
-              <div className={styled.thWrap}>
-                원가 단위
-                <span>
-                  <ToolTipComponent index={9} />
-                </span>
-              </div>
-            </th>
-            <td>{totalCost.toLocaleString()}</td>
+            <th>원가 단위</th>
+            <td>{totalPrice ? totalPrice.toLocaleString() : 0}</td>
           </tr>
           <tr>
-            <th>
-              <div className={styled.thWrap}>
-                원가율
-                <span>
-                  <ToolTipComponent index={10} />
-                </span>
-              </div>
-            </th>
+            <th>원가율</th>
             <td>
-              {sellingPrice && totalCost
-                ? calculateCostRate(sellingPrice, totalCost).toFixed(0)
+              {sellingPrice && totalPrice
+                ? calculateCostRate(sellingPrice, totalPrice).toFixed(0)
                 : 0}
               %
             </td>
           </tr>
-          {costItems
-            .filter((item) => item.formPath === "PerformanceCalculator")
-            .map((item, index) => (
-              <tr key={index}>
-                {index === 0 && (
-                  <th
-                    rowSpan={
-                      costItems.filter(
-                        (item) => item.formPath === "PerformanceCalculator"
-                      ).length
-                    }
-                  >
-                    원가
-                  </th>
-                )}
-                <th>{item.name}</th>
-                <td className={styled.em}>
-                  {item.amount ? item.amount.toLocaleString() : 0}
-                </td>
-              </tr>
-            ))}
+          {costItems.map((item, index) => (
+            <tr key={index}>
+              {index === 0 && <th rowSpan={costItems.length}>원가</th>}
+              <th>{item.name}</th>
+              <td className={styled.em}>
+                {item.amount ? item.amount.toLocaleString() : 0}
+              </td>
+            </tr>
+          ))}
           <tr>
             <th colSpan={2} className={styled.total}>
               판관비 계(연비용)
             </th>
-            <td className={styled.total}>{totalSelYear.toLocaleString()}</td>
+            <td className={styled.total}>
+              {totalCost ? totalCost.toLocaleString() : 0}
+            </td>
           </tr>
         </tbody>
       </table>

@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import styled from "@/components/idea/Idea.module.scss";
-import useIdeaPriceStore from "@/store/useIdeaPriceStore";
 
 interface YearData {
   transactionCount: number;
@@ -33,11 +32,11 @@ const calculateYearData = (
   contingencyExpenses: number,
   previousStaffCount: number
 ): YearData => {
-  const sales = transactionCount * salesPerTransaction; // 매출: 매출단위X거래발생수
-  const salesCost = transactionCount * salesCostPerTransaction; //매출원가: 원가단위X거래발생수
-  const grossProfit = sales - salesCost; //매출총이익: 매출-매출원가
+  const sales = transactionCount * salesPerTransaction;
+  const salesCost = transactionCount * salesCostPerTransaction;
+  const grossProfit = sales - salesCost;
 
-  const salary = staffCount * salaryPerStaff; //급여: 직원수*급여(1인)
+  const salary = staffCount * salaryPerStaff;
 
   const businessPromotionCostAdjusted =
     staffCount > previousStaffCount
@@ -54,7 +53,7 @@ const calculateYearData = (
     advertisingCost +
     contingencyExpenses;
   const operatingIncome = grossProfit - adminExpenses;
-  const operatingIncomeRate = Math.floor((operatingIncome / sales) * 100);
+  const operatingIncomeRate = (operatingIncome / sales) * 100;
 
   return {
     transactionCount,
@@ -74,121 +73,73 @@ const calculateYearData = (
   };
 };
 
+const create10YearPlan = (
+  initialTransactionCount: number,
+  initialStaffCount: number,
+  salesPerTransaction: number,
+  salesCostPerTransaction: number,
+  initialSalaryPerStaff: number,
+  businessPromotionCost: number,
+  officeRent: number,
+  entertainmentExpenses: number,
+  advertisingCost: number,
+  contingencyExpenses: number
+): YearData[] => {
+  const years: YearData[] = [];
+  let transactionCount = initialTransactionCount;
+  let staffCount = initialStaffCount;
+  let salaryPerStaff = initialSalaryPerStaff;
+
+  for (let year = 1; year <= 10; year++) {
+    const previousStaffCount = year > 1 ? years[year - 2].staffCount : 0;
+    const yearData = calculateYearData(
+      year,
+      transactionCount,
+      staffCount,
+      salesPerTransaction,
+      salesCostPerTransaction,
+      salaryPerStaff,
+      businessPromotionCost,
+      officeRent,
+      entertainmentExpenses,
+      advertisingCost,
+      contingencyExpenses,
+      previousStaffCount
+    );
+
+    years.push(yearData);
+
+    // Adjust values for next year
+    transactionCount *= 2; // Example increase
+    staffCount += 1; // Example increase
+    salaryPerStaff *= 1.05; // Example increase
+  }
+
+  return years;
+};
+
+const findPositiveOperatingIncomeYear = (years: YearData[]): number | null => {
+  for (let i = 0; i < years.length; i++) {
+    if (years[i].operatingIncome > 0) {
+      return i + 1;
+    }
+  }
+  return null;
+};
+
 const FinanceCaculator = () => {
-  const { yearUserCnt, sellingPrice, totalPrice, sgaExpensesItem } =
-    useIdeaPriceStore();
-  const [initialTransactionCount, setInitialTransactionCount] = useState(1);
+  const [initialTransactionCount, setInitialTransactionCount] = useState(100);
   const [initialStaffCount, setInitialStaffCount] = useState(2);
-  const [salesPerTransaction, setSalesPerTransaction] = useState(10000);
-  const [salesCostPerTransaction, setSalesCostPerTransaction] = useState(1000);
+  const [salesPerTransaction, setSalesPerTransaction] = useState(19500);
+  const [salesCostPerTransaction, setSalesCostPerTransaction] = useState(13000);
   const [initialSalaryPerStaff, setInitialSalaryPerStaff] = useState(70000000);
   const [businessPromotionCost, setBusinessPromotionCost] = useState(3600000);
   const [officeRent, setOfficeRent] = useState(6000000);
   const [entertainmentExpenses, setEntertainmentExpenses] = useState(5000000);
   const [advertisingCost, setAdvertisingCost] = useState(12000000);
   const [contingencyExpenses, setContingencyExpenses] = useState(3000000);
-  const [plan, setPlan] = useState<YearData[]>([]);
 
-  // plan을 생성
-  useEffect(() => {
-    setSalesPerTransaction(sellingPrice);
-    setSalesCostPerTransaction(totalPrice);
-    if (sgaExpensesItem && sgaExpensesItem.length > 0) {
-      setInitialSalaryPerStaff(sgaExpensesItem[0].amount);
-      setBusinessPromotionCost(sgaExpensesItem[1].amount);
-      setOfficeRent(sgaExpensesItem[2].amount);
-      setEntertainmentExpenses(sgaExpensesItem[3].amount);
-      setAdvertisingCost(sgaExpensesItem[4].amount);
-      setContingencyExpenses(sgaExpensesItem[5].amount);
-    }
-  }, [sellingPrice, totalPrice, sgaExpensesItem]);
-
-  const create10YearPlan = (
-    initialTransactionCount: number,
-    initialStaffCount: number,
-    salesPerTransaction: number,
-    salesCostPerTransaction: number,
-    initialSalaryPerStaff: number,
-    businessPromotionCost: number,
-    officeRent: number,
-    entertainmentExpenses: number,
-    advertisingCost: number,
-    contingencyExpenses: number
-  ): YearData[] => {
-    const years: YearData[] = [];
-    let transactionCount = initialTransactionCount;
-    let staffCount = initialStaffCount;
-    let salaryPerStaff = initialSalaryPerStaff;
-
-    for (let year = 1; year <= 10; year++) {
-      const previousStaffCount = year > 1 ? years[year - 2].staffCount : 0;
-      const yearData = calculateYearData(
-        year,
-        transactionCount,
-        staffCount,
-        salesPerTransaction,
-        salesCostPerTransaction,
-        salaryPerStaff,
-        businessPromotionCost,
-        officeRent,
-        entertainmentExpenses,
-        advertisingCost,
-        contingencyExpenses,
-        previousStaffCount
-      );
-
-      years.push(yearData);
-
-      // Adjust values for next year
-      transactionCount += 1; // Example increase
-      staffCount += 1; // Example increase
-      //salaryPerStaff *= 1.05; // 연봉인상률
-    }
-
-    return years;
-  };
-
-  const findPositiveOperatingIncomeYear = (
-    years: YearData[]
-  ): number | null => {
-    for (let i = 0; i < years.length; i++) {
-      if (years[i].operatingIncome > 0) {
-        return i + 1;
-      }
-    }
-    return null;
-  };
-
-  // const plan = create10YearPlan(
-  //   initialTransactionCount,
-  //   initialStaffCount,
-  //   salesPerTransaction,
-  //   salesCostPerTransaction,
-  //   initialSalaryPerStaff,
-  //   businessPromotionCost,
-  //   officeRent,
-  //   entertainmentExpenses,
-  //   advertisingCost,
-  //   contingencyExpenses
-  // );
-
-  const positiveYear = findPositiveOperatingIncomeYear(plan);
-
-  useEffect(() => {
-    const newPlan = create10YearPlan(
-      initialTransactionCount,
-      initialStaffCount,
-      salesPerTransaction,
-      salesCostPerTransaction,
-      initialSalaryPerStaff,
-      businessPromotionCost,
-      officeRent,
-      entertainmentExpenses,
-      advertisingCost,
-      contingencyExpenses
-    );
-    setPlan(newPlan);
-  }, [
+  const plan = create10YearPlan(
     initialTransactionCount,
     initialStaffCount,
     salesPerTransaction,
@@ -198,44 +149,10 @@ const FinanceCaculator = () => {
     officeRent,
     entertainmentExpenses,
     advertisingCost,
-    contingencyExpenses,
-  ]);
+    contingencyExpenses
+  );
 
-  // n년차 거래발생수를 변경하는 함수
-  const updateYearTransactionCount = (index: number, newCount: number) => {
-    setPlan((prevPlan) => {
-      const updatedPlan = [...prevPlan];
-      if (updatedPlan[index]) {
-        updatedPlan[index].transactionCount = newCount; // 값 업데이트
-        // 여기서 다시 계산하기
-        const yearData = calculateYearData(
-          index + 1, // 년도는 1부터 시작
-          updatedPlan[index].transactionCount,
-          updatedPlan[index].staffCount,
-          salesPerTransaction,
-          salesCostPerTransaction,
-          initialSalaryPerStaff,
-          businessPromotionCost,
-          officeRent,
-          entertainmentExpenses,
-          advertisingCost,
-          contingencyExpenses,
-          index > 0 ? updatedPlan[index - 1].staffCount : 0 // 이전 직원 수
-        );
-
-        updatedPlan[index] = yearData; // 다시 계산한 데이터로 업데이트
-      }
-      return updatedPlan;
-    });
-  };
-
-  // useEffect(() => {
-  //   console.log("yearUserCnt가 수정되면 호출");
-  //   if (yearUserCnt)
-  //     for (let i = 0; i < yearUserCnt.length; i++) {
-  //       updateYearTransactionCount(i, yearUserCnt[i].value);
-  //     }
-  // }, [yearUserCnt]);
+  const positiveYear = findPositiveOperatingIncomeYear(plan);
 
   return (
     <div className={styled.xScroll}>

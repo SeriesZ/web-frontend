@@ -9,7 +9,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/effect-coverflow";
 import SwiperCore from "swiper";
-import { Category, IdeaContentsType } from "@/model/IdeaList";
+import { Category, IdeaContents } from "@/model/IdeaList";
 
 type Props = {};
 
@@ -20,7 +20,7 @@ const IdeaList = (props: Props) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isOpen, setOpen] = useState(false);
   const [categoryData, setCategoryData] = useState<Category[]>([]);
-  const [listData, setListData] = useState<IdeaContentsType[]>([]);
+  const [listData, setListData] = useState<IdeaContents[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const prevButtonRef = useRef<HTMLDivElement>(null);
@@ -75,7 +75,7 @@ const IdeaList = (props: Props) => {
   const searchThemeList = async (data: any) => {
     try {
       const themes = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/themes?theme_id=${data.id}`
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/themes?offset=0&limit=10&theme_name=${data.name}`
       );
 
       if (!themes.ok) {

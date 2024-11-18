@@ -1,63 +1,76 @@
 "use client";
-import React, { useRef, useEffect, useState } from "react";
-import debounce from "lodash/debounce";
+import React, { useEffect, useState } from "react";
+import useIdeaPriceStore from "@/store/useIdeaPriceStore";
 import styled from "@/components/idea/Idea.module.scss";
-import { ICostInputItem, ICostData } from "@/store/financeStore";
 
 interface Props {
   inputHide: string;
-  itemData: {
-    costItems: ICostInputItem[];
-    setCostItems: React.Dispatch<React.SetStateAction<ICostInputItem[]>>;
-  };
 }
 
-// [인상률 설정]
-const IncreaseRateCalulator: React.FC<Props> = ({ inputHide, itemData }) => {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const { costItems, setCostItems } = itemData;
+const IncreaseRateCalulator: React.FC<Props> = ({ inputHide }) => {
+  const { setSgnaExpenses, totalPrice, sellingPrice } = useIdeaPriceStore();
+  // 원가 항목을 관리하는 상태
+  const [costItems, setCostItems] = useState<ICostItem[]>([
+    { name: "급여인상율", amount: 0.02, description: "직원 1명당 연봉 인상율" },
+    {
+      name: "업무추진비 인상율",
+      amount: 0.05,
+      description: "직원 증가 시 인상되도록 설정",
+    },
+    {
+      name: "사무실 임차료 인상율",
+      amount: 0.05,
+      description: "직원 증가 시 인상되도록 설정",
+    },
+    { name: "접대비 인상율", amount: 0.1, description: "예상 및 추정" },
+    { name: "광고선전비 인상율", amount: 0.1, description: "예상 및 추정" },
+    { name: "예비비 인상율", amount: 0.05, description: "예상 및 추정" },
+  ]);
 
-  // 기존 원가 항목의 금액을 변경
-  const handleCostChange = (id: number, amount: number) => {
-    debouncedUpdateCost(id, amount);
+  // 기존 원가 항목의 금액을 변경할 수 있는 입력 필드와 핸들러
+  const handleCostChange = (index: number, amount: number) => {
+    const newCostItems = [...costItems];
+    newCostItems[index].amount = amount;
+    setCostItems(newCostItems);
   };
 
-  // 기존 원가 항목의 이름을 변경
-  const handleNameChange = (id: number, name: string) => {
-    const newCostItems = costItems.map((item) =>
-      item.id === id ? { ...item, name } : item
-    );
+  const handleNameChange = (index: number, name: string) => {
+    const newCostItems = [...costItems];
+    newCostItems[index].name = name;
     setCostItems(newCostItems);
   };
 
   // 새 원가 항목을 추가할 수 있는 입력 필드와 핸들러
   const handleAddCostItem = () => {
-    const maxId = Math.max(...costItems.map((item) => item.id));
-    const newId = maxId + 1;
-    const randomId = Math.floor(1000 + Math.random() * 9000).toString();
-    const newItem: ICostInputItem = {
-      id: newId,
-      name: "항목입력",
-      amount: 0,
-      apiId: `custom_${randomId}` as keyof ICostData,
-      formPath: "IncreaseRateCalulator",
-    };
-    setCostItems([...costItems, newItem]);
+    console.log("handleAddCostItem");
+    setCostItems([
+      ...costItems,
+      { name: "항목입력", amount: 0, description: "" },
+    ]);
   };
 
-  const handleRemoveCostItem = (id: number) => {
-    const newCostItems = [...costItems].filter((item, index) => item.id !== id);
-    setCostItems(newCostItems);
-  };
-
-  // 디바운스
-  const debouncedUpdateCost = debounce((id: number, amount: number) => {
-    const newCostItems = costItems.map((item) =>
-      item.id === id ? { ...item, amount } : item
+  const handleRemoveCostItem = (targetIndex: number) => {
+    const newCostItems = [...costItems].filter(
+      (item, index) => index !== targetIndex
     );
     setCostItems(newCostItems);
-  }, 400);
+  };
 
+  // 모든 원가 항목의 합계
+  const totalCost = costItems.reduce((sum, item) => sum + item.amount, 0);
+
+  useEffect(() => {
+    console.log("S&GA Expenses :: ", totalCost);
+    setSgnaExpenses(totalCost);
+  }, [totalCost]);
+
+  function calculateCostRate(salesUnit: number, costUnit: number): number {
+    if (salesUnit === 0) {
+      throw new Error("Sales unit cannot be zero");
+    }
+    const costRate = (costUnit / salesUnit) * 100;
+    return costRate;
+  }
   // 변수에 따라 원가 항목 입력을 숨긴다
   function chkInputHide() {
     if (inputHide == "N")
@@ -69,37 +82,32 @@ const IncreaseRateCalulator: React.FC<Props> = ({ inputHide, itemData }) => {
             </button>
           </div>
           <div className={styled.inputWrap}>
-            {costItems
-              .filter((item) => item.formPath === "IncreaseRateCalulator")
-              .map((item, index) => (
-                <div key={index} className={styled.inputItem}>
-                  {item.id !== 9999 && <div className={styled.iconInfo}></div>}
-                  <div className={styled.title}>
-                    <input
-                      type="text"
-                      value={item.name}
-                      onChange={(e) =>
-                        handleNameChange(item.id, e.target.value)
-                      }
-                    />
-                  </div>
-                  <div className={styled.input}>
-                    <input
-                      type="number"
-                      ref={inputRef}
-                      defaultValue={item.amount}
-                      placeholder="금액을 입력하세요."
-                      onChange={(e) =>
-                        handleCostChange(item.id, Number(e.target.value))
-                      }
-                    />
-                  </div>
-                  <div
-                    className={styled.iconRemove}
-                    onClick={() => handleRemoveCostItem(item.id)}
-                  ></div>
+            {costItems.map((item, index) => (
+              <div key={index} className={styled.inputItem}>
+                <div className={styled.iconInfo}></div>
+                <div className={styled.title}>
+                  <input
+                    type="text"
+                    value={item.name}
+                    onChange={(e) => handleNameChange(index, e.target.value)}
+                  />
                 </div>
-              ))}
+                <div className={styled.input}>
+                  <input
+                    type="number"
+                    value={item.amount}
+                    onChange={(e) =>
+                      handleCostChange(index, Number(e.target.value))
+                    }
+                    placeholder="금액을 입력하세요."
+                  />
+                </div>
+                <div
+                  className={styled.iconRemove}
+                  onClick={() => handleRemoveCostItem(index)}
+                ></div>
+              </div>
+            ))}
           </div>
         </div>
       );
@@ -117,17 +125,15 @@ const IncreaseRateCalulator: React.FC<Props> = ({ inputHide, itemData }) => {
           </tr>
         </thead>
         <tbody>
-          {costItems
-            .filter((item) => item.formPath === "IncreaseRateCalulator")
-            .map((item, index) => (
-              <tr key={index}>
-                <th>{item.name}</th>
-                <td className={styled.em}>
-                  {item.amount ? (item.amount * 100).toLocaleString() : 0}%
-                </td>
-                <th>{item.description}</th>
-              </tr>
-            ))}
+          {costItems.map((item, index) => (
+            <tr key={index}>
+              <th>{item.name}</th>
+              <td className={styled.em}>
+                {item.amount ? (item.amount * 100).toLocaleString() : 0}%
+              </td>
+              <th>{item.description}</th>
+            </tr>
+          ))}
         </tbody>
       </table>
       {chkInputHide()}
