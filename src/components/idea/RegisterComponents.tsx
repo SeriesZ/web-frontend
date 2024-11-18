@@ -1,5 +1,5 @@
 "use client";
-import React, { ChangeEvent, act, useEffect, useState } from "react";
+import React, { ChangeEvent, act, useEffect, useState, useRef } from "react";
 import styled from "@/components/idea/Idea.module.scss";
 import FileUpload from "./FileUpload";
 import CustomSelectBox from "../common/CustomSelectBox";
@@ -12,6 +12,9 @@ import FinanceCaculator from "./FinanceCaculator";
 import PsrCalulator from "./PsrCalulator";
 import StockCalulator from "./StockCalulator";
 import { useRouter } from "next/navigation";
+import { Editor } from "react-draft-wysiwyg";
+import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
+import { EditorState } from "draft-js";
 
 type Props = {
   activeIndex: number;
@@ -73,6 +76,14 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
   const handleSelectTheme = (value: string) => {
     setSelectedTheme(value);
   };
+
+  // 에디터
+  const [editorState, setEditorState] = useState(EditorState.createEmpty());
+  const editorRef = useRef(null); // Create a ref for the editor
+  const onEditorStateChange = (editorState: any) => {
+    setEditorState(editorState);
+  };
+
   const Step1 = () => {
     return (
       <>
@@ -86,7 +97,25 @@ const RegisterComponents = ({ activeIndex, setActiveIndex }: Props) => {
           </div>
           <div className={styled.form}>
             <div className={styled.label}>아이디어 설명</div>
-            <textarea placeholder="아이디어 설명을 입력하세요" />
+            <div className={styled.editorWrap}>
+              <Editor
+                wrapperClassName={styled.wrapperClass}
+                editorClassName={styled.editor}
+                toolbarClassName={styled.toolbar}
+                toolbar={{
+                  list: { inDropdown: true },
+                  textAlign: { inDropdown: true },
+                  link: { inDropdown: true },
+                  history: { inDropdown: false },
+                }}
+                placeholder="내용을 작성해주세요."
+                localization={{
+                  locale: "ko",
+                }}
+                editorState={editorState}
+                onEditorStateChange={onEditorStateChange}
+              />
+            </div>
           </div>
           <div className={styled.form}>
             <div className={`${styled.label} ${styled.hasDesc}`}>

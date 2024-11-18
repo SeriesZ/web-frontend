@@ -164,6 +164,14 @@
       .selectBoxWrap {
         width: 240px;
       }
+      .editorWrap{
+        .editor {
+          height: 300px;
+          border: 1px solid #e8ecf2;
+          padding: 10px;  
+          resize: vertical;
+        }
+      }
     }
     .finalContent {
       font-size: 20px;

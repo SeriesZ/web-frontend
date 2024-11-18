@@ -17,10 +17,10 @@ const IdeaContents = (props: Props) => {
 
   // 데이터 셋팅
   const router = useSearchParams();
-  const id = router.get("id") || "1";
+  const id = router.get("id") || "ideation_1";
   const dataMap: { [key: string]: IdeaDataType } = {
-    "1": ideaData_HomeGym,
-    "2": ideaData_MyFootball,
+    ideation_1: ideaData_HomeGym,
+    ideation_2: ideaData_MyFootball,
   };
   const data = dataMap[id] || null;
 
