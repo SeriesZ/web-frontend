@@ -9,7 +9,6 @@
   margin: 0 auto 100px;
 }
 
-
 // swiper영역
 .mainSwiper {
   width: 100%;
@@ -40,7 +39,6 @@
     }
   }
 }
-
 
 // 섹션별 제목 컴포넌트
 .sectionTitle {
@@ -162,42 +160,15 @@
 .ideaList {
   width: 100%;
   .swiperWrap {
-    width: 100%;
     height: 530px;
+    background-color: #fff;
+    margin: 0 auto;
     padding: 60px 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    .swiperNav{
-      width: 590px;
-      z-index: 100; 
-    }
-  .swiperSlideWrap {
-    display: flex; 
-    justify-content: center;
-    align-items: center;
-  }
     .swiperItem {
+      position: relative;
       width: 640px;
       height: 410px;
       box-sizing: border-box;
-      .bg {
-        position: absolute;
-        z-index: 1;
-        width: 100%;
-        height: 100%;
-        border-radius: 8px;
-      }
-      .bg::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        border-radius: 8px;
-        background-color: rgba(0, 0, 0, 0.3); 
-      }
       .info {
         @include flex;
         @include col;
@@ -244,10 +215,16 @@
           font-weight: 800;
         }
       }
+      .bg {
+        position: absolute;
+        z-index: 1;
+        width: 100%;
+        height: 100%;
+        border-radius: 8px;
+        background-color: #999;
+      }
     }
   }
-
-  // 카테고리 이미지
   .categoryWrap {
     width: 1280px;
     margin: 0 auto;
@@ -255,22 +232,6 @@
     justify-content: center;
     align-items: center;
     column-gap: 4px;
-    button {
-      width: 30px;
-      height: 70px;
-      font-size: 20px;
-    }
-    .categorySlider {
-      justify-content: center;
-      display: flex;
-      overflow: hidden; 
-      width: 100%; 
-    }
-    .categoryItems {
-      display: flex;
-      transition: transform 1s ease-in-out; 
-      column-gap: 4px;
-    }
     .categoryItem {
       width: 76px;
       height: 70px;
@@ -298,10 +259,66 @@
         }
       }
       .icon {
-        img {
-          width: 40px;
-          height: 40px;
-          background-size: 100% 100%;
+        width: 40px;
+        height: 40px;
+        background-color: #eee;
+        background-size: 100% 100%;
+        &.all {
+          background: url("/images/category/icon-category-all.png") no-repeat
+            center;
+        }
+        &.best {
+          background: url("/images/category/icon-category-best.png") no-repeat
+            center;
+        }
+        &.agriculture {
+          background: url("/images/category/item-agriculture.png") no-repeat
+            center;
+        }
+        &.mining {
+          background: url("/images/category/item-mining.png") no-repeat center;
+        }
+        &.manufacturing {
+          background: url("/images/category/item-manufacturing.png") no-repeat
+            center;
+        }
+        &.food {
+          background: url("/images/category/item-food.png") no-repeat center;
+        }
+        &.apparel {
+          background: url("/images/category/item-apparel.png") no-repeat center;
+        }
+        &.wood {
+          background: url("/images/category/item-wood.png") no-repeat center;
+        }
+        &.publishing {
+          background: url("/images/category/item-publishing.png") no-repeat
+            center;
+        }
+        &.chemicals {
+          background: url("/images/category/item-chemicals.png") no-repeat
+            center;
+        }
+        &.herbal {
+          background: url("/images/category/item-herbal.png") no-repeat center;
+        }
+        &.nonmetals {
+          background: url("/images/category/item-nonmetals.png") no-repeat
+            center;
+        }
+        &.metals {
+          background: url("/images/category/item-metals.png") no-repeat center;
+        }
+        &.mechanical {
+          background: url("/images/category/item-mechanical.png") no-repeat
+            center;
+        }
+        &.electrical {
+          background: url("/images/category/item-electrical.png") no-repeat
+            center;
+        }
+        &.medical {
+          background: url("/images/category/item-medical.png") no-repeat center;
         }
       }
       .name {

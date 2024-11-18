@@ -5,21 +5,11 @@ type Props = {
   data: any;
 };
 
-const CategoryItem: React.FC<{
-  data: any;
-  searchThemeList: (data: any) => void;
-}> = ({ data, searchThemeList }) => {
+const CategoryItem = ({ data }: Props) => {
   return (
-    <div
-      className={styled.categoryItem}
-      onClick={() => {
-        searchThemeList(data);
-      }}
-    >
-      <div className={`${styled.icon}`}>
-        <img src={data?.image} alt={data?.name || "category icon"}></img>
-      </div>
-      <div className={styled.name}>{data?.name}</div>
+    <div className={styled.categoryItem}>
+      <div className={`${styled.icon} ${styled[data?.class]}`}></div>
+      <div className={styled.name}>{data?.categoryNm}</div>
     </div>
   );
 };

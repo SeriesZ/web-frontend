@@ -2,7 +2,6 @@
 
 .gnbContainer {
   width: 100%;
-  position: relative;
   .gnbWrap {
     @include flex;
     @include sb;
@@ -28,7 +27,6 @@
         column-gap: 10px;
         box-sizing: border-box;
         .menuItem {
-          position: relative;
           padding: 10px;
           color: #000;
           font-size: 14px;
@@ -36,10 +34,47 @@
           line-height: 16.94px;
           box-sizing: border-box;
           cursor: pointer;
+          &:hover {
+            font-weight: 800;
+          }
         }
-        .menuItem:hover {
-          font-weight: 800; 
-        }        
+        .seeMore {
+          position: relative;
+          .dropdownMenu {
+            display: none; /* 기본적으로 안 보이게 설정 */
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: white;
+            border: 1px solid #ddd;
+            border-bottom: 1px solid #E8ECF2;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            .menuOption {
+              width: 140px;
+              height: 42px;
+              padding: 10px 20px 10px 20px;
+              opacity: 0px;
+              border-bottom: 1px solid #E8ECF2;
+              text-align: center;
+              font-size: 14px;
+              font-weight: 600;
+              line-height: 21px;         
+            }
+            
+            .selected {
+              color: #1363DF;
+            }
+            
+            .menuOption:hover {
+              background-color: #f0f0f0;
+            }
+          }
+        }
+        .seeMore:hover .dropdownMenu {
+          display: block; /* hover 시 메뉴가 보이게 설정 */
+        }
       }
       .searchWrap {
         width: 320px;
@@ -89,13 +124,9 @@
           height: 16px;
           background-image: url('/images/icon-user-arrow-down.png');
         }
-        &:hover .dropdownMenuLogin {
-          display: block;
-        }
       }
       .btn {
         @include btnform;
-        position: relative;
         border-radius: 3px;
         background-color: #1363df;
         font-size: 14px;
@@ -116,61 +147,7 @@
         &:hover {
           font-weight: 800;
         }
-        &:hover .dropdownMenuLogin {
-          display: block;
-        }
       }
     }
-  }
-}
-.dropdownMenu {
-  display: block;
-  position: absolute;
-  top: 130%;
-  left: 0%;
-  width: 110px;
-  z-index: 20;
-  background-color: #ffffff;
-  li {
-    padding: 10px 0 0px 10px;
-    font-size: 12px;
-    font-weight: 300;
-    &:hover {
-      font-weight: 500;
-    }
-  }
-}
-
-.dropdownMenuContainer {
-  display: block;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  height: 180px;
-  width: 100%; /* gnbContainer의 너비에 맞춤 */
-  background-color: #ffffff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 10;
-}
-
-.dropdownMenuLogin {
-  display: none;
-  position: absolute;
-  top: 100%;
-  left: 0%;
-  width: 80px;
-  z-index: 20;
-  background-color: #ffffff;
-  padding-top: 10px;
-  li {
-    padding: 5px 0 10px 10px;
-    font-size: 12px;
-    font-weight: 300;
-    &:hover {
-      font-weight: 500;
-    }
-  }
-  &:hover {
-    display: block;
   }
 }

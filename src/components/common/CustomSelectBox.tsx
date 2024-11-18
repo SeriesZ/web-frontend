@@ -1,12 +1,16 @@
 import React, { useState, useRef, useEffect } from "react";
 import styles from "./CustomSelectBox.module.scss";
-import { Category } from "@/model/IdeaList";
+
+interface Option {
+  value: string;
+  label: string;
+}
 
 interface CustomSelectBoxProps {
-  options: Category[];
-  value?: Category; // 선택된 값의 prop을 추가합니다.
+  options: Option[];
+  value?: string; // 선택된 값의 prop을 추가합니다.
   placeholder?: string;
-  onSelect: (value: Category) => void;
+  onSelect: (value: string) => void;
 }
 
 const CustomSelectBox: React.FC<CustomSelectBoxProps> = ({
@@ -24,9 +28,9 @@ const CustomSelectBox: React.FC<CustomSelectBoxProps> = ({
   // 선택된 값에 따라 레이블을 업데이트하는 부분을 추가합니다.
   useEffect(() => {
     if (value) {
-      const selectedOption = options.find((option) => option.id === value.id);
+      const selectedOption = options.find((option) => option.value === value);
       if (selectedOption) {
-        setSelectedLabel(selectedOption.name);
+        setSelectedLabel(selectedOption.label);
       }
     } else {
       setSelectedLabel(placeholder || "Select...");
@@ -47,9 +51,9 @@ const CustomSelectBox: React.FC<CustomSelectBoxProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [wrapperRef]);
 
-  const handleSelect = (option: Category) => {
-    setSelectedLabel(option.name);
-    onSelect(option);
+  const handleSelect = (option: Option) => {
+    setSelectedLabel(option.label);
+    onSelect(option.value);
     setIsOpen(false);
   };
 
@@ -62,11 +66,11 @@ const CustomSelectBox: React.FC<CustomSelectBoxProps> = ({
         <ul className={styles.options}>
           {options.map((option) => (
             <li
-              key={option.id}
+              key={option.value}
               className={styles.option}
               onClick={() => handleSelect(option)}
             >
-              {option.name}
+              {option.label}
             </li>
           ))}
         </ul>
