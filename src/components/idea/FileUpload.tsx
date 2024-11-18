@@ -1,11 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import styled from "@/components/idea/Idea.module.scss";
+import { Attachment } from "@/model/IdeaList";
 
 interface UploadDataProps {
   uploadData: File[];
+  uploadDataMap: Map<string, string>;
   setUploadData: React.Dispatch<React.SetStateAction<File[]>>;
-  // setReadyUpload: React.Dispatch<React.SetStateAction<boolean>>;
+  setReadyUpload: React.Dispatch<React.SetStateAction<boolean>>;
   extList: string[];
   limitCnt: number;
   type: string;
@@ -14,8 +16,9 @@ interface UploadDataProps {
 
 const FileUpload: React.FC<UploadDataProps> = ({
   uploadData,
+  uploadDataMap,
   setUploadData,
-  // setReadyUpload,
+  setReadyUpload,
   extList,
   limitCnt,
   type,
@@ -23,7 +26,7 @@ const FileUpload: React.FC<UploadDataProps> = ({
 }) => {
   const [files, setFiles] = useState<File[]>([]);
   const [deleteFiles, setDeleteFiles] = useState<File[]>([]);
-  const [totalFiles, setTotalFiles] = useState<File[]>([]);
+  const [totalFiles, setTotalFiles] = useState<File[]>(uploadData);
   const [filesSrc, setFilesSrc] = useState<string[]>([]);
   const [filesNm, setFilesNm] = useState<string[]>([]);
   const acceptValue = extList
@@ -89,17 +92,16 @@ const FileUpload: React.FC<UploadDataProps> = ({
 
         const newFile = selectedFiles[i];
         // newFile["no"] = number + 1 + i;
-
         setFilesNm((filesNm) => [...filesNm, name]);
         setFiles((files) => [...files, newFile]);
         setTotalFiles((totalFiles) => [...totalFiles, newFile]);
         setUploadData((uploadData) => [...uploadData, newFile]);
-        // setReadyUpload(true);
+        setReadyUpload(true);
       }
     }
   };
 
-  const onRemove = (index: number) => {
+  const onRemove = (index: number, id: string) => {
     const target = totalFiles[index];
     setDeleteFiles((deleteFiles) => [...deleteFiles, target]);
     setTotalFiles(totalFiles.filter((file, idx) => idx !== index));
@@ -108,13 +110,17 @@ const FileUpload: React.FC<UploadDataProps> = ({
     const cur = [...filesSrc];
     cur.splice(index, 1);
     setFilesSrc(cur);
+
+    const fileId = uploadDataMap.get(target.name);
+    if (fileId) {
+      fetchDeleteFile(fileId, id == "representative" ? "image" : "attach");
+      if (totalFiles.length - 1 == 0) setReadyUpload(false);
+    }
   };
 
-  // useEffect(() => {
-  //   if (totalFiles.length < 1) {
-  //     setReadyUpload(false);
-  //   }
-  // }, [totalFiles]);
+  useEffect(() => {
+    setReadyUpload(false);
+  }, []);
 
   const onDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -135,6 +141,30 @@ const FileUpload: React.FC<UploadDataProps> = ({
   const onDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
+  };
+
+  const fetchDeleteFile = async (fileId: string, path: string) => {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/${path}/${fileId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json;charset=utf-8",
+          },
+          mode: "cors",
+        }
+      );
+      if (res.ok) {
+        console.info("파일 삭제 성공:", res.statusText);
+      } else {
+        console.error("파일 삭제 실패:", res.statusText);
+      }
+    } catch (error) {
+      console.error("Error fetching delete data:", error);
+    } finally {
+    }
   };
 
   return (
@@ -188,7 +218,7 @@ const FileUpload: React.FC<UploadDataProps> = ({
                       <div
                         key={`${id}_${idx}`}
                         className={styled.filename}
-                        onClick={() => onRemove(idx)}
+                        onClick={() => onRemove(idx, id)}
                       >
                         {it.name}
                         <div
