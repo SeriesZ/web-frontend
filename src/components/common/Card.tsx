@@ -25,7 +25,7 @@ const CompanyCard = ({ data, type }: Props) => {
                 D-<span>{data?.dday}</span>
               </div>
               <div className={styled.info}>
-                투자 라운드 마감 <span>{data?.dueDt}</span>
+                투자 라운드 마감 <span>{data?.close_date}</span>
               </div>
             </div>
             <div className={styled.row}>
@@ -65,7 +65,7 @@ const CompanyCard = ({ data, type }: Props) => {
       <div className={styled.infoWrap}>
         <div className={`${styled.top} ${!type ? styled.notype : ""}`}>
           <div className={styled.title}>{data?.title}</div>
-          <div className={styled.desc}>{data?.desc}</div>
+          <div className={styled.desc}>{data?.content}</div>
         </div>
         <SubInfo />
       </div>
