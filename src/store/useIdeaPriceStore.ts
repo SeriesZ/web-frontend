@@ -14,8 +14,8 @@ interface Store {
   totalMarketPrice?: number;   /* 시가총액 */
   selectedIndustry?: string;
   yearUserCnt?: UserCnt[];   /* 거래발생 수 */
-  sgaExpensesItem?: ICostItem[];  /* 판관비 항목 */
-  sgnaExpensesIncreaseRateItem?: ICostItem[];  /* 판관비 항목 */
+  // sgaExpensesItem?: ICostItem[];  /* 판관비 항목 */
+  // sgnaExpensesIncreaseRateItem?: ICostItem[];  /* 판관비 항목 */
   //sgnaExpensesIncreaseRate?: number;       /* 판관비 계(인상율) */
   
   setSellingPrice: (data: number) => void;
@@ -39,11 +39,11 @@ interface Store {
   setYearUserCnt: (data: UserCnt[]) => void;
   removeYearUserCnt: () => void;
 
-  setSgaExpensesItem: (data: ICostItem[]) => void;
-  removeSgaExpensesItem: () => void;
+  // setSgaExpensesItem: (data: ICostItem[]) => void;
+  // removeSgaExpensesItem: () => void;
 
-  setSgnaExpensesIncreaseRateItem: (data: ICostItem[]) => void;
-  removeSgnaExpensesIncreaseRateItem: () => void;
+  // setSgnaExpensesIncreaseRateItem: (data: ICostItem[]) => void;
+  // removeSgnaExpensesIncreaseRateItem: () => void;
 }
 
 const useIdeaPriceStore = create<Store>((set) => ({
@@ -78,11 +78,11 @@ const useIdeaPriceStore = create<Store>((set) => ({
   setYearUserCnt: (data) => set({ yearUserCnt: data  }),
   removeYearUserCnt: () => set({ yearUserCnt: [] }),
 
-  setSgaExpensesItem: (data) => set({ sgaExpensesItem: data  }),
-  removeSgaExpensesItem: () => set({ sgaExpensesItem: [] }),
+  // setSgaExpensesItem: (data) => set({ sgaExpensesItem: data  }),
+  // removeSgaExpensesItem: () => set({ sgaExpensesItem: [] }),
 
-  setSgnaExpensesIncreaseRateItem: (data) => set({ sgnaExpensesIncreaseRateItem: data  }),
-  removeSgnaExpensesIncreaseRateItem: () => set({ sgnaExpensesIncreaseRateItem: [] }),
+  // setSgnaExpensesIncreaseRateItem: (data) => set({ sgnaExpensesIncreaseRateItem: data  }),
+  // removeSgnaExpensesIncreaseRateItem: () => set({ sgnaExpensesIncreaseRateItem: [] }),
 }));
 
 export default useIdeaPriceStore;

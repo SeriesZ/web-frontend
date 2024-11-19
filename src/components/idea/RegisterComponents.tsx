@@ -650,7 +650,6 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
     );
   };
   const Step2 = () => {
-    //const { sellingPrice, sgnaExpenses } = useIdeaPriceStore();
     return (
       <>
         <div className={`${styled.section} ${styled.price}`}>
@@ -750,7 +749,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
               <div className={styled.tableInfo}>단위: 수, 원, %</div>
             </div>
             <div className={styled.tableContentsWrap}>
-              <FinanceCaculator />
+              <FinanceCaculator itemData={performanceParams} />
             </div>
           </div>
           <div className={styled.inputContainer}>
@@ -1042,7 +1041,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
               <div className={styled.tableInfo}>단위: 수, 원, %</div>
             </div>
             <div className={styled.tableContentsWrap}>
-              <FinanceCaculator />
+              <FinanceCaculator itemData={performanceParams} />
             </div>
           </div>
           <div className={`${styled.totalContainer} ${styled.final}`}>

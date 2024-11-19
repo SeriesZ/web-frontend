@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react";
 import styled from "@/components/idea/Idea.module.scss";
 import useIdeaPriceStore from "@/store/useIdeaPriceStore";
+import { ICostInputItem, ICostData } from "@/store/financeStore";
+
+interface Props {
+  itemData: {
+    costItems: ICostInputItem[];
+    sellingPrice: number;
+    totalCost: number;
+  };
+}
 
 interface YearData {
   transactionCount: number;
@@ -74,34 +83,46 @@ const calculateYearData = (
   };
 };
 
-const FinanceCaculator = () => {
-  const { yearUserCnt, sellingPrice, totalPrice, sgaExpensesItem } =
-    useIdeaPriceStore();
-  const [initialTransactionCount, setInitialTransactionCount] = useState(1);
+const FinanceCaculator: React.FC<Props> = ({ itemData }) => {
+  const { costItems, sellingPrice, totalCost } = itemData;
+  const [initialTransactionCount, setInitialTransactionCount] =
+    useState(1); /* 거래수 */
   const [initialStaffCount, setInitialStaffCount] = useState(2);
-  const [salesPerTransaction, setSalesPerTransaction] = useState(10000);
-  const [salesCostPerTransaction, setSalesCostPerTransaction] = useState(1000);
-  const [initialSalaryPerStaff, setInitialSalaryPerStaff] = useState(70000000);
-  const [businessPromotionCost, setBusinessPromotionCost] = useState(3600000);
-  const [officeRent, setOfficeRent] = useState(6000000);
-  const [entertainmentExpenses, setEntertainmentExpenses] = useState(5000000);
-  const [advertisingCost, setAdvertisingCost] = useState(12000000);
-  const [contingencyExpenses, setContingencyExpenses] = useState(3000000);
+  const [salesPerTransaction, setSalesPerTransaction] = useState(sellingPrice);
+  const [salesCostPerTransaction, setSalesCostPerTransaction] =
+    useState(totalCost);
+  const [initialSalaryPerStaff, setInitialSalaryPerStaff] = useState(0);
+  const [businessPromotionCost, setBusinessPromotionCost] = useState(0);
+  const [officeRent, setOfficeRent] = useState(0);
+  const [entertainmentExpenses, setEntertainmentExpenses] = useState(0);
+  const [advertisingCost, setAdvertisingCost] = useState(0);
+  const [contingencyExpenses, setContingencyExpenses] = useState(0);
   const [plan, setPlan] = useState<YearData[]>([]);
 
-  // plan을 생성
+  // costItems 수정 시 반영
   useEffect(() => {
-    setSalesPerTransaction(sellingPrice);
-    setSalesCostPerTransaction(totalPrice);
-    if (sgaExpensesItem && sgaExpensesItem.length > 0) {
-      setInitialSalaryPerStaff(sgaExpensesItem[0].amount);
-      setBusinessPromotionCost(sgaExpensesItem[1].amount);
-      setOfficeRent(sgaExpensesItem[2].amount);
-      setEntertainmentExpenses(sgaExpensesItem[3].amount);
-      setAdvertisingCost(sgaExpensesItem[4].amount);
-      setContingencyExpenses(sgaExpensesItem[5].amount);
+    if (costItems && costItems.length > 0) {
+      const salaryItem = costItems.find((item) => item.apiId === "salary");
+      const maintenanceCost = costItems.find(
+        (item) => item.apiId === "maintenance_cost"
+      );
+      const officeRent = costItems.find((item) => item.apiId === "office_rent");
+      const businessExpense = costItems.find(
+        (item) => item.apiId === "business_expense"
+      );
+      const adCost = costItems.find((item) => item.apiId === "ad_cost");
+      const contingency = costItems.find(
+        (item) => item.apiId === "contingency"
+      );
+
+      setInitialSalaryPerStaff(salaryItem?.amount ?? 0);
+      setBusinessPromotionCost(maintenanceCost?.amount ?? 0);
+      setOfficeRent(officeRent?.amount ?? 0);
+      setEntertainmentExpenses(businessExpense?.amount ?? 0);
+      setAdvertisingCost(adCost?.amount ?? 0);
+      setContingencyExpenses(contingency?.amount ?? 0);
     }
-  }, [sellingPrice, totalPrice, sgaExpensesItem]);
+  }, [costItems]);
 
   const create10YearPlan = (
     initialTransactionCount: number,

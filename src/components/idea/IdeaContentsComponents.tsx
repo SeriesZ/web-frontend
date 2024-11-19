@@ -543,7 +543,7 @@ const IdeaContentsComponents = ({
                 <div className={styled.tableInfo}>단위: 원, %</div>
               </div>
               <div className={styled.tableContentsWrap}>
-                <FinanceCaculator />
+                <FinanceCaculator itemData={performanceParams} />
               </div>
             </div>
             <div className={styled.totalContainer}></div>
