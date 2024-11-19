@@ -1,23 +1,21 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { Category, IdeaContentsType } from "@/model/IdeaList";
+import { useFinanceStore, ICostInputItem } from "@/store/financeStore";
 import styled from "@/components/idea/Idea.module.scss";
 import FileUpload from "./FileUpload";
 import CustomSelectBox from "../common/CustomSelectBox";
-import PriceTable from "./PriceTable";
 import PriceCalculator from "./PriceCalculator";
-// import useIdeaPriceStore from "@/store/useIdeaPriceStore";
 import PerformanceCalculator from "./PerformanceCalculator";
 import IncreaseRateCalulator from "./IncreaseRateCalulator";
 import FinanceCaculator from "./FinanceCaculator";
 import PsrCalulator from "./PsrCalulator";
 import StockCalulator from "./StockCalulator";
-import { useRouter } from "next/navigation";
 import ToolTipComponent from "./ToolTipComponent";
 import YearUserCnt from "./YearUserCnt";
-import { Category, IdeaContentsType, Attachment } from "@/model/IdeaList";
 import userStore from "@/store/userLoginInfo";
 import dynamic from "next/dynamic";
-import { useFinanceStore, ICostInputItem } from "@/store/financeStore";
 
 type Props = {
   activeIndex: number;
@@ -66,7 +64,12 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
   const [sellingPrice, setSellingPrice] = useState(0);
   const [totalSelYear, setTotalSelYear] = useState(0);
   const [costItems, setCostItems] = useState<ICostInputItem[]>([]);
+  const [selectedTheme4Psr, setSelectedTheme4Psr] = useState<Category>(
+    categoryData[0]
+  );
+  const [maraketCap, setMaraketCap] = useState(0);
   const performanceParams = {
+    categoryData,
     costItems,
     setCostItems,
     profitMargin,
@@ -77,6 +80,10 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
     setSellingPrice,
     totalSelYear,
     setTotalSelYear,
+    selectedTheme4Psr,
+    setSelectedTheme4Psr,
+    maraketCap,
+    setMaraketCap,
   };
 
   // 상태
@@ -90,6 +97,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
         );
         const data1 = await response1.json();
         setCategoryData(data1);
+        setSelectedTheme4Psr(data1[0]);
 
         // 아이디어ID가 있으면 데이터 로딩
         const response2 = await fetch(
@@ -237,6 +245,92 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
         apiId: "contingency_increase_rate",
         formPath: "IncreaseRateCalulator",
       },
+      {
+        id: 9999,
+        name: "액면가",
+        amount: 0,
+        description: "1주의 최소금액은 상법상 100원 이상",
+        apiId: "face_value",
+        formPath: "StockItems",
+        focus: true,
+        inputYn: "Y",
+      },
+      {
+        id: 9999,
+        name: "총 발생주식 수",
+        amount: 0,
+        description: "5년차까지 평균매출 x PSR",
+        apiId: "total_number_shares_issued",
+        formPath: "StockItems",
+        focus: false,
+      },
+      {
+        id: 9999,
+        name: "지분율 당 주식수",
+        amount: 0,
+        description: "",
+        apiId: "number_shares_per_share",
+        formPath: "StockItems",
+        focus: false,
+      },
+      {
+        id: 9999,
+        name: "목표 투자자 지분율",
+        amount: 40,
+        description: "경영권 유지를 위해 49%이하를 가정해야 함",
+        apiId: "target_investor_share_ratio",
+        formPath: "InvestItems",
+        focus: true,
+        strType: "%",
+        inputYn: "Y",
+      },
+      {
+        id: 9999,
+        name: "투자자 지분 총 주식 수",
+        amount: 386568,
+        description: "",
+        apiId: "investor_shares_total_shares",
+        formPath: "InvestItems",
+        focus: false,
+      },
+      {
+        id: 9999,
+        name: "목표 투자자 조달금액",
+        amount: 386568000,
+        description: "",
+        apiId: "target_investor_financing_amount",
+        formPath: "InvestItems",
+        focus: false,
+      },
+      {
+        id: 9999,
+        name: "1인당 최소투자금",
+        amount: 0,
+        description: "액면가를 기준으로 자동으로 설정됨",
+        apiId: "mimimum_investment_per_persion",
+        formPath: "InvestItems",
+        focus: false,
+        inputYn: "Y",
+      },
+      {
+        id: 9999,
+        name: "1인당 최대투자금",
+        amount: 200000000,
+        description: "",
+        apiId: "maximum_investment_per_persion",
+        formPath: "InvestItems",
+        focus: true,
+      },
+      {
+        id: 9999,
+        name: "최대 투자자 수 설정(명)",
+        amount: 1000,
+        description: "",
+        apiId: "set_maximum_investors",
+        formPath: "InvestItems",
+        focus: true,
+        inputYn: "Y",
+      },
     ];
 
     setCostItems(initialPriceData);
@@ -273,6 +367,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
         name: contents?.theme.name,
         image: "",
         description: "",
+        psr: "3",
       });
       setEditorContent(contents?.content);
     }
@@ -742,7 +837,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
             </div>
             <div className={styled.tableContentsWrap}>
               {/* <PriceTable /> */}
-              <PsrCalulator inputHide="N" />
+              <PsrCalulator inputHide="N" itemData={performanceParams} />
             </div>
           </div>
           <div className={styled.tableContainer}>
@@ -754,7 +849,11 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
             </div>
             <div className={styled.tableContentsWrap}>
               {/* <PriceTable /> */}
-              <StockCalulator name="stock" inputHide="N" />
+              <StockCalulator
+                name="stock"
+                inputHide="N"
+                itemData={performanceParams}
+              />
             </div>
           </div>
         </div>
@@ -778,7 +877,11 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
             </div>
             <div className={styled.tableContentsWrap}>
               {/* <PriceTable /> */}
-              <StockCalulator name="investGoal" inputHide="N" />
+              <StockCalulator
+                name="investGoal"
+                inputHide="N"
+                itemData={performanceParams}
+              />
             </div>
           </div>
         </div>
@@ -999,7 +1102,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
             </div>
             <div className={styled.tableContentsWrap}>
               {/* <PriceTable /> */}
-              <PsrCalulator inputHide="Y" />
+              <PsrCalulator inputHide="Y" itemData={performanceParams} />
             </div>
           </div>
           <div className={styled.tableContainer}>
@@ -1011,7 +1114,11 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
             </div>
             <div className={styled.tableContentsWrap}>
               {/* <PriceTable /> */}
-              <StockCalulator name="stock" inputHide="Y" />
+              <StockCalulator
+                name="stock"
+                inputHide="Y"
+                itemData={performanceParams}
+              />
             </div>
           </div>
         </div>
@@ -1028,7 +1135,11 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
             </div>
             <div className={styled.tableContentsWrap}>
               {/* <PriceTable /> */}
-              <StockCalulator name="investGoal" inputHide="Y" />
+              <StockCalulator
+                name="investGoal"
+                inputHide="Y"
+                itemData={performanceParams}
+              />
             </div>
           </div>
         </div>

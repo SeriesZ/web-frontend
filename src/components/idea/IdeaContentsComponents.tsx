@@ -9,7 +9,7 @@ import PsrCalulator from "./PsrCalulator";
 import StockCalulator from "./StockCalulator";
 import InvestSimulationPop from "./InvestSimulationPop";
 import Modal from "react-modal";
-import { IdeaContentsType, Attachment } from "@/model/IdeaList";
+import { Category, IdeaContentsType, Attachment } from "@/model/IdeaList";
 import InvestStatusPop from "./InvestStatusPop";
 import PopupIframe from "./PopupIframe";
 import BeforeCheckContractPop from "./BeforeCheckContractPop";
@@ -17,6 +17,7 @@ import ContractWritePop from "./ContractWritePop";
 import ContractSignPop from "./ContractSignPop";
 import ChatPop from "./ChatPop";
 import { Viewer } from "@toast-ui/react-editor";
+import { ICostInputItem } from "@/store/financeStore";
 
 type Props = {
   activeIndex: number;
@@ -29,6 +30,41 @@ const IdeaContentsComponents = ({
   data,
   setActiveIndex,
 }: Props) => {
+  const initCategory: Category = {
+    id: "theme_1",
+    name: "농업",
+    image: "https://cdn-icons-png.flaticon.com/512/194/194041.png",
+    description: "",
+    psr: "3",
+  };
+
+  const [profitMargin, setProfitMargin] = useState(0);
+  const [totalCost, setTotalCost] = useState(0);
+  const [sellingPrice, setSellingPrice] = useState(0);
+  const [totalSelYear, setTotalSelYear] = useState(0);
+  const [costItems, setCostItems] = useState<ICostInputItem[]>([]);
+  const [categoryData, setCategoryData] = useState<Category[]>([]);
+  const [selectedTheme4Psr, setSelectedTheme4Psr] =
+    useState<Category>(initCategory);
+  const [maraketCap, setMaraketCap] = useState(0);
+  const performanceParams = {
+    categoryData,
+    costItems,
+    setCostItems,
+    profitMargin,
+    setProfitMargin,
+    totalCost,
+    setTotalCost,
+    sellingPrice,
+    setSellingPrice,
+    totalSelYear,
+    setTotalSelYear,
+    selectedTheme4Psr,
+    setSelectedTheme4Psr,
+    maraketCap,
+    setMaraketCap,
+  };
+
   // 화면 동적 구성
   const attachSetArray = data.attachments.map((file, index) => (
     <div key={index}>
@@ -466,7 +502,7 @@ const IdeaContentsComponents = ({
                 <div className={styled.tableInfo}>단위: 원, %</div>
               </div>
               <div className={styled.tableContentsWrap}>
-                <PriceCalculator inputHide="Y" />
+                <PriceCalculator inputHide="Y" itemData={performanceParams} />
               </div>
             </div>
             <div className={styled.totalContainer}>
@@ -485,7 +521,10 @@ const IdeaContentsComponents = ({
                 <div className={styled.tableInfo}>단위: 원, %</div>
               </div>
               <div className={styled.tableContentsWrap}>
-                <PerformanceCalculator inputHide="Y" />
+                <PerformanceCalculator
+                  inputHide="Y"
+                  itemData={performanceParams}
+                />
               </div>
             </div>
             <div className={styled.totalContainer}>
@@ -518,7 +557,7 @@ const IdeaContentsComponents = ({
                 <div className={styled.tableInfo}>단위: 원</div>
               </div>
               <div className={styled.tableContentsWrap}>
-                <PsrCalulator inputHide="Y" />
+                <PsrCalulator inputHide="Y" itemData={performanceParams} />
               </div>
             </div>
             <div className={styled.tableContainer}>
@@ -529,7 +568,11 @@ const IdeaContentsComponents = ({
                 <div className={styled.tableInfo}>단위: 원</div>
               </div>
               <div className={styled.tableContentsWrap}>
-                <StockCalulator name="stock" inputHide="Y" />
+                <StockCalulator
+                  name="stock"
+                  inputHide="Y"
+                  itemData={performanceParams}
+                />
               </div>
             </div>
 
@@ -544,7 +587,11 @@ const IdeaContentsComponents = ({
                 <div className={styled.tableInfo}>단위: 원</div>
               </div>
               <div className={styled.tableContentsWrap}>
-                <StockCalulator name="investGoal" inputHide="Y" />
+                <StockCalulator
+                  name="investGoal"
+                  inputHide="Y"
+                  itemData={performanceParams}
+                />
               </div>
             </div>
           </div>

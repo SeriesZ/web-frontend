@@ -23,6 +23,15 @@ export interface ICostData {
   contingency_increase_rate: number;
   trade_counts: number[];
   employee_counts: number[];
+  face_value: number;
+  total_number_shares_issued: number;
+  number_shares_per_share: number;
+  target_investor_share_ratio: number;
+  investor_shares_total_shares: number;
+  target_investor_financing_amount: number;
+  mimimum_investment_per_persion: number;
+  maximum_investment_per_persion: number;
+  set_maximum_investors: number;
 }
 
 // ICostItem 타입 정의
@@ -33,6 +42,9 @@ export interface ICostInputItem {
   description?: string;
   apiId: keyof ICostData;
   formPath: string;
+  focus?:boolean;
+  strType?:string;
+  inputYn?:string;
 }
 
 // 초기 데이터 설정
@@ -58,6 +70,15 @@ const initialCostData: ICostData = {
   contingency_increase_rate: 0,
   trade_counts: [],
   employee_counts: [],
+  face_value:  0,
+  total_number_shares_issued: 0,
+  number_shares_per_share:  0,
+  target_investor_share_ratio:  0,
+  investor_shares_total_shares:  0,
+  target_investor_financing_amount:  0,
+  mimimum_investment_per_persion:  0,
+  maximum_investment_per_persion:  0,
+  set_maximum_investors: 0,
 };
 
 // 기본 항목을 ICostItem 배열로 변환
