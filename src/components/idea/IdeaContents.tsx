@@ -1,12 +1,17 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import styled from "@/components/idea/Idea.module.scss";
-import IdeaContentsComponents from "./IdeaContentsComponents";
+// import IdeaContentsComponents from "./IdeaContentsComponents";
 import { useSearchParams } from "next/navigation";
 import { IdeaContentsType } from "@/model/IdeaList";
 import userStore from "@/store/userLoginInfo";
+import dynamic from "next/dynamic";
 
 type Props = {};
+const IdeaContentsComponents = dynamic(
+  () => import("./IdeaContentsComponents"),
+  { ssr: false }
+);
 
 const IdeaContents = (props: Props) => {
   // 선언
@@ -18,40 +23,42 @@ const IdeaContents = (props: Props) => {
 
   // 상태
   useEffect(() => {
-    const fetchCategoryData = async () => {
-      console.log(process.env.NEXT_PUBLIC_API_BASE_URL);
-      console.log(`${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/${id}`);
+    if (typeof navigator !== "undefined") {
+      const fetchCategoryData = async () => {
+        console.log(process.env.NEXT_PUBLIC_API_BASE_URL);
+        console.log(`${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/${id}`);
 
-      try {
-        // 아이디어 내용 조회
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/${id}`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${userInfo.bearer}`,
-              Accept: "application/json",
-              "Content-Type": "application/json;charset=utf-8",
-            },
-            mode: "cors",
+        try {
+          // 아이디어 내용 조회
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/${id}`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${userInfo.bearer}`,
+                Accept: "application/json",
+                "Content-Type": "application/json;charset=utf-8",
+              },
+              mode: "cors",
+            }
+          );
+
+          // 응답 처리
+          if (response.ok) {
+            // 성공 시 처리
+            const data = await response.json();
+            setIdeaContents(data);
+          } else {
+            // 실패 시 처리
+            console.error("아이디어 불러오기 실패:", response.statusText);
           }
-        );
-
-        // 응답 처리
-        if (response.ok) {
-          // 성공 시 처리
-          const data = await response.json();
-          setIdeaContents(data);
-        } else {
-          // 실패 시 처리
-          console.error("아이디어 불러오기 실패:", response.statusText);
+        } catch (error) {
+          // 오류 처리
+          console.error("서버 요청 오류:", error);
         }
-      } catch (error) {
-        // 오류 처리
-        console.error("서버 요청 오류:", error);
-      }
-    };
-    fetchCategoryData();
+      };
+      fetchCategoryData();
+    }
   }, []);
 
   // 이벤트
@@ -121,4 +128,4 @@ const IdeaContents = (props: Props) => {
   );
 };
 
-export default IdeaContents;
+export default dynamic(() => Promise.resolve(IdeaContents), { ssr: false });
