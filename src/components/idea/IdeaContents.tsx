@@ -1,9 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import styled from "@/components/idea/Idea.module.scss";
-// import IdeaContentsComponents from "./IdeaContentsComponents";
 import { useSearchParams } from "next/navigation";
 import { IdeaContentsType } from "@/model/IdeaList";
+import styled from "@/components/idea/Idea.module.scss";
 import userStore from "@/store/userLoginInfo";
 import dynamic from "next/dynamic";
 
@@ -24,39 +23,6 @@ const IdeaContents = (props: Props) => {
   // 상태
   useEffect(() => {
     if (typeof navigator !== "undefined") {
-      const fetchCategoryData = async () => {
-        console.log(process.env.NEXT_PUBLIC_API_BASE_URL);
-        console.log(`${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/${id}`);
-
-        try {
-          // 아이디어 내용 조회
-          const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/${id}`,
-            {
-              method: "GET",
-              headers: {
-                Authorization: `Bearer ${userInfo.bearer}`,
-                Accept: "application/json",
-                "Content-Type": "application/json;charset=utf-8",
-              },
-              mode: "cors",
-            }
-          );
-
-          // 응답 처리
-          if (response.ok) {
-            // 성공 시 처리
-            const data = await response.json();
-            setIdeaContents(data);
-          } else {
-            // 실패 시 처리
-            console.error("아이디어 불러오기 실패:", response.statusText);
-          }
-        } catch (error) {
-          // 오류 처리
-          console.error("서버 요청 오류:", error);
-        }
-      };
       fetchCategoryData();
     }
   }, []);
@@ -70,6 +36,38 @@ const IdeaContents = (props: Props) => {
   const stripHtmlTags = (html: string) => {
     if (!html) return "";
     return html.replace(/<\/?[^>]+(>|$)/g, ""); // 정규식을 사용하여 태그 제거
+  };
+
+  // 서버 통신
+  const fetchCategoryData = async () => {
+    console.log(process.env.NEXT_PUBLIC_API_BASE_URL);
+    console.log(`${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/${id}`);
+
+    try {
+      // 아이디어 내용 조회
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/${id}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${userInfo.bearer}`,
+            Accept: "application/json",
+            "Content-Type": "application/json;charset=utf-8",
+          },
+          mode: "cors",
+        }
+      );
+
+      // 응답 처리
+      if (response.ok) {
+        const data = await response.json();
+        setIdeaContents(data);
+      } else {
+        console.error("아이디어 불러오기 실패:", response.statusText);
+      }
+    } catch (error) {
+      console.error("서버 요청 오류:", error);
+    }
   };
 
   return (

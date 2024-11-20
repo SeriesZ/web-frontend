@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "@/components/idea/InvestPop.module.scss";
-import styledFinance from "@/components/idea/Idea.module.scss";
 
 type Investor = {
   id: number;

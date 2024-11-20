@@ -1,8 +1,8 @@
 "use client";
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef } from "react";
 import debounce from "lodash/debounce";
 import styled from "@/components/idea/Idea.module.scss";
-import { ICostInputItem, ICostData } from "@/store/financeStore";
+import { ICostInputItem, ICostData } from "@/model/financeType";
 
 interface Props {
   inputHide: string;
@@ -40,8 +40,10 @@ const IncreaseRateCalulator: React.FC<Props> = ({ inputHide, itemData }) => {
     setCostItems([...costItems, newItem]);
   };
 
-  const handleRemoveCostItem = (id: number) => {
-    const newCostItems = [...costItems].filter((item, index) => item.id !== id);
+  const handleRemoveCostItem = (apiId: string) => {
+    const newCostItems = [...costItems].filter(
+      (item, index) => item.apiId !== apiId
+    );
     setCostItems(newCostItems);
   };
 
@@ -99,7 +101,7 @@ const IncreaseRateCalulator: React.FC<Props> = ({ inputHide, itemData }) => {
                   </div>
                   <div
                     className={styled.iconRemove}
-                    onClick={() => handleRemoveCostItem(item.id)}
+                    onClick={() => handleRemoveCostItem(item.apiId)}
                   ></div>
                 </div>
               ))}

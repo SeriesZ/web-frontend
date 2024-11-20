@@ -1,7 +1,6 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import styled from "@/components/idea/Idea.module.scss";
-import ReactPlayer from "react-player";
 import PriceCalculator from "./PriceCalculator";
 import PerformanceCalculator from "./PerformanceCalculator";
 import FinanceCaculator from "./FinanceCaculator";
@@ -9,7 +8,6 @@ import PsrCalulator from "./PsrCalulator";
 import StockCalulator from "./StockCalulator";
 import InvestSimulationPop from "./InvestSimulationPop";
 import Modal from "react-modal";
-import { Category, IdeaContentsType, Attachment } from "@/model/IdeaList";
 import InvestStatusPop from "./InvestStatusPop";
 import PopupIframe from "./PopupIframe";
 import BeforeCheckContractPop from "./BeforeCheckContractPop";
@@ -17,7 +15,9 @@ import ContractWritePop from "./ContractWritePop";
 import ContractSignPop from "./ContractSignPop";
 import ChatPop from "./ChatPop";
 import { Viewer } from "@toast-ui/react-editor";
-import { ICostInputItem } from "@/store/financeStore";
+import { Category, IdeaContentsType, Attachment } from "@/model/IdeaList";
+import { ICostInputItem, YearData } from "@/model/financeType";
+import { defaultYearData } from "@/model/financeDefaultData";
 
 type Props = {
   activeIndex: number;
@@ -35,7 +35,7 @@ const IdeaContentsComponents = ({
     name: "농업",
     image: "https://cdn-icons-png.flaticon.com/512/194/194041.png",
     description: "",
-    psr: "3",
+    psr_value: 3,
   };
 
   const [profitMargin, setProfitMargin] = useState(0);
@@ -47,6 +47,13 @@ const IdeaContentsComponents = ({
   const [selectedTheme4Psr, setSelectedTheme4Psr] =
     useState<Category>(initCategory);
   const [maraketCap, setMaraketCap] = useState(0);
+  const [tradeCounts, setTradeCounts] = useState<number[]>([]);
+  const [employeeCounts, setEmployeeCounts] = useState<number[]>([]);
+  const [achieveBep, setAchieveBep] = useState<YearData>(defaultYearData);
+  const [yearData, setYearData] = useState<YearData[]>([]);
+  const [positiveYear, setPositiveYear] = useState(0);
+  const [plan, setPlan] = useState<YearData[]>([]);
+
   const performanceParams = {
     categoryData,
     costItems,
@@ -63,6 +70,14 @@ const IdeaContentsComponents = ({
     setSelectedTheme4Psr,
     maraketCap,
     setMaraketCap,
+    tradeCounts,
+    setTradeCounts,
+    employeeCounts,
+    setEmployeeCounts,
+    achieveBep,
+    positiveYear,
+    yearData,
+    plan,
   };
 
   // 화면 동적 구성

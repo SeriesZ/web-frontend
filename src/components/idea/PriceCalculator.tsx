@@ -1,9 +1,9 @@
 "use client";
-import React, { useRef, useEffect } from "react";
+import React, { useRef } from "react";
 import debounce from "lodash/debounce";
 import ToolTipComponent from "./ToolTipComponent";
 import styled from "@/components/idea/Idea.module.scss";
-import { ICostInputItem, ICostData } from "@/store/financeStore";
+import { ICostInputItem, ICostData } from "@/model/financeType";
 
 interface Props {
   inputHide: string;
@@ -12,10 +12,7 @@ interface Props {
     setCostItems: React.Dispatch<React.SetStateAction<ICostInputItem[]>>;
     profitMargin: number;
     setProfitMargin: React.Dispatch<React.SetStateAction<number>>;
-    totalCost: number;
-    setTotalCost: React.Dispatch<React.SetStateAction<number>>;
     sellingPrice: number;
-    setSellingPrice: React.Dispatch<React.SetStateAction<number>>;
   };
 }
 
@@ -27,42 +24,36 @@ const PriceCalculator: React.FC<Props> = ({ inputHide, itemData }) => {
     setCostItems,
     profitMargin,
     setProfitMargin,
-    totalCost,
-    setTotalCost,
     sellingPrice,
-    setSellingPrice,
   } = itemData;
 
   // 기존 원가 항목의 금액을 변경
-  const handleCostChange = (id: number, amount: number) => {
-    debouncedUpdateCost(id, amount);
+  const handleCostChange = (apiId: string, amount: number) => {
+    debouncedUpdateCost(apiId, amount);
   };
 
   // 기존 원가 항목의 이름을 변경
-  const handleNameChange = (id: number, name: string) => {
-    const newCostItems = costItems.map((item) =>
-      item.id === id ? { ...item, name } : item
-    );
-    setCostItems(newCostItems);
+  const handleNameChange = (apiId: string, name: string) => {
+    debouncedUpdateName(apiId, name);
   };
 
   // 새 원가 항목을 추가할 수 있는 입력 필드와 핸들러
   const handleAddCostItem = () => {
-    const maxId = Math.max(...costItems.map((item) => item.id));
-    const newId = maxId + 1;
     const randomId = Math.floor(1000 + Math.random() * 9000).toString();
     const newItem: ICostInputItem = {
-      id: newId,
+      id: 9999,
       name: "항목입력",
       amount: 0,
-      apiId: `custom_${randomId}` as keyof ICostData,
+      apiId: `priceCalculator_${randomId}` as keyof ICostData,
       formPath: "PriceCalculator",
     };
     setCostItems([...costItems, newItem]);
   };
 
-  const handleRemoveCostItem = (id: number) => {
-    const newCostItems = [...costItems].filter((item, index) => item.id !== id);
+  const handleRemoveCostItem = (apiId: string) => {
+    const newCostItems = [...costItems].filter(
+      (item, index) => item.apiId !== apiId
+    );
     setCostItems(newCostItems);
   };
 
@@ -72,26 +63,23 @@ const PriceCalculator: React.FC<Props> = ({ inputHide, itemData }) => {
   };
 
   // 디바운스
-  const debouncedUpdateCost = debounce((id: number, amount: number) => {
+  const debouncedUpdateCost = debounce((apiId: string, amount: number) => {
     const newCostItems = costItems.map((item) =>
-      item.id === id ? { ...item, amount } : item
+      item.apiId === apiId ? { ...item, amount } : item
     );
     setCostItems(newCostItems);
-  }, 400);
+  }, 300);
+
+  const debouncedUpdateName = debounce((apiId: string, name: string) => {
+    const newCostItems = costItems.map((item) =>
+      item.apiId === apiId ? { ...item, name } : item
+    );
+    setCostItems(newCostItems);
+  }, 300);
 
   const debouncedUpdateProfit = debounce((value: number) => {
     setProfitMargin(value);
-  }, 400);
-
-  // 모든 원가 항목의 합계
-  useEffect(() => {
-    const totalTotal = costItems
-      .filter((item) => item.formPath === "PriceCalculator")
-      .reduce((sum, item) => sum + (item.amount ? item.amount : 0), 0);
-    const sellingPrice = totalTotal * (profitMargin / 100);
-    setTotalCost(totalTotal);
-    setSellingPrice(sellingPrice);
-  }, [costItems, profitMargin]);
+  }, 300);
 
   // 변수에 따라 원가 항목 입력을 숨김
   function chkInputHide() {
@@ -114,9 +102,10 @@ const PriceCalculator: React.FC<Props> = ({ inputHide, itemData }) => {
                   <div className={styled.title}>
                     <input
                       type="text"
-                      value={item.name}
+                      ref={inputRef}
+                      defaultValue={item.name}
                       onChange={(e) =>
-                        handleNameChange(item.id, e.target.value)
+                        handleNameChange(item.apiId, e.target.value)
                       }
                     />
                   </div>
@@ -127,13 +116,13 @@ const PriceCalculator: React.FC<Props> = ({ inputHide, itemData }) => {
                       defaultValue={item.amount}
                       placeholder="금액을 입력하세요."
                       onChange={(e) =>
-                        handleCostChange(item.id, Number(e.target.value))
+                        handleCostChange(item.apiId, Number(e.target.value))
                       }
                     />
                   </div>
                   <div
                     className={styled.iconRemove}
-                    onClick={() => handleRemoveCostItem(item.id)}
+                    onClick={() => handleRemoveCostItem(item.apiId)}
                   ></div>
                 </div>
               ))}

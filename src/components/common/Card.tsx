@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import styled from "@/components/common/Card.module.scss";
+import userStore from "@/store/userLoginInfo";
 import { useRouter } from "next/navigation";
 
 type Props = {
@@ -9,8 +10,11 @@ type Props = {
 };
 
 const CompanyCard = ({ data, type }: Props) => {
+  const { userInfo } = userStore();
   const router = useRouter();
   const moveIdeaContents = (id: String) => {
+    if (userInfo.bearer == "xxxx")
+      return alert("해당 내용을 열람하시려면 로그인을 해주세요.");
     router.push(`/idea/ideaContents?id=${id}`);
   };
 

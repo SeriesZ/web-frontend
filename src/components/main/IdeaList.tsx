@@ -1,15 +1,16 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { EffectCoverflow, Pagination, Navigation } from "swiper/modules";
+import { Category, IdeaContentsType } from "@/model/IdeaList";
 import styled from "@/components/main/MainComponent.module.scss";
 import CategoryItem from "./CategoryItem";
 import CompanyCard from "../common/Card";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { EffectCoverflow, Pagination, Navigation } from "swiper/modules";
+import SwiperCore from "swiper";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/effect-coverflow";
-import SwiperCore from "swiper";
-import { Category, IdeaContentsType } from "@/model/IdeaList";
 
 type Props = {};
 
@@ -25,6 +26,9 @@ const IdeaList = (props: Props) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const prevButtonRef = useRef<HTMLDivElement>(null);
   const nextButtonRef = useRef<HTMLDivElement>(null);
+  const router = useSearchParams();
+  const id = router.get("id");
+  const nm = router.get("nm");
 
   // 배너 스와이프 버튼
   const handleActiveIndex = (index: number) => {
@@ -40,15 +44,16 @@ const IdeaList = (props: Props) => {
           `${process.env.NEXT_PUBLIC_API_BASE_URL}/themes`
         );
         const data = await response.json();
-        const firstDataKey = data[0].name;
+        const firstDataKey = id ? id : data[0].id;
+        const firstDataNm = nm ? nm : data[0].name;
         setCategoryData(data);
 
-        // 첫번째 카테고리 로딩
+        // 아이디어 리스트 로딩
         const themes = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/themes?theme_name=${firstDataKey}&offset=0&limit=10`
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/themes?theme_id=${firstDataKey}&offset=0&limit=10`
         );
         const themesData = await themes.json();
-        setListData(themesData[firstDataKey]);
+        setListData(themesData[firstDataNm]);
       } catch (error) {
         console.error("Error fetching category data:", error);
       } finally {

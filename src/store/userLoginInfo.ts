@@ -8,17 +8,17 @@ const defaultUserInfo = {
     role: "비회원",
     groupId: "",
     exp: "",
-    bearer: ""
+    bearer: "xxxx"
 };
 
-interface UserInfo {
+export interface UserInfo {
     id: string;
     name: string;
     email: string;
     role: string;
     groupId: string;
     exp: string;
-    bearer: string;
+    bearer?: string;
 }
 
 interface Store {

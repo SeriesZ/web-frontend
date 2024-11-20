@@ -2,14 +2,22 @@
 import React, { useState, useEffect } from "react";
 import styled from "@/components/common/Gnb.module.scss";
 import { useRouter } from "next/navigation";
-import userStore from "@/store/userLoginInfo";
+import userStore, { UserInfo } from "@/store/userLoginInfo";
 
 type Props = {};
 
 const Gnb = (props: Props) => {
   // 테스트 로그인 데이터
-  const testLoginData = [
-    { id: "user_0", name: "", email: "", role: "비회원", groupId: "", exp: "" },
+  const testLoginData: UserInfo[] = [
+    {
+      id: "user_0",
+      name: "",
+      email: "",
+      role: "비회원",
+      groupId: "",
+      exp: "",
+      bearer: "xxxx",
+    },
     {
       id: "user_1",
       name: "예비창업자",
@@ -47,7 +55,7 @@ const Gnb = (props: Props) => {
     router.push("/main");
   };
   const moveMakeIdea = () => {
-    router.push("/idea/register");
+    router.push(`/idea/register`);
   };
   const moveExpertPage = () => {
     router.push("/header/expert");
@@ -58,16 +66,20 @@ const Gnb = (props: Props) => {
   const moveRegisterIdeaList = () => {
     router.push("/idea/registerList");
   };
-  const doLogin = (id: string, email: string, role: string, name: string) => {
+  const doLogin = (role: string) => {
+    let index = 0;
     // 드롭메뉴 높이 설정
     switch (role) {
       case "예비창업자":
+        index = 1;
         setMenuHeight(230);
         break;
       case "투자자":
+        index = 2;
         setMenuHeight(200);
         break;
       case "전문가":
+        index = 3;
         setMenuHeight(210);
         break;
       default:
@@ -75,46 +87,48 @@ const Gnb = (props: Props) => {
         break;
     }
 
-    // 실제 로그인
-    const fetchCategoryData = async () => {
-      try {
-        const loginData = new URLSearchParams();
-        loginData.append("username", "admin@series0.com");
-        loginData.append("password", "12341234");
+    fetchCategoryData(index);
+  };
 
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/login`,
-          {
-            method: "POST",
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: loginData.toString(),
-          }
-        );
-        const data = await response.json();
-        const accessToken = data.access_token;
-        const [header, payload, signature] = accessToken.split(".");
-        //setUserInfo(base64UrlDecode(payload));
+  // 실제 로그인
+  const fetchCategoryData = async (index: number) => {
+    try {
+      const loginData = new URLSearchParams();
+      loginData.append("username", "admin@series0.com");
+      loginData.append("password", "12341234");
 
-        const defaultUserInfo = {
-          id: id,
-          name: name,
-          email: email,
-          role: role,
-          groupId: "group_1",
-          exp: "",
-          bearer: accessToken,
-        };
-        setUserInfo(defaultUserInfo);
-      } catch (error) {
-        console.error("Error fetching category data:", error);
-      } finally {
-      }
-    };
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/login`,
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: loginData.toString(),
+        }
+      );
+      const data = await response.json();
+      const accessToken = data.access_token;
+      const [header, payload, signature] = accessToken.split(".");
+      //setUserInfo(base64UrlDecode(payload));
 
-    fetchCategoryData();
+      const defaultUserInfo = {
+        id: testLoginData[index].id,
+        name: testLoginData[index].name,
+        email: testLoginData[index].email,
+        role: testLoginData[index].role,
+        groupId: "group_1",
+        exp: "",
+        bearer: testLoginData[index].bearer
+          ? testLoginData[index].bearer
+          : accessToken,
+      };
+      setUserInfo(defaultUserInfo);
+    } catch (error) {
+      console.error("Error fetching category data:", error);
+    } finally {
+    }
   };
 
   // Base64 디코딩 함수
@@ -165,7 +179,7 @@ const Gnb = (props: Props) => {
             {isDropdownOpen && (
               <div className={styled.dropdownMenu}>
                 <ul>
-                  <li>아이디어 업로드</li>
+                  <li onClick={moveMakeIdea}>아이디어 업로드</li>
                   <li onClick={moveRegisterIdeaList}>내 아이디어 관리</li>
                 </ul>
               </div>
@@ -361,12 +375,7 @@ const Gnb = (props: Props) => {
                       }
 
                       return (
-                        <li
-                          key={index}
-                          onClick={() =>
-                            doLogin(item.id, item.email, item.role, item.name)
-                          }
-                        >
+                        <li key={index} onClick={() => doLogin(item.role)}>
                           {item.role}
                         </li>
                       );
@@ -384,42 +393,9 @@ const Gnb = (props: Props) => {
                 로그인
                 <div className={styled.dropdownMenuLogin}>
                   <ul>
-                    <li
-                      onClick={() =>
-                        doLogin(
-                          "user_1",
-                          "admin@series0.com",
-                          "예비창업자",
-                          "예비창업자"
-                        )
-                      }
-                    >
-                      예비창업자
-                    </li>
-                    <li
-                      onClick={() =>
-                        doLogin(
-                          "user_2",
-                          "test1@series0.com",
-                          "투자자",
-                          "투자자"
-                        )
-                      }
-                    >
-                      투자자
-                    </li>
-                    <li
-                      onClick={() =>
-                        doLogin(
-                          "user_3",
-                          "test2@series0.com",
-                          "전문가",
-                          "전문가"
-                        )
-                      }
-                    >
-                      전문가
-                    </li>
+                    <li onClick={() => doLogin("예비창업자")}>예비창업자</li>
+                    <li onClick={() => doLogin("투자자")}>투자자</li>
+                    <li onClick={() => doLogin("전문가")}>전문가</li>
                   </ul>
                 </div>
               </div>

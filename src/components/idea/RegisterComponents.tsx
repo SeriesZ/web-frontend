@@ -1,8 +1,21 @@
 "use client";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, use } from "react";
 import { useRouter } from "next/navigation";
-import { Category, IdeaContentsType } from "@/model/IdeaList";
-import { useFinanceStore, ICostInputItem } from "@/store/financeStore";
+import {
+  Category,
+  IdeaContentsType,
+  initializeIdeaContents,
+} from "@/model/IdeaList";
+import {
+  ICostInputItem,
+  YearData,
+  useFinanceStore,
+  transformDataForServer,
+  ICostData,
+  updatePriceDataFromServer,
+} from "@/model/financeType";
+import { defaultYearData, defaultPriceData } from "@/model/financeDefaultData";
+import { calculateYearData } from "@/model/financeCalculationFormula";
 import styled from "@/components/idea/Idea.module.scss";
 import FileUpload from "./FileUpload";
 import CustomSelectBox from "../common/CustomSelectBox";
@@ -28,13 +41,18 @@ const NoSsrEditor = dynamic(() => import("./ToastEditor"), {
 });
 
 const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
-  // 선언
-  const router = useRouter();
   const isBrowser = () => typeof window !== "undefined";
+  const { userInfo } = userStore();
+  const router = useRouter();
+
+  // step1 관련
+  const editorRef = useRef<any>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [repreFiles, setRepreFiles] = useState<File[]>([]);
   const [detailFiles, setDetailFiles] = useState<File[]>([]);
   const [attachFiles, setAttachFiles] = useState<File[]>([]);
   const [editorContent, setEditorContent] = useState<string>("");
+  const [ideationId, setIdeaId] = useState<string>(ideaId);
   const [categoryData, setCategoryData] = useState<Category[]>([]);
   const [contents, setIdeaContents] = useState<IdeaContentsType>();
   const [selectedTheme, setSelectedTheme] = useState<Category>();
@@ -48,26 +66,28 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
   const [repreReadyUpload, setRepreReadyUpload] = useState(false);
   const [detailReadyUpload, setDetailReadyUpload] = useState(false);
   const [attachReadyUpload, setAttachReadyUpload] = useState(false);
-  const { userInfo } = userStore();
-  const editorRef = useRef<any>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
 
-  // step2 데이터
-  const [performanceData, setPerformanceData] = useState(null);
-  const [increaseRateData, setIncreaseRateData] = useState(null);
-  const [tradeCountsData, setTradeCountsData] = useState(null);
-  const [employeeData, setEmployeeData] = useState(null);
-  const { costData } = useFinanceStore();
-
+  // step2 관련
+  const { setCostDataAll, getAmountByApiId, costData } = useFinanceStore();
+  const [costItems, setCostItems] = useState<ICostInputItem[]>([]);
   const [profitMargin, setProfitMargin] = useState(0);
   const [totalCost, setTotalCost] = useState(0);
   const [sellingPrice, setSellingPrice] = useState(0);
   const [totalSelYear, setTotalSelYear] = useState(0);
-  const [costItems, setCostItems] = useState<ICostInputItem[]>([]);
+  const [tradeCounts, setTradeCounts] = useState<number[]>([]);
+  const [employeeCounts, setEmployeeCounts] = useState<number[]>([]);
+  const [achieveBep, setAchieveBep] = useState<YearData>(defaultYearData);
+  const [yearData, setYearData] = useState<YearData[]>([]);
+  const [positiveYear, setPositiveYear] = useState(0);
+  const [plan, setPlan] = useState<YearData[]>([]);
+  const [financeId, setFinanceId] = useState<string>();
+
+  // step3 관련
+  const [maraketCap, setMaraketCap] = useState(0);
   const [selectedTheme4Psr, setSelectedTheme4Psr] = useState<Category>(
     categoryData[0]
   );
-  const [maraketCap, setMaraketCap] = useState(0);
+
   const performanceParams = {
     categoryData,
     costItems,
@@ -84,11 +104,19 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
     setSelectedTheme4Psr,
     maraketCap,
     setMaraketCap,
+    tradeCounts,
+    setTradeCounts,
+    employeeCounts,
+    setEmployeeCounts,
+    achieveBep,
+    positiveYear,
+    yearData,
+    plan,
   };
 
   // 상태
   useEffect(() => {
-    console.log("부모컴포넌트 최초실행");
+    console.log("부모 컴포넌트 최초 실행");
     const fetchCategoryData = async () => {
       try {
         // 산업군 로드
@@ -100,24 +128,32 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
         setSelectedTheme4Psr(data1[0]);
 
         // 아이디어ID가 있으면 데이터 로딩
-        const response2 = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/${ideaId}`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${userInfo.bearer}`,
-              Accept: "application/json",
-              "Content-Type": "application/json;charset=utf-8",
-            },
-            mode: "cors",
-          }
-        );
+        if (ideationId) {
+          const response2 = await fetch(
+            `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/${ideaId}`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${userInfo.bearer}`,
+                Accept: "application/json",
+                "Content-Type": "application/json;charset=utf-8",
+              },
+              mode: "cors",
+            }
+          );
 
-        if (response2.ok) {
-          const data2 = await response2.json();
-          setIdeaContents(data2);
+          if (response2.ok) {
+            const data2 = await response2.json();
+            setIdeaContents(data2);
+          } else {
+            console.error("아이디어 불러오기 실패:", response2.statusText);
+          }
+
+          getServerFinanceData();
         } else {
-          console.error("아이디어 불러오기 실패:", response2.statusText);
+          setCostItems(defaultPriceData);
+          setTradeCounts([100, 2500, 10000, 20000, 50000, 6, 7, 8, 9, 10]);
+          setEmployeeCounts([2, 3, 4, 5, 7, 6, 7, 8, 9, 10]);
         }
       } catch (error) {
         console.error("Error fetching category data:", error);
@@ -125,216 +161,55 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
       }
     };
     fetchCategoryData();
-
-    const initialPriceData: ICostInputItem[] = [
-      {
-        id: 1,
-        name: "직접재료비",
-        amount: 0,
-        apiId: "direct_material",
-        formPath: "PriceCalculator",
-      },
-      {
-        id: 2,
-        name: "직접노무비",
-        amount: 0,
-        apiId: "direct_labor",
-        formPath: "PriceCalculator",
-      },
-      {
-        id: 3,
-        name: "직접경비",
-        amount: 0,
-        apiId: "direct_expense",
-        formPath: "PriceCalculator",
-      },
-      {
-        id: 4,
-        name: "제조간접비",
-        amount: 0,
-        apiId: "manufacturing_cost",
-        formPath: "PriceCalculator",
-      },
-      {
-        id: 11,
-        name: "급여(1인 평균)",
-        amount: 0,
-        apiId: "salary",
-        formPath: "PerformanceCalculator",
-      },
-      {
-        id: 12,
-        name: "업무추진비",
-        amount: 0,
-        apiId: "maintenance_cost",
-        formPath: "PerformanceCalculator",
-      },
-      {
-        id: 13,
-        name: "사무실 임차료",
-        amount: 0,
-        apiId: "office_rent",
-        formPath: "PerformanceCalculator",
-      },
-      {
-        id: 14,
-        name: "접대비",
-        amount: 0,
-        apiId: "business_expense",
-        formPath: "PerformanceCalculator",
-      },
-      {
-        id: 15,
-        name: "광고선전비",
-        amount: 0,
-        apiId: "ad_cost",
-        formPath: "PerformanceCalculator",
-      },
-      {
-        id: 16,
-        name: "예비비용",
-        amount: 0,
-        apiId: "contingency",
-        formPath: "PerformanceCalculator",
-      },
-      {
-        id: 9999,
-        name: "급여인상율",
-        amount: 0,
-        description: "직원 1명당 연봉 인상율",
-        apiId: "salary_increase_rate",
-        formPath: "IncreaseRateCalulator",
-      },
-      {
-        id: 9999,
-        name: "업무추진비 인상율",
-        amount: 0,
-        description: "직원 증가 시 인상되도록 설정",
-        apiId: "maintenance_cost_increase_rate",
-        formPath: "IncreaseRateCalulator",
-      },
-      {
-        id: 9999,
-        name: "사무실 임차료 인상율",
-        amount: 0,
-        description: "직원 증가 시 인상되도록 설정",
-        apiId: "office_rent_increase_rate",
-        formPath: "IncreaseRateCalulator",
-      },
-      {
-        id: 9999,
-        name: "접대비 인상율",
-        amount: 0,
-        description: "예상 및 추정",
-        apiId: "business_expense_increase_rate",
-        formPath: "IncreaseRateCalulator",
-      },
-      {
-        id: 9999,
-        name: "광고선전비 인상율",
-        amount: 0,
-        description: "예상 및 추정",
-        apiId: "ad_cost_increase_rate",
-        formPath: "IncreaseRateCalulator",
-      },
-      {
-        id: 9999,
-        name: "예비비 인상율",
-        amount: 0,
-        description: "예상 및 추정",
-        apiId: "contingency_increase_rate",
-        formPath: "IncreaseRateCalulator",
-      },
-      {
-        id: 9999,
-        name: "액면가",
-        amount: 0,
-        description: "1주의 최소금액은 상법상 100원 이상",
-        apiId: "face_value",
-        formPath: "StockItems",
-        focus: true,
-        inputYn: "Y",
-      },
-      {
-        id: 9999,
-        name: "총 발생주식 수",
-        amount: 0,
-        description: "5년차까지 평균매출 x PSR",
-        apiId: "total_number_shares_issued",
-        formPath: "StockItems",
-        focus: false,
-      },
-      {
-        id: 9999,
-        name: "지분율 당 주식수",
-        amount: 0,
-        description: "",
-        apiId: "number_shares_per_share",
-        formPath: "StockItems",
-        focus: false,
-      },
-      {
-        id: 9999,
-        name: "목표 투자자 지분율",
-        amount: 40,
-        description: "경영권 유지를 위해 49%이하를 가정해야 함",
-        apiId: "target_investor_share_ratio",
-        formPath: "InvestItems",
-        focus: true,
-        strType: "%",
-        inputYn: "Y",
-      },
-      {
-        id: 9999,
-        name: "투자자 지분 총 주식 수",
-        amount: 386568,
-        description: "",
-        apiId: "investor_shares_total_shares",
-        formPath: "InvestItems",
-        focus: false,
-      },
-      {
-        id: 9999,
-        name: "목표 투자자 조달금액",
-        amount: 386568000,
-        description: "",
-        apiId: "target_investor_financing_amount",
-        formPath: "InvestItems",
-        focus: false,
-      },
-      {
-        id: 9999,
-        name: "1인당 최소투자금",
-        amount: 0,
-        description: "액면가를 기준으로 자동으로 설정됨",
-        apiId: "mimimum_investment_per_persion",
-        formPath: "InvestItems",
-        focus: false,
-        inputYn: "Y",
-      },
-      {
-        id: 9999,
-        name: "1인당 최대투자금",
-        amount: 200000000,
-        description: "",
-        apiId: "maximum_investment_per_persion",
-        formPath: "InvestItems",
-        focus: true,
-      },
-      {
-        id: 9999,
-        name: "최대 투자자 수 설정(명)",
-        amount: 1000,
-        description: "",
-        apiId: "set_maximum_investors",
-        formPath: "InvestItems",
-        focus: true,
-        inputYn: "Y",
-      },
-    ];
-
-    setCostItems(initialPriceData);
   }, []);
+
+  useEffect(() => {
+    // 상품가격결정
+    const totalTotal = costItems
+      .filter((item) => item.formPath === "PriceCalculator")
+      .reduce((sum, item) => sum + (item.amount ? item.amount : 0), 0);
+    const sellingPrice = totalTotal * (profitMargin / 100);
+    setTotalCost(totalTotal);
+    setSellingPrice(sellingPrice);
+
+    // 실적 단위 계산
+    const totalSelYear = costItems
+      .filter((item) => item.formPath === "PerformanceCalculator")
+      .reduce((sum, item) => sum + (item.amount ? item.amount : 0), 0);
+    setTotalSelYear(totalSelYear);
+
+    // 매출계획표 데이터 셋팅
+    setCostDataAll(costItems);
+
+    // 매출계획표 계산
+    if (tradeCounts.length > 0 && employeeCounts.length > 0) {
+      const newPlan = create10YearPlan(
+        sellingPrice,
+        totalCost,
+        getAmountByApiId("salary"),
+        getAmountByApiId("business_expense"),
+        getAmountByApiId("office_rent"),
+        getAmountByApiId("maintenance_cost"),
+        getAmountByApiId("ad_cost"),
+        getAmountByApiId("contingency")
+      );
+      setPlan(newPlan);
+    }
+
+    console.log("업뎃 안됐니?");
+  }, [costItems, profitMargin, tradeCounts, employeeCounts]);
+
+  useEffect(() => {
+    const positiveYear1 = findPositiveOperatingIncomeYear(plan);
+    if (positiveYear1) {
+      setPositiveYear(positiveYear1);
+      setAchieveBep(plan[positiveYear1 - 1]);
+    } else {
+      setPositiveYear(0);
+      setAchieveBep(defaultYearData);
+    }
+    console.log("positiveYear: " + positiveYear1);
+  }, [plan]);
 
   useEffect(() => {
     console.log("repreFiles :: ", repreFiles);
@@ -346,9 +221,11 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
       fetchUploadFile("image", formData);
     }
   }, [repreFiles]);
+
   useEffect(() => {
     console.log("detailFiles :: ", detailFiles);
   }, [detailFiles]);
+
   useEffect(() => {
     console.log("attachFiles :: ", attachFiles);
     if (ideaId && attachReadyUpload) {
@@ -359,6 +236,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
       fetchUploadFile("attach", formData);
     }
   }, [attachFiles]);
+
   useEffect(() => {
     if (contents) {
       setIdeaName(contents?.title);
@@ -367,7 +245,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
         name: contents?.theme.name,
         image: "",
         description: "",
-        psr: "3",
+        psr_value: contents?.theme.psr_value,
       });
       setEditorContent(contents?.content);
     }
@@ -401,18 +279,27 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
     }
   }, [contents]);
 
+  useEffect(() => {
+    if (!ideaId) {
+      setIdeaContents(initializeIdeaContents);
+    }
+  }, [ideaId]);
+
   // 이벤트
   const handleChangeNextStep = () => {
     setActiveIndex(activeIndex + 1);
     if (!isBrowser()) return;
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
   const handleSelectTheme = (value: Category) => {
     setSelectedTheme(value);
   };
+
   const handleBlur = () => {
     if (inputRef.current) setIdeaName(inputRef.current.value);
   };
+
   const handleBlurEditor = () => {
     if (editorRef.current) {
       setEditorContent(editorRef.current.getInstance().getHTML());
@@ -424,13 +311,16 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
     console.log("최종 업로드");
     router.push("./registerList");
   };
+
   const tempSave = async (data: any) => {
     try {
       console.log("임시 저장 현재 인덱스 :: ", activeIndex);
 
       switch (activeIndex) {
+        // 아이디어 내용 저장
         case 0:
           // 저장 전 확인
+          console.log("repreFiles " + repreFiles);
           if (!ideaName) {
             alert("아이디어 제목을 입력해주세요.");
             return;
@@ -439,11 +329,11 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
             alert("내용을 입력해주세요.");
             return;
           }
-          if (!selectedTheme) {
+          if (!selectedTheme?.id) {
             alert("테마를 선택해주세요.");
             return;
           }
-          if (!repreFiles) {
+          if (repreFiles.length == 0) {
             alert("대표 이미지를 선택해주세요.");
             return;
           }
@@ -465,6 +355,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
             attachFiles.forEach((file, index) => {
               formData.append(`files`, file, file.name);
             });
+            console.log(formData);
           } else {
             const queryParams = new URLSearchParams({
               title: ideaName,
@@ -477,7 +368,6 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
             formData.append("ideation_id", ideaId);
           }
 
-          // 아이디어 내용 저장
           const response = await fetch(url, {
             method: method,
             headers: {
@@ -487,18 +377,21 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
             body: method === "POST" ? formData : undefined,
           });
 
-          // 응답 처리
           if (response.ok) {
-            // 성공 시 처리
             const data = await response.json();
-            alert("임시저장 되었습니다.");
+            setIdeaId(data.id);
+            alert("임시저장 되었습니다." + JSON.stringify(data));
           } else {
-            // 실패 시 처리
-            alert("임시 저장 실패:" + response.statusText);
+            alert("임시 저장 실패:" + response.statusText + "ideaId:" + ideaId);
           }
           break;
         case 1:
-          console.log("저장할 데이터:", data);
+          if (!ideationId) {
+            alert("아이디어 입력 저장을 먼저 진행해주세요.");
+            return;
+          }
+          // step2 저장 함수로 이동
+          checkAndSaveFinanceData();
           break;
 
         default:
@@ -507,6 +400,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
     } catch (error) {
       // 오류 처리
       console.error("서버 요청 오류:", error);
+      alert("서버 요청 오류: " + error);
     }
   };
 
@@ -535,6 +429,234 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
     } catch (error) {
       console.error("Error fetching update data:", error);
     } finally {
+    }
+  };
+
+  // 영업이익 전황 추출
+  const findPositiveOperatingIncomeYear = (
+    years: YearData[]
+  ): number | null => {
+    for (let i = 0; i < years.length; i++) {
+      if (years[i].operatingIncome > 0) {
+        return i + 1;
+      }
+    }
+    return null;
+  };
+
+  // 매출계획표 계산
+  const create10YearPlan = (
+    salesPerTransaction: number,
+    salesCostPerTransaction: number,
+    initialSalaryPerStaff: number,
+    businessPromotionCost: number,
+    officeRent: number,
+    entertainmentExpenses: number,
+    advertisingCost: number,
+    contingencyExpenses: number
+  ): YearData[] => {
+    const years: YearData[] = [];
+    let staffCount = employeeCounts[0];
+    let salaryPerStaff = initialSalaryPerStaff;
+    const salaryIncreaseRate = getAmountByApiId("salary_increase_rate");
+    const businessExpenseIncreaseRate = getAmountByApiId(
+      "business_expense_increase_rate"
+    );
+    const officeRentIncreaseRate = getAmountByApiId(
+      "office_rent_increase_rate"
+    );
+    const mainCostIncreaseRate = getAmountByApiId(
+      "business_expense_increase_rate"
+    );
+    const adCostIncreaseRate = getAmountByApiId("ad_cost_increase_rate");
+    const contingencyIncreaseRate = getAmountByApiId(
+      "contingency_increase_rate"
+    );
+
+    for (let year = 1; year <= 10; year++) {
+      if (!tradeCounts[year - 1]) {
+        console.error(
+          `Trade count for year ${year} is missing or invalid:`,
+          tradeCounts[year - 1]
+        );
+      }
+
+      const previousStaffCount =
+        year > 1 ? years[year - 2].staffCount : staffCount;
+      const previousBusinessPromotionCost =
+        year > 1
+          ? years[year - 2].businessPromotionCost
+          : businessPromotionCost;
+      const previousOfficeRent =
+        year > 1 ? years[year - 2].officeRent : officeRent;
+      const yearData = calculateYearData(
+        year,
+        tradeCounts[year - 1],
+        employeeCounts[year - 1],
+        salesPerTransaction,
+        salesCostPerTransaction,
+        salaryPerStaff,
+        businessPromotionCost,
+        officeRent,
+        entertainmentExpenses,
+        advertisingCost,
+        contingencyExpenses,
+        previousStaffCount,
+        previousBusinessPromotionCost,
+        mainCostIncreaseRate,
+        previousOfficeRent,
+        officeRentIncreaseRate
+      );
+
+      years.push(yearData);
+
+      // Adjust values for next year
+      salaryPerStaff *= 1 + salaryIncreaseRate * 0.01; // 연봉인상률
+      entertainmentExpenses =
+        entertainmentExpenses * (1 + businessExpenseIncreaseRate * 0.01);
+      advertisingCost = advertisingCost * (1 + adCostIncreaseRate * 0.01);
+      contingencyExpenses =
+        contingencyExpenses * (1 + contingencyIncreaseRate * 0.01);
+    }
+
+    return years;
+  };
+
+  // step2 임시저장 관련
+  const getServerFinanceData = async () => {
+    try {
+      // 공통 URL 및 헤더 설정
+      const financeUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/finance`;
+      const headers = {
+        Authorization: `Bearer ${userInfo.bearer}`,
+        Accept: "application/json",
+      };
+
+      // 데이터 존재 여부 확인
+      const checkResponse = await fetch(`${financeUrl}/${ideationId}`, {
+        method: "GET",
+        headers,
+      });
+
+      if (checkResponse.ok) {
+        const data = await checkResponse.json();
+        const updatedData = updatePriceDataFromServer(defaultPriceData, data);
+
+        setFinanceId(data.id);
+        setCostItems(updatedData);
+        setProfitMargin(data.profit_rate);
+        setEmployeeCounts(data.employee_counts);
+        setTimeout(() => {
+          setTradeCounts(data.trade_counts);
+        }, 300);
+      }
+    } catch (error) {
+      console.error("An error occurred:", error);
+      alert("저장 권한이 없습니다.");
+    }
+  };
+
+  const checkAndSaveFinanceData = async () => {
+    try {
+      // 공통 URL 및 헤더 설정
+      const financeUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/finance/${ideationId}`;
+      const headers = {
+        Authorization: `Bearer ${userInfo.bearer}`,
+        Accept: "application/json",
+      };
+
+      // 데이터 존재 여부 확인
+      const checkResponse = await fetch(financeUrl, {
+        method: "GET",
+        headers,
+      });
+
+      // 데이터 준비
+      const serverPayload = transformDataForServer(costItems, ideaId);
+      serverPayload.profit_rate = profitMargin;
+      serverPayload.sale_price = sellingPrice;
+      serverPayload.total_expense = totalSelYear;
+      serverPayload.trade_counts = tradeCounts;
+      serverPayload.employee_counts = employeeCounts;
+      serverPayload.ideation_id = ideationId;
+      serverPayload.id = financeId;
+      console.log("저장할 데이터:", serverPayload);
+
+      if (checkResponse.ok) {
+        // 데이터가 존재하는 경우 (PUT)
+
+        console.log("checkResponse ok:", serverPayload);
+        await updateFinanceData(financeUrl, headers, serverPayload);
+      } else if (checkResponse.status === 401 || checkResponse.status === 500) {
+        alert("저장 권한이 없습니다.");
+      } else {
+        // 데이터가 없는 경우 (POST)
+        await createFinanceData(financeUrl, headers, serverPayload);
+      }
+    } catch (error) {
+      console.error("An error occurred:", error);
+      alert("저장 권한이 없습니다.");
+    }
+  };
+
+  // PUT 요청
+  const updateFinanceData = async (
+    url: string,
+    headers: HeadersInit,
+    payload: any
+  ) => {
+    try {
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+          ...headers,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        console.log("Finance data updated successfully.");
+        alert("임시저장 되었습니다.");
+      } else {
+        console.error("Failed to update finance data.");
+        alert("업데이트에 실패하였습니다.");
+      }
+    } catch (error) {
+      console.error("An error occurred during update:", error);
+      alert("업데이트에 실패하였습니다.");
+    }
+  };
+
+  // POST 요청
+  const createFinanceData = async (
+    url: string,
+    headers: HeadersInit,
+    payload: any
+  ) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/finance`,
+        {
+          method: "POST",
+          headers: {
+            ...headers,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (response.ok) {
+        console.log("Finance data created successfully.");
+        alert("임시저장 되었습니다.");
+      } else {
+        console.error("Failed to create finance data." + response.statusText);
+        alert("저장에 실패하였습니다.");
+      }
+    } catch (error) {
+      console.error("An error occurred during creation:", error);
+      alert("저장에 실패하였습니다.");
     }
   };
 
@@ -683,7 +805,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
               판매가<span>(소비자가격)</span>
             </div>
             <div className={styled.amount}>
-              <span>{sellingPrice}</span>원
+              <span>{sellingPrice.toLocaleString()}</span>원
             </div>
           </div>
           <div className={styled.tableContainer}>
@@ -756,47 +878,68 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
             <div className={`${styled.inputHeader} ${styled.left}`}>
               <div className={styled.title}>거래발생 수</div>
             </div>
-            <YearUserCnt onSaveData={setTradeCountsData} />
+            <YearUserCnt name="trade" itemData={performanceParams} />
+          </div>
+          <div className={styled.inputContainer}>
+            <div className={`${styled.inputHeader} ${styled.left}`}>
+              <div className={styled.title}>직원 수</div>
+            </div>
+            <YearUserCnt name="employee" itemData={performanceParams} />
           </div>
           <div className={styled.totalContainer}>
             <div className={styled.title}>
-              BEP 달성<span>(4년차)</span>
+              BEP 달성<span>({positiveYear}년차)</span>
             </div>
             <div className={styled.amounts}>
               <div className={styled.item}>
                 <div>매출</div>
                 <div>
-                  <span>600,000,000</span>원
+                  <span>{achieveBep.sales.toLocaleString()}</span>원
                 </div>
               </div>
               <div className={styled.item}>
                 <div>매출원가</div>
                 <div>
-                  <span>240,000,000</span>원
+                  <span>{achieveBep.salesCost.toLocaleString()}</span>원
                 </div>
               </div>
               <div className={styled.item}>
                 <div>매출총이익</div>
                 <div>
-                  <span>240,000,000</span>원
+                  <span>{achieveBep.grossProfit.toLocaleString()}</span>원
                 </div>
               </div>
               <div className={styled.item}>
                 <div>판관비</div>
                 <div>
-                  <span>360,000,000</span>원
+                  <span>
+                    {Number(
+                      achieveBep.adminExpenses.toFixed(0)
+                    ).toLocaleString()}
+                  </span>
+                  원
                 </div>
               </div>
               <div className={styled.item}>
                 <div>영업이익</div>
                 <div>
-                  <span>3,975,525</span>원
+                  <span>
+                    {Number(
+                      achieveBep.operatingIncome.toFixed(0)
+                    ).toLocaleString()}
+                  </span>
+                  원
                 </div>
               </div>
               <div className={styled.item}>
                 <div>영업이익률</div>
                 <div>
-                  <span>1</span>%
+                  <span>
+                    {Number(
+                      achieveBep.operatingIncomeRate.toFixed(0)
+                    ).toLocaleString()}
+                  </span>
+                  %
                 </div>
               </div>
             </div>

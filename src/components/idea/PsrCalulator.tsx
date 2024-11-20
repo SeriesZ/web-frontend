@@ -33,7 +33,7 @@ const PsrCalulator: React.FC<Props> = ({ inputHide, itemData }) => {
   // 구분 단위값 셋팅
   const selectedBox = categoryData.filter((item) => item === selectedTheme4Psr);
   const labelText = selectedBox.map((item) => item.name);
-  const labelPsr = selectedBox.map((item) => item.psr);
+  const labelPsr = selectedBox.map((item) => item.psr_value);
   const marketPrice = 5200000 * +(labelPsr ? 3 : labelPsr);
 
   useEffect(() => {

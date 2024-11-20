@@ -1,56 +1,52 @@
 "use client";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useRef } from "react";
+import debounce from "lodash/debounce";
 import styled from "@/components/idea/Idea.module.scss";
-import useIdeaPriceStore from "@/store/useIdeaPriceStore";
+
 type Props = {
-  onSaveData: (data: any) => void;
+  name: string;
+  itemData: {
+    tradeCounts: number[];
+    setTradeCounts: React.Dispatch<React.SetStateAction<number[]>>;
+    employeeCounts: number[];
+    setEmployeeCounts: React.Dispatch<React.SetStateAction<number[]>>;
+  };
 };
 
-interface UserCnt {
-  year: number;
-  value: number;
-}
+// [거래발생 수] : trade
+// [직원 수] : employee
+const YearUserCnt: React.FC<Props> = ({ name, itemData }) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const { tradeCounts, setTradeCounts, employeeCounts, setEmployeeCounts } =
+    itemData;
 
-const YearUserCnt: React.FC<Props> = ({ onSaveData }) => {
-  // 매출계획표 거래발생수 컴포넌트 생성 배열
-  const yearData = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-  const { setYearUserCnt } = useIdeaPriceStore();
+  // 재사용 하기 위함
+  var calulatorUi = name == "trade" ? tradeCounts : employeeCounts;
+  var inputUi = name == "trade" ? setTradeCounts : setEmployeeCounts;
 
-  const [inputValues, setInputValues] = useState<UserCnt[]>(
-    yearData.map((year) => ({ year, value: year }))
-  );
+  // 항목의 금액을 변경할 수 있는 핸들러
   const handleInputChange = (index: number, value: number) => {
-    const yearUsers = [...inputValues];
-    yearUsers[index].value = value;
-    setInputValues(yearUsers);
-    setYearUserCnt(yearUsers); // store에 값 저장
-  };
-  // 저장할 데이터를 반환하는 함수
-  const getSaveData = () => {
-    return {
-      inputValues,
-    };
+    debouncedUpdateValue(index, value);
   };
 
-  const prevDataRef = useRef(getSaveData());
-  useEffect(() => {
-    const newData = getSaveData();
-    if (JSON.stringify(prevDataRef.current) !== JSON.stringify(newData)) {
-      onSaveData(newData);
-      prevDataRef.current = newData;
-    }
-  }, [inputValues]);
+  // 디바운스
+  const debouncedUpdateValue = debounce((index: number, value: number) => {
+    const yearTrade = [...calulatorUi];
+    yearTrade[index] = value;
+    inputUi(yearTrade);
+  }, 400);
 
   return (
     <div className={`${styled.inputWrap} ${styled.cnt}`}>
-      {inputValues.map((item, index) => (
-        <div key={item.year} className={styled.inputItem}>
-          <div className={styled.title}>{item.year}년차</div>
+      {calulatorUi.map((item, index) => (
+        <div key={index} className={styled.inputItem}>
+          <div className={styled.title}>{index + 1}년차</div>
           <div className={styled.input}>
             <input
               type="number"
-              placeholder="금액을 입력하세요."
-              value={item.value}
+              ref={inputRef}
+              defaultValue={item}
+              placeholder="거래발생 수를 입력하세요."
               onChange={(e) => handleInputChange(index, Number(e.target.value))}
             />
           </div>

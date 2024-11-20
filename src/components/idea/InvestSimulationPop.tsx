@@ -2,16 +2,20 @@ import React, { useState } from "react";
 import styled from "@/components/idea/InvestPop.module.scss";
 import styledFinance from "@/components/idea/Idea.module.scss";
 import FinanceCaculator from "./FinanceCaculator";
-import { useFinanceStore, ICostInputItem } from "@/store/financeStore";
+import { YearData, ICostInputItem } from "@/model/financeType";
 
 const InvestSimulationPop: React.FC = () => {
   const [costItems, setCostItems] = useState<ICostInputItem[]>([]);
   const [totalCost, setTotalCost] = useState(0);
   const [sellingPrice, setSellingPrice] = useState(0);
+  const [positiveYear, setPositiveYear] = useState(0);
+  const [plan, setPlan] = useState<YearData[]>([]);
   const performanceParams = {
     costItems,
     sellingPrice,
     totalCost,
+    positiveYear,
+    plan,
   };
   return (
     <div className={styled.modalContainer}>

@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import styled from "@/components/idea/Idea.module.scss";
-import { ICostInputItem, ICostData } from "@/store/financeStore";
+import { ICostInputItem, ICostData } from "@/model/financeType";
 
 interface Props {
   name: string;
@@ -9,28 +9,13 @@ interface Props {
   itemData: {
     costItems: ICostInputItem[];
     setCostItems: React.Dispatch<React.SetStateAction<ICostInputItem[]>>;
-    profitMargin: number;
-    setProfitMargin: React.Dispatch<React.SetStateAction<number>>;
-    totalCost: number;
-    setTotalCost: React.Dispatch<React.SetStateAction<number>>;
-    sellingPrice: number;
-    setSellingPrice: React.Dispatch<React.SetStateAction<number>>;
   };
 }
 
 // [발행주식 수 설정] : stock
 // [투자목표 설정] : investGoal
 const StockCalulator: React.FC<Props> = ({ name, inputHide, itemData }) => {
-  const {
-    costItems,
-    setCostItems,
-    profitMargin,
-    setProfitMargin,
-    totalCost,
-    setTotalCost,
-    sellingPrice,
-    setSellingPrice,
-  } = itemData;
+  const { costItems, setCostItems } = itemData;
 
   // 발행주식 테이블 컬럼
   const [stockItems, setStockItems] = useState<ICostInputItem[]>(

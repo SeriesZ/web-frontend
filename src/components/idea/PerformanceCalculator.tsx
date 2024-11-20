@@ -3,7 +3,7 @@ import React, { useRef, useEffect } from "react";
 import debounce from "lodash/debounce";
 import styled from "@/components/idea/Idea.module.scss";
 import ToolTipComponent from "./ToolTipComponent";
-import { ICostInputItem, ICostData } from "@/store/financeStore";
+import { ICostInputItem, ICostData } from "@/model/financeType";
 
 interface Props {
   inputHide: string;
@@ -11,26 +11,16 @@ interface Props {
     costItems: ICostInputItem[];
     setCostItems: React.Dispatch<React.SetStateAction<ICostInputItem[]>>;
     totalCost: number;
-    setTotalCost: React.Dispatch<React.SetStateAction<number>>;
     sellingPrice: number;
-    setSellingPrice: React.Dispatch<React.SetStateAction<number>>;
     totalSelYear: number;
-    setTotalSelYear: React.Dispatch<React.SetStateAction<number>>;
   };
 }
 
 // [실적 단위 계산]
 const PerformanceCalculator: React.FC<Props> = ({ inputHide, itemData }) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const {
-    costItems,
-    setCostItems,
-    totalCost,
-    setTotalCost,
-    sellingPrice,
-    totalSelYear,
-    setTotalSelYear,
-  } = itemData;
+  const { costItems, setCostItems, totalCost, sellingPrice, totalSelYear } =
+    itemData;
 
   // 기존 원가 항목의 금액을 변경
   const handleCostChange = (id: number, amount: number) => {
@@ -83,14 +73,6 @@ const PerformanceCalculator: React.FC<Props> = ({ inputHide, itemData }) => {
     );
     setCostItems(newCostItems);
   }, 400);
-
-  // 모든 원가 항목의 합계
-  useEffect(() => {
-    const totalTotal = costItems
-      .filter((item) => item.formPath === "PerformanceCalculator")
-      .reduce((sum, item) => sum + (item.amount ? item.amount : 0), 0);
-    setTotalSelYear(totalTotal);
-  }, [costItems]);
 
   function chkInputHide() {
     if (inputHide == "N")
