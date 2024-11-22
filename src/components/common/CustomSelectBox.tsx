@@ -64,7 +64,10 @@ const CustomSelectBox: React.FC<CustomSelectBoxProps> = ({
             <li
               key={option.id}
               className={styles.option}
-              onClick={() => handleSelect(option)}
+              onClick={(event) => {
+                event.stopPropagation();
+                handleSelect(option);
+              }}
             >
               {option.name}
             </li>

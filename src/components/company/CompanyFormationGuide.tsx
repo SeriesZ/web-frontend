@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import commonStyled from "@/components/expert/Expert.module.scss";
-import styled from "@/components/company/Company.module.scss";
+import styled from "./Company.module.scss";
 type Props = {};
 
 const CompanyFormationGuide = (props: Props) => {

@@ -12,6 +12,7 @@ interface Props {
     setSelectedTheme4Psr: React.Dispatch<React.SetStateAction<Category>>;
     maraketCap: number;
     setMaraketCap: React.Dispatch<React.SetStateAction<number>>;
+    averageSales: number;
   };
 }
 
@@ -23,6 +24,7 @@ const PsrCalulator: React.FC<Props> = ({ inputHide, itemData }) => {
     setSelectedTheme4Psr,
     maraketCap,
     setMaraketCap,
+    averageSales,
   } = itemData;
 
   // 산업군 선택
@@ -34,11 +36,10 @@ const PsrCalulator: React.FC<Props> = ({ inputHide, itemData }) => {
   const selectedBox = categoryData.filter((item) => item === selectedTheme4Psr);
   const labelText = selectedBox.map((item) => item.name);
   const labelPsr = selectedBox.map((item) => item.psr_value);
-  const marketPrice = 5200000 * +(labelPsr ? 3 : labelPsr);
+  const marketPrice = averageSales * +labelPsr;
 
   useEffect(() => {
     setMaraketCap(marketPrice);
-    console.log("maraketCap (시가총액) :: ", marketPrice);
   }, [marketPrice]);
 
   // 변수에 따라 원가 항목 입력을 숨긴다
@@ -80,12 +81,14 @@ const PsrCalulator: React.FC<Props> = ({ inputHide, itemData }) => {
         <tbody>
           <tr>
             <th>{labelText}</th>
-            <th className={styled.em}>{labelPsr ? 3 : labelPsr}</th>
+            <th className={styled.em}>{labelPsr}</th>
             <td className={styled.remk}>동종산업 코스닥 상상 기업 평균 값</td>
           </tr>
           <tr>
             <th className={styled.total}>시가총액</th>
-            <th className={`${styled.total} ${styled.em}`}>{maraketCap}</th>
+            <th className={`${styled.total} ${styled.em}`}>
+              {maraketCap.toLocaleString()}
+            </th>
             <td className={styled.total}>5년차까지 평균매출 x PSR</td>
           </tr>
         </tbody>

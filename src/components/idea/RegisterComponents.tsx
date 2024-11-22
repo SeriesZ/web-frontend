@@ -11,7 +11,6 @@ import {
   YearData,
   useFinanceStore,
   transformDataForServer,
-  ICostData,
   updatePriceDataFromServer,
 } from "@/model/financeType";
 import { defaultYearData, defaultPriceData } from "@/model/financeDefaultData";
@@ -87,6 +86,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
   const [selectedTheme4Psr, setSelectedTheme4Psr] = useState<Category>(
     categoryData[0]
   );
+  const [averageSales, setAverageSales] = useState(0);
 
   const performanceParams = {
     categoryData,
@@ -112,6 +112,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
     positiveYear,
     yearData,
     plan,
+    averageSales,
   };
 
   // 상태
@@ -194,9 +195,12 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
         getAmountByApiId("contingency")
       );
       setPlan(newPlan);
-    }
 
-    console.log("업뎃 안됐니?");
+      // 평균매출 계산
+      const calAverageSales =
+        newPlan.slice(0, 5).reduce((sum, value) => sum + value.sales, 0) / 5;
+      setAverageSales(calAverageSales);
+    }
   }, [costItems, profitMargin, tradeCounts, employeeCounts]);
 
   useEffect(() => {
@@ -208,11 +212,9 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
       setPositiveYear(0);
       setAchieveBep(defaultYearData);
     }
-    console.log("positiveYear: " + positiveYear1);
   }, [plan]);
 
   useEffect(() => {
-    console.log("repreFiles :: ", repreFiles);
     if (ideaId && repreReadyUpload) {
       const formData = new FormData();
       repreFiles.forEach((file, index) => {
@@ -223,11 +225,6 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
   }, [repreFiles]);
 
   useEffect(() => {
-    console.log("detailFiles :: ", detailFiles);
-  }, [detailFiles]);
-
-  useEffect(() => {
-    console.log("attachFiles :: ", attachFiles);
     if (ideaId && attachReadyUpload) {
       const formData = new FormData();
       attachFiles.forEach((file, index) => {
@@ -282,6 +279,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
   useEffect(() => {
     if (!ideaId) {
       setIdeaContents(initializeIdeaContents);
+      setCostItems(defaultPriceData);
     }
   }, [ideaId]);
 
@@ -320,7 +318,6 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
         // 아이디어 내용 저장
         case 0:
           // 저장 전 확인
-          console.log("repreFiles " + repreFiles);
           if (!ideaName) {
             alert("아이디어 제목을 입력해주세요.");
             return;
@@ -355,7 +352,6 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
             attachFiles.forEach((file, index) => {
               formData.append(`files`, file, file.name);
             });
-            console.log(formData);
           } else {
             const queryParams = new URLSearchParams({
               title: ideaName,
@@ -380,12 +376,13 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
           if (response.ok) {
             const data = await response.json();
             setIdeaId(data.id);
-            alert("임시저장 되었습니다." + JSON.stringify(data));
+            alert("임시저장 되었습니다.");
           } else {
             alert("임시 저장 실패:" + response.statusText + "ideaId:" + ideaId);
           }
           break;
         case 1:
+        case 2:
           if (!ideationId) {
             alert("아이디어 입력 저장을 먼저 진행해주세요.");
             return;
@@ -398,7 +395,6 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
           break;
       }
     } catch (error) {
-      // 오류 처리
       console.error("서버 요청 오류:", error);
       alert("서버 요청 오류: " + error);
     }
@@ -583,9 +579,6 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
       console.log("저장할 데이터:", serverPayload);
 
       if (checkResponse.ok) {
-        // 데이터가 존재하는 경우 (PUT)
-
-        console.log("checkResponse ok:", serverPayload);
         await updateFinanceData(financeUrl, headers, serverPayload);
       } else if (checkResponse.status === 401 || checkResponse.status === 500) {
         alert("저장 권한이 없습니다.");
@@ -606,20 +599,26 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
     payload: any
   ) => {
     try {
-      const response = await fetch(url, {
-        method: "PUT",
-        headers: {
-          ...headers,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/finance`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${userInfo.bearer}`,
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
 
       if (response.ok) {
         console.log("Finance data updated successfully.");
         alert("임시저장 되었습니다.");
       } else {
-        console.error("Failed to update finance data.");
+        console.error(
+          "Failed to update finance data. : " + response.statusText
+        );
         alert("업데이트에 실패하였습니다.");
       }
     } catch (error) {
@@ -684,6 +683,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
                 content={editorContent}
                 editorRef={editorRef}
                 onChange={handleBlurEditor}
+                showType={"editor"}
               ></NoSsrEditor>
             </div>
           </div>
@@ -1039,7 +1039,6 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
     );
   };
   const Step4 = () => {
-    //const { sellingPrice, sgnaExpenses } = useIdeaPriceStore();
     return (
       <>
         <div className={`${styled.section} ${styled.final}`}>
@@ -1048,16 +1047,19 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
           </div>
           <div className={`${styled.form} ${styled.final}`}>
             <div className={`${styled.label} ${styled.final}`}>아이디어명</div>
-            <div className={styled.finalContent}>홈짐 (Home Gym)</div>
+            <div className={styled.finalContent}>{ideaName}</div>
           </div>
           <div className={styled.form}>
             <div className={`${styled.label} ${styled.final}`}>
               아이디어 설명
             </div>
             <div className={styled.finalContent}>
-              모바일 디바이스에서 컴퓨터 비전 기술 기반으로 사용자의 체형을
-              분석하고 알맞은 운동을 제시해주는 특정 개인만의 운동의 방법을
-              제공하는 헬스 어플리케이션
+              <NoSsrEditor
+                content={editorContent}
+                editorRef={editorRef}
+                onChange={handleBlurEditor}
+                showType={"viewer"}
+              ></NoSsrEditor>
             </div>
           </div>
           <div className={styled.form}>
@@ -1189,43 +1191,58 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
           </div>
           <div className={`${styled.totalContainer} ${styled.final}`}>
             <div className={styled.title}>
-              BEP 달성<span>(4년차)</span>
+              BEP 달성<span>({positiveYear}년차)</span>
             </div>
             <div className={styled.amounts}>
               <div className={styled.item}>
                 <div>매출</div>
                 <div>
-                  <span>600,000,000</span>원
+                  <span>{achieveBep.sales.toLocaleString()}</span>원
                 </div>
               </div>
               <div className={styled.item}>
                 <div>매출원가</div>
                 <div>
-                  <span>240,000,000</span>원
+                  <span>{achieveBep.salesCost.toLocaleString()}</span>원
                 </div>
               </div>
               <div className={styled.item}>
                 <div>매출총이익</div>
                 <div>
-                  <span>240,000,000</span>원
+                  <span>{achieveBep.grossProfit.toLocaleString()}</span>원
                 </div>
               </div>
               <div className={styled.item}>
                 <div>판관비</div>
                 <div>
-                  <span>360,000,000</span>원
+                  <span>
+                    {Number(
+                      achieveBep.adminExpenses.toFixed(0)
+                    ).toLocaleString()}
+                  </span>
+                  원
                 </div>
               </div>
               <div className={styled.item}>
                 <div>영업이익</div>
                 <div>
-                  <span>3,975,525</span>원
+                  <span>
+                    {Number(
+                      achieveBep.operatingIncome.toFixed(0)
+                    ).toLocaleString()}
+                  </span>
+                  원
                 </div>
               </div>
               <div className={styled.item}>
                 <div>영업이익률</div>
                 <div>
-                  <span>1</span>%
+                  <span>
+                    {Number(
+                      achieveBep.operatingIncomeRate.toFixed(0)
+                    ).toLocaleString()}
+                  </span>
+                  %
                 </div>
               </div>
             </div>
@@ -1286,9 +1303,9 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
           </div>
         </div>
         <div className={styled.btnWrap}>
-          <div className={`${styled.btn} ${styled.white}`} onClick={tempSave}>
+          {/* <div className={`${styled.btn} ${styled.white}`} onClick={tempSave}>
             임시저장
-          </div>
+          </div> */}
           <div className={`${styled.btn} ${styled.white}`} onClick={preview}>
             미리보기
           </div>

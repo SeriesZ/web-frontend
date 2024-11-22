@@ -30,6 +30,11 @@ export interface ICostData {
   max_investor_count: number;
   max_invest_per: number;
   id?:string;
+  total_stock_cnt?:number;
+  number_shares_per_share?:number;
+  target_investor_amt?:number;
+  investor_shares_total_shares?:number;
+  min_investor_count?:number;
 }
 
 // ICostItem 타입 정의

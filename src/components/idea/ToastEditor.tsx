@@ -1,4 +1,5 @@
 import { Editor } from "@toast-ui/react-editor";
+import { Viewer } from "@toast-ui/react-editor";
 import React, { useState, useRef, useEffect } from "react";
 import "@toast-ui/editor/dist/toastui-editor.css";
 import "@toast-ui/editor/dist/i18n/ko-kr";
@@ -7,9 +8,15 @@ interface Props {
   content?: string;
   editorRef: React.MutableRefObject<any>;
   onChange: () => void;
+  showType: string;
 }
 
-const ToastEditor: React.FC<Props> = ({ content, editorRef, onChange }) => {
+const ToastEditor: React.FC<Props> = ({
+  content,
+  editorRef,
+  onChange,
+  showType,
+}) => {
   const [editorContent, setEditorContent] = useState(
     content || "내용을 입력해주세요."
   );
@@ -35,7 +42,7 @@ const ToastEditor: React.FC<Props> = ({ content, editorRef, onChange }) => {
 
   return (
     <>
-      {editorRef && (
+      {editorRef && showType == "editor" && (
         <Editor
           ref={editorRef}
           placeholder="내용을 입력해주세요."
@@ -47,6 +54,9 @@ const ToastEditor: React.FC<Props> = ({ content, editorRef, onChange }) => {
           toolbarItems={toolbarItems}
           onBlur={handleChange}
         />
+      )}
+      {editorRef && showType == "viewer" && (
+        <Viewer initialValue={editorContent} />
       )}
     </>
   );

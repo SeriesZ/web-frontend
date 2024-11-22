@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import expertStyled from "@/components/expert/Expert.module.scss";
+import expertStyled from "./Expert.module.scss";
 import styled from "@/components/main/MainComponent.module.scss";
 import SectionTitle from "../main/SectionTitle";
 import expertCounselData from "../../store/expertCounselSampleData.json";

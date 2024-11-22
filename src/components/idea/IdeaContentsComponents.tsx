@@ -53,6 +53,7 @@ const IdeaContentsComponents = ({
   const [yearData, setYearData] = useState<YearData[]>([]);
   const [positiveYear, setPositiveYear] = useState(0);
   const [plan, setPlan] = useState<YearData[]>([]);
+  const [averageSales, setAverageSales] = useState(0);
 
   const performanceParams = {
     categoryData,
@@ -78,6 +79,7 @@ const IdeaContentsComponents = ({
     positiveYear,
     yearData,
     plan,
+    averageSales,
   };
 
   // 화면 동적 구성
@@ -158,7 +160,6 @@ const IdeaContentsComponents = ({
   };
 
   const clickFileDownload = (value: Attachment) => {
-    console.log("눌렀니?" + value.id);
     const downloadUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/attachment/${value.id}`;
     // 파일 다운로드를 위한 `a` 태그 생성 및 클릭
     const link = document.createElement("a");

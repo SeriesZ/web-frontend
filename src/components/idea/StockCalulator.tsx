@@ -1,7 +1,8 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useRef, useState } from "react";
+import { ICostInputItem } from "@/model/financeType";
 import styled from "@/components/idea/Idea.module.scss";
-import { ICostInputItem, ICostData } from "@/model/financeType";
+import debounce from "lodash/debounce";
 
 interface Props {
   name: string;
@@ -9,22 +10,61 @@ interface Props {
   itemData: {
     costItems: ICostInputItem[];
     setCostItems: React.Dispatch<React.SetStateAction<ICostInputItem[]>>;
+    maraketCap: number;
   };
 }
 
 // [발행주식 수 설정] : stock
 // [투자목표 설정] : investGoal
 const StockCalulator: React.FC<Props> = ({ name, inputHide, itemData }) => {
-  const { costItems, setCostItems } = itemData;
+  const inputRef = useRef<HTMLInputElement>(null);
+  const { costItems, setCostItems, maraketCap } = itemData;
+  const parValueItem = costItems.find((item) => item.apiId === "par_value");
+  const targetRateItem = costItems.find(
+    (item) => item.apiId === "target_investor_rate"
+  );
+  const [parValue, setParValue] = useState(parValueItem?.amount || 1);
+  const [targetRate, setTargetRate] = useState(targetRateItem?.amount || 1);
 
   // 발행주식 테이블 컬럼
   const [stockItems, setStockItems] = useState<ICostInputItem[]>(
-    costItems.filter((item) => item.formPath === "StockItems")
+    costItems
+      .filter((item) => item.formPath === "StockItems")
+      .map((item) => {
+        if (item.apiId === "total_stock_cnt") {
+          return { ...item, amount: maraketCap / parValue };
+        }
+        if (item.apiId === "number_shares_per_share") {
+          const totalStockCntAmount = maraketCap / parValue;
+          return { ...item, amount: totalStockCntAmount / 100 };
+        }
+        return item;
+      })
   );
 
   // 투자목표 설정 테이블 컬럼
   const [investItems, setInvestItems] = useState<ICostInputItem[]>(
-    costItems.filter((item) => item.formPath === "InvestItems")
+    costItems
+      .filter((item) => item.formPath === "InvestItems")
+      .map((item) => {
+        if (item.apiId === "investor_shares_total_shares") {
+          return {
+            ...item,
+            amount: (maraketCap / parValue) * targetRate * 0.01,
+          };
+        } else if (item.apiId === "target_investor_amt") {
+          return {
+            ...item,
+            amount: (maraketCap / parValue) * targetRate * 0.01 * parValue,
+          };
+        } else if (item.apiId === "min_investor_count") {
+          return {
+            ...item,
+            amount: parValue,
+          };
+        }
+        return item;
+      })
   );
 
   // 발행주식 수 설정 입력항목
@@ -47,34 +87,31 @@ const StockCalulator: React.FC<Props> = ({ name, inputHide, itemData }) => {
 
   // 기존 액면가 항목의 금액을 변경할 수 있는 입력 필드와 핸들러
   const handleAmountChange = (apiId: string, amount: number) => {
-    let chkTotalMarketPrice = 0;
-
-    if (name == "stock") {
-      const newCostItems = costItems.map((item) =>
-        item.apiId === apiId ? { ...item, amount } : item
-      );
-      setCostItems(newCostItems);
-    } else if (name == "investGoal") {
-      const newCostItems = costItems.map((item) =>
-        item.apiId === apiId ? { ...item, amount } : item
-      );
-      setCostItems(newCostItems);
-    }
+    debouncedUpdateValue(apiId, amount);
   };
+
+  // 디바운스
+  const debouncedUpdateValue = debounce((apiId: string, amount: number) => {
+    const newCostItems = costItems.map((item) =>
+      item.apiId === apiId ? { ...item, amount } : item
+    );
+    setCostItems(newCostItems);
+  }, 300);
 
   // 포커스 여부에 따라 calulatorUi 금액 className 변경
   function setFocusCol(item: ICostInputItem) {
     if (item.focus) {
       return (
         <td className={styled.em}>
-          {item.amount ? item.amount.toLocaleString() : 0}
+          {item.amount ? Number(item.amount.toFixed(0)).toLocaleString() : 0}
           {item.strType}
         </td>
       );
     } else {
-      return <td>{item.amount}</td>;
+      return <td>{Number(item.amount.toFixed(0)).toLocaleString()}</td>;
     }
   }
+  const handleChangeNAme = () => {};
 
   // 변수에 따라 원가 항목 입력을 숨긴다
   function chkInputHide() {
@@ -86,12 +123,17 @@ const StockCalulator: React.FC<Props> = ({ name, inputHide, itemData }) => {
               <div key={index} className={styled.inputItem}>
                 <div className={styled.iconInfo}></div>
                 <div className={styled.title}>
-                  <input type="text" value={item.name} />
+                  <input
+                    type="text"
+                    value={item.name}
+                    onChange={handleChangeNAme}
+                  />
                 </div>
                 <div className={styled.input}>
                   <input
                     type="number"
-                    value={item.amount}
+                    ref={inputRef}
+                    defaultValue={item.amount}
                     onChange={(e) =>
                       handleAmountChange(item.apiId, Number(e.target.value))
                     }
