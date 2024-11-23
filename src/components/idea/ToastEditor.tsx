@@ -3,6 +3,7 @@ import { Viewer } from "@toast-ui/react-editor";
 import React, { useState, useRef, useEffect } from "react";
 import "@toast-ui/editor/dist/toastui-editor.css";
 import "@toast-ui/editor/dist/i18n/ko-kr";
+import "./ToastUi.css";
 
 interface Props {
   content?: string;
@@ -17,9 +18,7 @@ const ToastEditor: React.FC<Props> = ({
   onChange,
   showType,
 }) => {
-  const [editorContent, setEditorContent] = useState(
-    content || "내용을 입력해주세요."
-  );
+  const [editorContent, setEditorContent] = useState(content);
 
   const toolbarItems = [
     ["heading", "bold", "italic", "strike"],
@@ -45,7 +44,7 @@ const ToastEditor: React.FC<Props> = ({
       {editorRef && showType == "editor" && (
         <Editor
           ref={editorRef}
-          placeholder="내용을 입력해주세요."
+          placeholder="내용을 입력해주세요"
           initialEditType="wysiwyg"
           previewStyle={window.innerWidth > 1000 ? "vertical" : "tab"} // tab, vertical
           hideModeSwitch={true}

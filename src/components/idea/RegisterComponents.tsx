@@ -41,8 +41,15 @@ const NoSsrEditor = dynamic(() => import("./ToastEditor"), {
 
 const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
   const isBrowser = () => typeof window !== "undefined";
-  const { userInfo } = userStore();
+  const { userInfo, setUserInfo } = userStore();
   const router = useRouter();
+  let bearer = userInfo.bearer;
+  if (typeof window !== "undefined") {
+    const storedUserInfo = localStorage.getItem("userInfo");
+    if (storedUserInfo) {
+      bearer = JSON.parse(storedUserInfo).bearer;
+    }
+  }
 
   // step1 관련
   const editorRef = useRef<any>(null);
@@ -118,50 +125,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
   // 상태
   useEffect(() => {
     console.log("부모 컴포넌트 최초 실행");
-    const fetchCategoryData = async () => {
-      try {
-        // 산업군 로드
-        const response1 = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/themes`
-        );
-        const data1 = await response1.json();
-        setCategoryData(data1);
-        setSelectedTheme4Psr(data1[0]);
-
-        // 아이디어ID가 있으면 데이터 로딩
-        if (ideationId) {
-          const response2 = await fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/${ideaId}`,
-            {
-              method: "GET",
-              headers: {
-                Authorization: `Bearer ${userInfo.bearer}`,
-                Accept: "application/json",
-                "Content-Type": "application/json;charset=utf-8",
-              },
-              mode: "cors",
-            }
-          );
-
-          if (response2.ok) {
-            const data2 = await response2.json();
-            setIdeaContents(data2);
-          } else {
-            console.error("아이디어 불러오기 실패:", response2.statusText);
-          }
-
-          getServerFinanceData();
-        } else {
-          setCostItems(defaultPriceData);
-          setTradeCounts([100, 2500, 10000, 20000, 50000, 6, 7, 8, 9, 10]);
-          setEmployeeCounts([2, 3, 4, 5, 7, 6, 7, 8, 9, 10]);
-        }
-      } catch (error) {
-        console.error("Error fetching category data:", error);
-      } finally {
-      }
-    };
-    fetchCategoryData();
+    fetchInitData();
   }, []);
 
   useEffect(() => {
@@ -169,7 +133,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
     const totalTotal = costItems
       .filter((item) => item.formPath === "PriceCalculator")
       .reduce((sum, item) => sum + (item.amount ? item.amount : 0), 0);
-    const sellingPrice = totalTotal * (profitMargin / 100);
+    const sellingPrice = totalTotal + totalTotal * (profitMargin / 100);
     setTotalCost(totalTotal);
     setSellingPrice(sellingPrice);
 
@@ -277,10 +241,13 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
   }, [contents]);
 
   useEffect(() => {
-    if (!ideaId) {
+    if (ideaId == "init") {
+      setIdeaId("");
       setIdeaContents(initializeIdeaContents);
       setCostItems(defaultPriceData);
-    }
+      setTradeCounts([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+      setEmployeeCounts([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+    } else setIdeaId(ideaId);
   }, [ideaId]);
 
   // 이벤트
@@ -376,6 +343,8 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
           if (response.ok) {
             const data = await response.json();
             setIdeaId(data.id);
+            //localStorage.setItem("ideaId", JSON.stringify(data.id));
+
             alert("임시저장 되었습니다.");
           } else {
             alert("임시 저장 실패:" + response.statusText + "ideaId:" + ideaId);
@@ -462,7 +431,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
       "office_rent_increase_rate"
     );
     const mainCostIncreaseRate = getAmountByApiId(
-      "business_expense_increase_rate"
+      "maintenance_cost_increase_rate"
     );
     const adCostIncreaseRate = getAmountByApiId("ad_cost_increase_rate");
     const contingencyIncreaseRate = getAmountByApiId(
@@ -499,7 +468,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
         contingencyExpenses,
         previousStaffCount,
         previousBusinessPromotionCost,
-        mainCostIncreaseRate,
+        businessExpenseIncreaseRate,
         previousOfficeRent,
         officeRentIncreaseRate
       );
@@ -509,7 +478,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
       // Adjust values for next year
       salaryPerStaff *= 1 + salaryIncreaseRate * 0.01; // 연봉인상률
       entertainmentExpenses =
-        entertainmentExpenses * (1 + businessExpenseIncreaseRate * 0.01);
+        entertainmentExpenses * (1 + mainCostIncreaseRate * 0.01);
       advertisingCost = advertisingCost * (1 + adCostIncreaseRate * 0.01);
       contingencyExpenses =
         contingencyExpenses * (1 + contingencyIncreaseRate * 0.01);
@@ -518,13 +487,58 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
     return years;
   };
 
+  // 데이터 로딩 관련
+  const fetchInitData = async () => {
+    try {
+      // 산업군 로드
+      const response1 = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/themes`
+      );
+      const data1 = await response1.json();
+      setCategoryData(data1);
+      setSelectedTheme4Psr(data1[0]);
+
+      // 아이디어ID가 있으면 데이터 로딩
+      if (ideationId) {
+        const response2 = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/${ideaId}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${bearer}`,
+              Accept: "application/json",
+              "Content-Type": "application/json;charset=utf-8",
+            },
+            mode: "cors",
+          }
+        );
+
+        if (response2.ok) {
+          const data2 = await response2.json();
+          setIdeaContents(data2);
+        } else {
+          console.error("아이디어 불러오기 실패:", response2.statusText);
+        }
+
+        getServerFinanceData();
+      } else {
+        setCostItems(defaultPriceData);
+        setTradeCounts([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+        setEmployeeCounts([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+      }
+    } catch (error) {
+      console.error("Error fetching category data:", error);
+    } finally {
+    }
+  };
+
   // step2 임시저장 관련
   const getServerFinanceData = async () => {
     try {
       // 공통 URL 및 헤더 설정
       const financeUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/finance`;
       const headers = {
-        Authorization: `Bearer ${userInfo.bearer}`,
+        Authorization: `Bearer ${bearer}`,
         Accept: "application/json",
       };
 
@@ -557,7 +571,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
       // 공통 URL 및 헤더 설정
       const financeUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/finance/${ideationId}`;
       const headers = {
-        Authorization: `Bearer ${userInfo.bearer}`,
+        Authorization: `Bearer ${bearer}`,
         Accept: "application/json",
       };
 
@@ -581,7 +595,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
       if (checkResponse.ok) {
         await updateFinanceData(financeUrl, headers, serverPayload);
       } else if (checkResponse.status === 401 || checkResponse.status === 500) {
-        alert("저장 권한이 없습니다.");
+        alert("데이터 로드 중 오류가 발생하였습니다.");
       } else {
         // 데이터가 없는 경우 (POST)
         await createFinanceData(financeUrl, headers, serverPayload);

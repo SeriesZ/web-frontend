@@ -23,37 +23,38 @@ const PerformanceCalculator: React.FC<Props> = ({ inputHide, itemData }) => {
     itemData;
 
   // 기존 원가 항목의 금액을 변경
-  const handleCostChange = (id: number, amount: number) => {
-    debouncedUpdateCost(id, amount);
+  const handleCostChange = (apiId: string, amount: number) => {
+    console.log("변경 : " + apiId);
+    debouncedUpdateCost(apiId, amount);
   };
 
   // 기존 원가 항목의 이름을 변경
-  const handleNameChange = (id: number, name: string) => {
+  const handleNameChange = (apiId: string, name: string) => {
     const newCostItems = costItems.map((item) =>
-      item.id === id ? { ...item, name } : item
+      item.apiId === apiId ? { ...item, name } : item
     );
     setCostItems(newCostItems);
   };
 
   // 새 원가 항목을 추가할 수 있는 입력 필드와 핸들러
   const handleAddCostItem = () => {
-    const maxId = Math.max(...costItems.map((item) => item.id));
-    const newId = maxId + 1;
     const randomId = Math.floor(1000 + Math.random() * 9000).toString();
     setCostItems([
       ...costItems,
       {
-        id: newId,
+        id: 9999,
         name: "항목입력",
         amount: 0,
-        apiId: `custom_${randomId}` as keyof ICostData,
+        apiId: `performanceCalculator_${randomId}` as keyof ICostData,
         formPath: "PerformanceCalculator",
       },
     ]);
   };
 
-  const handleRemoveCostItem = (id: number) => {
-    const newCostItems = [...costItems].filter((item, index) => item.id !== id);
+  const handleRemoveCostItem = (apiId: string) => {
+    const newCostItems = [...costItems].filter(
+      (item, index) => item.apiId !== apiId
+    );
     setCostItems(newCostItems);
   };
 
@@ -67,9 +68,9 @@ const PerformanceCalculator: React.FC<Props> = ({ inputHide, itemData }) => {
   }
 
   // 디바운스
-  const debouncedUpdateCost = debounce((id: number, amount: number) => {
+  const debouncedUpdateCost = debounce((apiId: string, amount: number) => {
     const newCostItems = costItems.map((item) =>
-      item.id === id ? { ...item, amount } : item
+      item.apiId === apiId ? { ...item, amount } : item
     );
     setCostItems(newCostItems);
   }, 400);
@@ -96,7 +97,7 @@ const PerformanceCalculator: React.FC<Props> = ({ inputHide, itemData }) => {
                       type="text"
                       value={item.name}
                       onChange={(e) =>
-                        handleNameChange(item.id, e.target.value)
+                        handleNameChange(item.apiId, e.target.value)
                       }
                     />
                   </div>
@@ -107,13 +108,13 @@ const PerformanceCalculator: React.FC<Props> = ({ inputHide, itemData }) => {
                       defaultValue={item.amount}
                       placeholder="금액을 입력하세요."
                       onChange={(e) =>
-                        handleCostChange(item.id, Number(e.target.value))
+                        handleCostChange(item.apiId, Number(e.target.value))
                       }
                     />
                   </div>
                   <div
                     className={styled.iconRemove}
-                    onClick={() => handleRemoveCostItem(item.id)}
+                    onClick={() => handleRemoveCostItem(item.apiId)}
                   ></div>
                 </div>
               ))}

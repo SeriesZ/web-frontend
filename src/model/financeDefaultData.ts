@@ -90,7 +90,7 @@ export const defaultPriceData: ICostInputItem[] = [
     id: 12,
     name: "업무추진비",
     amount: 0,
-    apiId: "maintenance_cost",
+    apiId: "business_expense",
     formPath: "PerformanceCalculator",
   },
   {
@@ -104,7 +104,7 @@ export const defaultPriceData: ICostInputItem[] = [
     id: 14,
     name: "접대비",
     amount: 0,
-    apiId: "business_expense",
+    apiId: "maintenance_cost",
     formPath: "PerformanceCalculator",
   },
   {
@@ -134,7 +134,7 @@ export const defaultPriceData: ICostInputItem[] = [
     name: "업무추진비 인상율",
     amount: 0,
     description: "직원 증가 시 인상되도록 설정",
-    apiId: "maintenance_cost_increase_rate",
+    apiId: "business_expense_increase_rate",
     formPath: "IncreaseRateCalulator",
   },
   {
@@ -150,7 +150,7 @@ export const defaultPriceData: ICostInputItem[] = [
     name: "접대비 인상율",
     amount: 0,
     description: "예상 및 추정",
-    apiId: "business_expense_increase_rate",
+    apiId: "maintenance_cost_increase_rate",
     formPath: "IncreaseRateCalulator",
   },
   {

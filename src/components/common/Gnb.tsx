@@ -51,11 +51,41 @@ const Gnb = (props: Props) => {
   const [gnbHeight, setMenuHeight] = useState(180);
 
   const router = useRouter();
+
+  // 1. 새로고침 시 localStorage에서 로그인 정보 복원
+  useEffect(() => {
+    const storedUserInfo = localStorage.getItem("userInfo");
+    if (storedUserInfo) {
+      setUserInfo(JSON.parse(storedUserInfo));
+      // 드롭메뉴 높이 설정
+      switch (JSON.parse(storedUserInfo).role) {
+        case "예비창업자":
+          setMenuHeight(230);
+          break;
+        case "투자자":
+          setMenuHeight(200);
+          break;
+        case "전문가":
+          setMenuHeight(210);
+          break;
+        default:
+          setMenuHeight(180);
+          break;
+      }
+    }
+  }, [setUserInfo]);
+
+  // 2. 로그인 정보를 localStorage에 저장
+  const saveUserInfo = (info: UserInfo) => {
+    setUserInfo(info);
+    localStorage.setItem("userInfo", JSON.stringify(info));
+  };
+
   const moveMain = () => {
     router.push("/main");
   };
   const moveMakeIdea = () => {
-    router.push(`/idea/register`);
+    router.push(`/idea/register?id=init`);
   };
   const moveExpertPage = () => {
     router.push("/header/expert");
@@ -124,7 +154,7 @@ const Gnb = (props: Props) => {
           ? testLoginData[index].bearer
           : accessToken,
       };
-      setUserInfo(defaultUserInfo);
+      saveUserInfo(defaultUserInfo);
     } catch (error) {
       console.error("Error fetching category data:", error);
     } finally {
