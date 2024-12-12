@@ -3,6 +3,7 @@ import React, { useRef, useState } from "react";
 import { ICostInputItem } from "@/model/financeType";
 import styled from "@/components/idea/Idea.module.scss";
 import debounce from "lodash/debounce";
+import ToolTipComponent from "./ToolTipComponent";
 
 interface Props {
   name: string;
@@ -98,17 +99,49 @@ const StockCalulator: React.FC<Props> = ({ name, inputHide, itemData }) => {
     setCostItems(newCostItems);
   }, 300);
 
+  // 숫자를 세 자리 단위 콤마로 변환
+  const formatNumber = (value: number | string) => {
+    if (!value) return "";
+    const num = Number(value.toString().replace(/[^0-9]/g, ""));
+    return num.toLocaleString();
+  };
+
+  // 세 자리 콤마를 제거하고 숫자로 변환
+  const parseNumber = (value: string) => {
+    return Number(value.replace(/[^0-9]/g, ""));
+  };
+
   // 포커스 여부에 따라 calulatorUi 금액 className 변경
   function setFocusCol(item: ICostInputItem) {
     if (item.focus) {
-      return (
-        <td className={styled.em}>
-          {item.amount ? Number(item.amount.toFixed(0)).toLocaleString() : 0}
-          {item.strType}
-        </td>
-      );
+      if (item.toolTip && item.toolTip > 0) {
+        return (
+          <td className={`${styled.em}`}>
+            {item.amount ? Number(item.amount.toFixed(0)).toLocaleString() : 0}
+            {item.strType}
+          </td>
+        );
+      } else {
+        return (
+          <td className={`${styled.em}`}>
+            {item.amount ? Number(item.amount.toFixed(0)).toLocaleString() : 0}
+            {item.strType}
+          </td>
+        );
+      }
     } else {
-      return <td>{Number(item.amount.toFixed(0)).toLocaleString()}</td>;
+      if (item.toolTip && item.toolTip > 0) {
+        return (
+          <td>
+            {Number(item.amount.toFixed(0)).toLocaleString()}
+            <span>
+              <ToolTipComponent index={item.toolTip} />
+            </span>
+          </td>
+        );
+      } else {
+        return <td>{Number(item.amount.toFixed(0)).toLocaleString()}</td>;
+      }
     }
   }
   const handleChangeNAme = () => {};
@@ -121,21 +154,28 @@ const StockCalulator: React.FC<Props> = ({ name, inputHide, itemData }) => {
           <div className={styled.inputWrap}>
             {inputUi.map((item, index) => (
               <div key={index} className={styled.inputItem}>
-                <div className={styled.iconInfo}></div>
+                <div className={styled.iconInfo}>
+                  <ToolTipComponent index={item.toolTip ? item.toolTip : 25} />
+                </div>
                 <div className={styled.title}>
                   <input
                     type="text"
+                    className={styled.inputText}
                     value={item.name}
                     onChange={handleChangeNAme}
                   />
                 </div>
                 <div className={styled.input}>
                   <input
-                    type="number"
+                    type="text"
+                    className={styled.inputNumber}
                     ref={inputRef}
-                    defaultValue={item.amount}
+                    defaultValue={formatNumber(item.amount)}
                     onChange={(e) =>
-                      handleAmountChange(item.apiId, Number(e.target.value))
+                      handleAmountChange(
+                        item.apiId,
+                        parseNumber(e.target.value)
+                      )
                     }
                     placeholder="금액을 입력하세요."
                   />

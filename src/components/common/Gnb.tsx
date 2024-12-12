@@ -44,12 +44,8 @@ const Gnb = (props: Props) => {
     },
   ];
 
-  const { setUserInfo, userInfo } = userStore();
+  const { setUserInfo, userInfo, updateBearer } = userStore();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const handleMouseEnter = () => setIsDropdownOpen(true);
-  const handleMouseLeave = () => setIsDropdownOpen(false);
-  const [gnbHeight, setMenuHeight] = useState(180);
-
   const router = useRouter();
 
   // 1. 새로고침 시 localStorage에서 로그인 정보 복원
@@ -57,20 +53,20 @@ const Gnb = (props: Props) => {
     const storedUserInfo = localStorage.getItem("userInfo");
     if (storedUserInfo) {
       setUserInfo(JSON.parse(storedUserInfo));
-      // 드롭메뉴 높이 설정
       switch (JSON.parse(storedUserInfo).role) {
         case "예비창업자":
-          setMenuHeight(230);
           break;
         case "투자자":
-          setMenuHeight(200);
           break;
         case "전문가":
-          setMenuHeight(210);
           break;
         default:
-          setMenuHeight(180);
           break;
+      }
+
+      const exp = JSON.parse(storedUserInfo).exp;
+      if (!isTokenValid(exp)) {
+        fetchRefreshToken();
       }
     }
   }, [setUserInfo]);
@@ -102,18 +98,14 @@ const Gnb = (props: Props) => {
     switch (role) {
       case "예비창업자":
         index = 1;
-        setMenuHeight(230);
         break;
       case "투자자":
         index = 2;
-        setMenuHeight(200);
         break;
       case "전문가":
         index = 3;
-        setMenuHeight(210);
         break;
       default:
-        setMenuHeight(180);
         break;
     }
 
@@ -149,12 +141,38 @@ const Gnb = (props: Props) => {
         email: testLoginData[index].email,
         role: testLoginData[index].role,
         groupId: "group_1",
-        exp: "",
-        bearer: testLoginData[index].bearer
-          ? testLoginData[index].bearer
-          : accessToken,
+        exp: base64UrlDecode(payload).exp,
+        bearer: accessToken,
       };
       saveUserInfo(defaultUserInfo);
+    } catch (error) {
+      console.error("Error fetching category data:", error);
+    } finally {
+    }
+  };
+
+  // 토큰만 가져오기
+  const fetchRefreshToken = async () => {
+    try {
+      const loginData = new URLSearchParams();
+      loginData.append("username", "admin@series0.com");
+      loginData.append("password", "12341234");
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/login`,
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: loginData.toString(),
+        }
+      );
+      const data = await response.json();
+      const accessToken = data.access_token;
+
+      updateBearer(accessToken);
     } catch (error) {
       console.error("Error fetching category data:", error);
     } finally {
@@ -169,6 +187,12 @@ const Gnb = (props: Props) => {
     }
     return JSON.parse(atob(base64)); // Base64 디코딩 후 JSON으로 파싱
   };
+
+  // 토큰 만료 되었는지 확인
+  function isTokenValid(exp: number) {
+    const currentTime = Math.floor(Date.now() / 1000);
+    return exp > currentTime;
+  }
 
   // 로그인 유형별로 헤더 셋팅
   const renderMenuItems = () => {
@@ -186,7 +210,7 @@ const Gnb = (props: Props) => {
           <div className={styled.menuItem}>표절신고</div>
           <div className={styled.menuItem}>
             더보기
-            {isDropdownOpen && (
+            {
               <div className={styled.dropdownMenu}>
                 <ul>
                   <li>서비스 소개</li>
@@ -197,7 +221,7 @@ const Gnb = (props: Props) => {
                   <li>활동 투자사</li>
                 </ul>
               </div>
-            )}
+            }
           </div>
         </>
       );
@@ -206,18 +230,18 @@ const Gnb = (props: Props) => {
         <>
           <div className={styled.menuItem}>
             아이디어 제안{" "}
-            {isDropdownOpen && (
+            {
               <div className={styled.dropdownMenu}>
                 <ul>
                   <li onClick={moveMakeIdea}>아이디어 업로드</li>
                   <li onClick={moveRegisterIdeaList}>내 아이디어 관리</li>
                 </ul>
               </div>
-            )}
+            }
           </div>
           <div className={styled.menuItem} onClick={moveCompanyGuide}>
             법인 설립
-            {isDropdownOpen && (
+            {
               <div className={styled.dropdownMenu}>
                 <ul>
                   <li>법인 설립 신청</li>
@@ -226,22 +250,22 @@ const Gnb = (props: Props) => {
                   <li>창업 커뮤니티</li>
                 </ul>
               </div>
-            )}
+            }
           </div>
           <div className={styled.menuItem} onClick={moveExpertPage}>
             전문가 자문
-            {isDropdownOpen && (
+            {
               <div className={styled.dropdownMenu}>
                 <ul>
                   <li>문의하기</li>
                   <li>내 상담 내역</li>
                 </ul>
               </div>
-            )}
+            }
           </div>
           <div className={styled.menuItem}>
             표절 신고
-            {isDropdownOpen && (
+            {
               <div className={styled.dropdownMenu}>
                 <ul>
                   <li>신고 리스트</li>
@@ -249,11 +273,11 @@ const Gnb = (props: Props) => {
                   <li>내 신고 관리</li>
                 </ul>
               </div>
-            )}
+            }
           </div>
           <div className={styled.menuItem}>
             더보기
-            {isDropdownOpen && (
+            {
               <div className={styled.dropdownMenu}>
                 <ul>
                   <li>시리즈제로 팀</li>
@@ -266,7 +290,7 @@ const Gnb = (props: Props) => {
                   <li>활동 투자사</li>
                 </ul>
               </div>
-            )}
+            }
           </div>
         </>
       );
@@ -275,7 +299,7 @@ const Gnb = (props: Props) => {
         <>
           <div className={styled.menuItem}>
             투자하기
-            {isDropdownOpen && (
+            {
               <div className={styled.dropdownMenu}>
                 <ul>
                   <li>투자하기</li>
@@ -283,11 +307,11 @@ const Gnb = (props: Props) => {
                   <li>내 투자관리</li>
                 </ul>
               </div>
-            )}
+            }
           </div>
           <div className={styled.menuItem} onClick={moveExpertPage}>
             전문가 자문
-            {isDropdownOpen && (
+            {
               <div className={styled.dropdownMenu}>
                 <ul>
                   <li>전문가 유형/분야</li>
@@ -295,11 +319,11 @@ const Gnb = (props: Props) => {
                   <li>내 상담 내역</li>
                 </ul>
               </div>
-            )}
+            }
           </div>
           <div className={styled.menuItem}>
             표절신고
-            {isDropdownOpen && (
+            {
               <div className={styled.dropdownMenu}>
                 <ul>
                   <li>신고 리스트</li>
@@ -307,11 +331,11 @@ const Gnb = (props: Props) => {
                   <li>내 신고 관리</li>
                 </ul>
               </div>
-            )}
+            }
           </div>
           <div className={styled.menuItem}>
             더보기
-            {isDropdownOpen && (
+            {
               <div className={styled.dropdownMenu}>
                 <ul>
                   <li>서비스 소개</li>
@@ -323,7 +347,7 @@ const Gnb = (props: Props) => {
                   <li>활동 투자사</li>
                 </ul>
               </div>
-            )}
+            }
           </div>
         </>
       );
@@ -332,18 +356,18 @@ const Gnb = (props: Props) => {
         <>
           <div className={styled.menuItem} onClick={moveExpertPage}>
             전문가 자문
-            {isDropdownOpen && (
+            {
               <div className={styled.dropdownMenu}>
                 <ul>
                   <li>전문가 유형/분야</li>
                   <li>내 상담 내역</li>
                 </ul>
               </div>
-            )}
+            }
           </div>
           <div className={styled.menuItem}>
             표절신고
-            {isDropdownOpen && (
+            {
               <div className={styled.dropdownMenu}>
                 <ul>
                   <li>신고 리스트</li>
@@ -351,11 +375,11 @@ const Gnb = (props: Props) => {
                   <li>내 신고 관리</li>
                 </ul>
               </div>
-            )}
+            }
           </div>
           <div className={styled.menuItem}>
             더보기
-            {isDropdownOpen && (
+            {
               <div className={styled.dropdownMenu}>
                 <ul>
                   <li>서비스 소개</li>
@@ -367,7 +391,7 @@ const Gnb = (props: Props) => {
                   <li>활동 투자사</li>
                 </ul>
               </div>
-            )}
+            }
           </div>
         </>
       );
@@ -375,13 +399,11 @@ const Gnb = (props: Props) => {
   };
 
   return (
-    <div className={styled.gnbContainer} onMouseLeave={handleMouseLeave}>
+    <div className={styled.gnbContainer}>
       <div className={styled.gnbWrap}>
         <div className={styled.left}>
           <div className={styled.logo} onClick={moveMain}></div>
-          <div className={`${styled.menuWrap}`} onMouseEnter={handleMouseEnter}>
-            {renderMenuItems()}
-          </div>
+          <div className={`${styled.menuWrap}`}>{renderMenuItems()}</div>
           <div className={styled.searchWrap}>
             <input type="text" placeholder="아이디어 찾기" />
             <div className={styled.iconSearch}></div>
@@ -434,14 +456,6 @@ const Gnb = (props: Props) => {
           )}
         </div>
       </div>
-
-      {/* gnbContainer 가득 차는 dropdownMenu */}
-      {isDropdownOpen && (
-        <div
-          className={styled.dropdownMenuContainer}
-          style={{ height: `${gnbHeight}px` }}
-        ></div>
-      )}
     </div>
   );
 };

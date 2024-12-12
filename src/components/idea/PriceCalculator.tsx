@@ -12,6 +12,7 @@ interface Props {
     setCostItems: React.Dispatch<React.SetStateAction<ICostInputItem[]>>;
     profitMargin: number;
     setProfitMargin: React.Dispatch<React.SetStateAction<number>>;
+    totalCost: number;
     sellingPrice: number;
   };
 }
@@ -24,6 +25,7 @@ const PriceCalculator: React.FC<Props> = ({ inputHide, itemData }) => {
     setCostItems,
     profitMargin,
     setProfitMargin,
+    totalCost,
     sellingPrice,
   } = itemData;
 
@@ -81,6 +83,18 @@ const PriceCalculator: React.FC<Props> = ({ inputHide, itemData }) => {
     setProfitMargin(value);
   }, 300);
 
+  // 숫자를 세 자리 단위 콤마로 변환
+  const formatNumber = (value: number | string) => {
+    if (!value) return "";
+    const num = Number(value.toString().replace(/[^0-9]/g, ""));
+    return num.toLocaleString();
+  };
+
+  // 세 자리 콤마를 제거하고 숫자로 변환
+  const parseNumber = (value: string) => {
+    return Number(value.replace(/[^0-9]/g, ""));
+  };
+
   // 변수에 따라 원가 항목 입력을 숨김
   function chkInputHide() {
     if (inputHide == "N")
@@ -102,6 +116,7 @@ const PriceCalculator: React.FC<Props> = ({ inputHide, itemData }) => {
                   <div className={styled.title}>
                     <input
                       type="text"
+                      className={styled.inputText}
                       ref={inputRef}
                       defaultValue={item.name}
                       onChange={(e) =>
@@ -111,12 +126,16 @@ const PriceCalculator: React.FC<Props> = ({ inputHide, itemData }) => {
                   </div>
                   <div className={styled.input}>
                     <input
-                      type="number"
+                      type="text"
+                      className={styled.inputNumber}
                       ref={inputRef}
-                      defaultValue={item.amount}
+                      defaultValue={formatNumber(item.amount)}
                       placeholder="금액을 입력하세요."
                       onChange={(e) =>
-                        handleCostChange(item.apiId, Number(e.target.value))
+                        handleCostChange(
+                          item.apiId,
+                          parseNumber(e.target.value)
+                        )
                       }
                     />
                   </div>
@@ -133,11 +152,14 @@ const PriceCalculator: React.FC<Props> = ({ inputHide, itemData }) => {
               <div className={styled.title}>이익율</div>
               <div className={styled.input}>
                 <input
-                  type="number"
+                  type="text"
+                  className={styled.inputNumber}
                   ref={inputRef}
                   defaultValue={profitMargin}
                   placeholder="금액을 입력하세요."
-                  onChange={(e) => handleProfitChange(Number(e.target.value))}
+                  onChange={(e) =>
+                    handleProfitChange(parseNumber(e.target.value))
+                  }
                 />
               </div>
               <div className={`${styled.iconRemove} ${styled.hidden}`}></div>
@@ -180,6 +202,12 @@ const PriceCalculator: React.FC<Props> = ({ inputHide, itemData }) => {
                 </td>
               </tr>
             ))}
+          <tr>
+            <th colSpan={2} className={styled.total}>
+              원가 총합
+            </th>
+            <td className={styled.total}>{totalCost.toLocaleString()}</td>
+          </tr>
           <tr>
             <th colSpan={2}>이익율(마진)</th>
             <td className={styled.em}>{profitMargin}%</td>

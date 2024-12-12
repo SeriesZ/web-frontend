@@ -48,6 +48,7 @@ export interface ICostInputItem {
   focus?:boolean;
   strType?:string;
   inputYn?:string;
+  toolTip?:number;
 }
 
 // YearData 타입 정의

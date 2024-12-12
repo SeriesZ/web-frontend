@@ -41,8 +41,10 @@ const NoSsrEditor = dynamic(() => import("./ToastEditor"), {
 
 const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
   const isBrowser = () => typeof window !== "undefined";
-  const { userInfo, setUserInfo } = userStore();
+  const { userInfo } = userStore();
   const router = useRouter();
+
+  // 아이디 토큰 관련
   let bearer = userInfo.bearer;
   if (typeof window !== "undefined") {
     const storedUserInfo = localStorage.getItem("userInfo");
@@ -310,7 +312,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
           formData.append("theme_id", selectedTheme.id);
 
           // 최초 등록
-          if (!ideaId) {
+          if (ideaId == "init") {
             method = "POST";
             url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation`;
             repreFiles.forEach((file, index) => {
@@ -547,6 +549,15 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
         method: "GET",
         headers,
       });
+
+      // 404 예외 처리
+      if (checkResponse.status === 404) {
+        console.warn("데이터를 찾을 수 없습니다. (404)");
+        setCostItems(defaultPriceData);
+        setTradeCounts([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+        setEmployeeCounts([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+        return;
+      }
 
       if (checkResponse.ok) {
         const data = await checkResponse.json();
@@ -864,6 +875,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
               />
             </div>
           </div>
+          <div className={styled.boundaryLine}></div>
         </div>
         <div className={`${styled.section} ${styled.price}`}>
           <div className={styled.sectionTitle}>
@@ -880,7 +892,9 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
             <div className={styled.tableTitleWrap}>
               <div className={styled.tableTitle}>
                 매출계획표<div>(1년~10년차)</div>
-                <span></span>
+                <span>
+                  <ToolTipComponent index={18} />
+                </span>
               </div>
               <div className={styled.tableInfo}>단위: 수, 원, %</div>
             </div>
@@ -900,7 +914,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
             </div>
             <YearUserCnt name="employee" itemData={performanceParams} />
           </div>
-          <div className={styled.totalContainer}>
+          <div className={`${styled.totalContainer} ${styled.final}`}>
             <div className={styled.title}>
               BEP 달성<span>({positiveYear}년차)</span>
             </div>
@@ -987,7 +1001,10 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
           <div className={styled.tableContainer}>
             <div className={styled.tableTitleWrap}>
               <div className={styled.tableTitle}>
-                PSR 가치평가<span></span>
+                PSR 가치평가
+                <span>
+                  <ToolTipComponent index={21} />
+                </span>
               </div>
               <div className={styled.tableInfo}>단위: 원</div>
             </div>
@@ -999,7 +1016,10 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
           <div className={styled.tableContainer}>
             <div className={styled.tableTitleWrap}>
               <div className={styled.tableTitle}>
-                발행주식 수 설정<span></span>
+                발행주식 수 설정
+                <span>
+                  <ToolTipComponent index={24} />
+                </span>
               </div>
               <div className={styled.tableInfo}>단위: 원</div>
             </div>
@@ -1013,6 +1033,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
             </div>
           </div>
         </div>
+        <div className={styled.boundaryLine}></div>
         <div className={`${styled.section} ${styled.goal}`}>
           <div className={styled.sectionTitle}>
             <span>3-2</span> 투자목표 설정
@@ -1027,7 +1048,10 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
           <div className={styled.tableContainer}>
             <div className={styled.tableTitleWrap}>
               <div className={styled.tableTitle}>
-                투자목표 설정<span></span>
+                투자목표 설정
+                <span>
+                  <ToolTipComponent index={28} />
+                </span>
               </div>
               <div className={styled.tableInfo}>단위: 원</div>
             </div>
@@ -1169,7 +1193,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
               판관비 계<span>(연비용)</span>
             </div>
             <div className={styled.amount}>
-              <span>{sellingPrice.toLocaleString()}</span>원
+              <span>{totalSelYear.toLocaleString()}</span>원
             </div>
           </div>
           <div className={styled.tableContainer}>

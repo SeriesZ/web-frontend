@@ -62,7 +62,9 @@ const FinanceCaculator: React.FC<Props> = ({ itemData }) => {
             <th rowSpan={8}>판관비</th>
             <th>직원 수</th>
             {plan.map((yearData, index) => (
-              <td key={index}>{yearData.staffCount.toFixed(0)}</td>
+              <td key={index}>
+                {Number(yearData.staffCount.toFixed(0)).toLocaleString()}
+              </td>
             ))}
           </tr>
           <tr>
@@ -144,7 +146,7 @@ const FinanceCaculator: React.FC<Props> = ({ itemData }) => {
             {plan.map((yearData, index) => (
               <th className={styled.total} key={index}>
                 {Number(
-                  yearData.operatingIncomeRate.toFixed(0)
+                  (yearData.operatingIncomeRate || 0).toFixed(0)
                 ).toLocaleString()}
                 %
               </th>
@@ -152,10 +154,6 @@ const FinanceCaculator: React.FC<Props> = ({ itemData }) => {
           </tr>
         </tbody>
       </table>
-      <p>
-        영업이익이 플러스로 전환되는 해:{" "}
-        {positiveYear ? `${positiveYear}년차` : "N/A"}
-      </p>
     </div>
   );
 };

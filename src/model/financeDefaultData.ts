@@ -188,6 +188,7 @@ export const defaultPriceData: ICostInputItem[] = [
     apiId: "total_stock_cnt",
     formPath: "StockItems",
     focus: false,
+    toolTip: 26,
   },
   {
     id: 9999,
@@ -197,6 +198,7 @@ export const defaultPriceData: ICostInputItem[] = [
     apiId: "number_shares_per_share",
     formPath: "StockItems",
     focus: false,
+    toolTip: 27,
   },
 
   {
@@ -209,6 +211,7 @@ export const defaultPriceData: ICostInputItem[] = [
     focus: true,
     strType: "%",
     inputYn: "Y",
+    toolTip: 29,
   },
   {
     id: 9999,
@@ -218,6 +221,7 @@ export const defaultPriceData: ICostInputItem[] = [
     apiId: "investor_shares_total_shares",
     formPath: "InvestItems",
     focus: false,
+    toolTip: 30,
   },
   {
     id: 9999,
@@ -227,6 +231,7 @@ export const defaultPriceData: ICostInputItem[] = [
     apiId: "target_investor_amt",
     formPath: "InvestItems",
     focus: false,
+    toolTip: 31,
   },
   {
     id: 9999,
@@ -236,6 +241,7 @@ export const defaultPriceData: ICostInputItem[] = [
     apiId: "min_investor_count",
     formPath: "InvestItems",
     focus: false,
+    toolTip: 32,
   },
   {
     id: 9999,
@@ -246,6 +252,7 @@ export const defaultPriceData: ICostInputItem[] = [
     formPath: "InvestItems",
     focus: true,
     inputYn: "Y",
+    toolTip: 33,
   },
   {
     id: 9999,
@@ -256,5 +263,6 @@ export const defaultPriceData: ICostInputItem[] = [
     formPath: "InvestItems",
     focus: true,
     inputYn: "Y",
+    toolTip: 34,
   },
 ];

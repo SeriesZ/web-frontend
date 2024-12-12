@@ -23,6 +23,8 @@ const YearUserCnt: React.FC<Props> = ({ name, itemData }) => {
   // 재사용 하기 위함
   var calulatorUi = name == "trade" ? tradeCounts : employeeCounts;
   var inputUi = name == "trade" ? setTradeCounts : setEmployeeCounts;
+  var placeholder =
+    name == "trade" ? "거래발생 수를 입력하세요." : "직원 수를 입력하세요.";
 
   // 항목의 금액을 변경할 수 있는 핸들러
   const handleInputChange = (index: number, value: number) => {
@@ -36,6 +38,18 @@ const YearUserCnt: React.FC<Props> = ({ name, itemData }) => {
     inputUi(yearTrade);
   }, 400);
 
+  // 숫자를 세 자리 단위 콤마로 변환
+  const formatNumber = (value: number | string) => {
+    if (!value) return "";
+    const num = Number(value.toString().replace(/[^0-9]/g, ""));
+    return num.toLocaleString();
+  };
+
+  // 세 자리 콤마를 제거하고 숫자로 변환
+  const parseNumber = (value: string) => {
+    return Number(value.replace(/[^0-9]/g, ""));
+  };
+
   return (
     <div className={`${styled.inputWrap} ${styled.cnt}`}>
       {calulatorUi.map((item, index) => (
@@ -43,11 +57,14 @@ const YearUserCnt: React.FC<Props> = ({ name, itemData }) => {
           <div className={styled.title}>{index + 1}년차</div>
           <div className={styled.input}>
             <input
-              type="number"
+              type="text"
+              className={styled.inputNumber}
               ref={inputRef}
-              defaultValue={item}
-              placeholder="거래발생 수를 입력하세요."
-              onChange={(e) => handleInputChange(index, Number(e.target.value))}
+              defaultValue={formatNumber(item)}
+              placeholder={placeholder}
+              onChange={(e) =>
+                handleInputChange(index, parseNumber(e.target.value))
+              }
             />
           </div>
         </div>

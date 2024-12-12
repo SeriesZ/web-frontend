@@ -139,6 +139,7 @@ const IdeaList = (props: Props) => {
           </div>
         )}
         <Swiper
+          className={styled.swiperSlideWrap}
           effect={"coverflow"}
           navigation={{
             prevEl: prevButtonRef.current,
@@ -162,7 +163,7 @@ const IdeaList = (props: Props) => {
         >
           {swiperData.map((item, index) => {
             return (
-              <SwiperSlide key={item.id} className={styled.swiperSlideWrap}>
+              <SwiperSlide key={item.id}>
                 <div className={styled.swiperItem}>
                   <img
                     className={styled.bg}

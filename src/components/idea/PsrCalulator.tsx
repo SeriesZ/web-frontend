@@ -2,6 +2,7 @@
 import React, { useEffect } from "react";
 import styled from "@/components/idea/Idea.module.scss";
 import CustomSelectBox from "../common/CustomSelectBox";
+import ToolTipComponent from "./ToolTipComponent";
 import { Category } from "@/model/IdeaList";
 
 interface Props {
@@ -88,6 +89,9 @@ const PsrCalulator: React.FC<Props> = ({ inputHide, itemData }) => {
             <th className={styled.total}>시가총액</th>
             <th className={`${styled.total} ${styled.em}`}>
               {maraketCap.toLocaleString()}
+              <span>
+                <ToolTipComponent index={9} />
+              </span>
             </th>
             <td className={styled.total}>5년차까지 평균매출 x PSR</td>
           </tr>

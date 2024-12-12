@@ -2,18 +2,20 @@
 
 .gnbContainer {
   width: 100%;
+  height: 60px;
   position: relative;
   .gnbWrap {
     @include flex;
     @include sb;
     width: max-content;
-    height: 60px;
     margin: 0 auto;
     column-gap: 14px;
+    height: 100%;
     .left {
       @include flex;
       @include fs;
       column-gap: 14px;
+      height: 100%;
       .logo {
         @include background;
         width: 104px;
@@ -27,19 +29,30 @@
         @include fs;
         column-gap: 10px;
         box-sizing: border-box;
+        height: 100%;
         .menuItem {
           position: relative;
           padding: 10px;
+          height: 100%;
           color: #000;
           font-size: 14px;
           font-weight: 500;
-          line-height: 16.94px;
+          text-align: center;
+          align-content: center;
           box-sizing: border-box;
+          transition: color 0.3s ease;
           cursor: pointer;
         }
         .menuItem:hover {
-          font-weight: 800; 
-        }        
+          color: black; /* 호버한 항목은 검은색 */
+        }
+        .menuItem:hover ~ .menuItem,
+        .menuItem:has(~ .menuItem:hover) {
+          color: gray; /* 호버하지 않은 항목은 회색 */
+        }
+        .menuItem:hover .dropdownMenu {
+          display: block;
+        }     
       }
       .searchWrap {
         width: 320px;
@@ -73,6 +86,7 @@
       @include flex;
       @include fe;
       column-gap: 10px;
+      height: 100%;
       .myinfo {
         @include flex;
         @include sb;
@@ -82,6 +96,7 @@
         font-weight: 400;
         color: #000;
         box-sizing: border-box;
+        height: 100%;
         cursor: pointer;
         .btnArrow {
           @include background;
@@ -124,20 +139,40 @@
   }
 }
 .dropdownMenu {
-  display: block;
-  position: absolute;
-  top: 130%;
-  left: 0%;
-  width: 110px;
-  z-index: 20;
+  display: none;
+  position: absolute; 
+  top: 100%;
+  left: 50%;
+  transform: translate(-50%, 0%);
+  width: auto;
+  z-index: 5;
+  padding: 10px 20px 10px 20px;
+  border-radius: 0  0 5px 5px;
+  background-color: #ffffff;
+  box-shadow: 0px 6px 16px -6px rgba(165, 171, 186, 0.3);
   li {
-    padding: 10px 0 0px 10px;
-    font-size: 12px;
-    font-weight: 300;
-    &:hover {
-      font-weight: 500;
-    }
+    width: auto;
+    min-width: 105px;
+    white-space: nowrap;
+    height: 37px;
+    padding: 10px;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    color: #000000;
+    transition: color 0.3s ease;
   }
+  ul:hover li {
+    color: #AAAAAA;
+  }
+  
+  ul:hover li:hover {
+    color: #000000; 
+  }
+}
+.dropdownMenu:hover {
+  display: block;
 }
 
 .dropdownMenuContainer {
@@ -157,18 +192,33 @@
   display: none;
   position: absolute;
   top: 100%;
-  left: 0%;
-  width: 80px;
-  z-index: 20;
+  left: 50%;
+  transform: translate(-60%, 0%);
+  width: auto;
+  z-index: 5;
+  padding: 10px 20px 10px 20px;
+  border-radius: 0  0 5px 5px;
   background-color: #ffffff;
-  padding-top: 10px;
+  box-shadow: 0px 6px 16px -6px rgba(165, 171, 186, 0.3);
   li {
-    padding: 5px 0 10px 10px;
-    font-size: 12px;
-    font-weight: 300;
-    &:hover {
-      font-weight: 500;
-    }
+    width: auto;
+    min-width: 105px;
+    white-space: nowrap;
+    height: 37px;
+    padding: 10px;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    color: #000000;
+    transition: color 0.3s ease;
+  }
+  ul:hover li {
+    color: #AAAAAA;
+  }
+  
+  ul:hover li:hover {
+    color: #000000; 
   }
   &:hover {
     display: block;

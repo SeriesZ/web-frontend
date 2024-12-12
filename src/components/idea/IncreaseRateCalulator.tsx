@@ -62,6 +62,18 @@ const IncreaseRateCalulator: React.FC<Props> = ({ inputHide, itemData }) => {
     setCostItems(newCostItems);
   }, 400);
 
+  // 숫자를 세 자리 단위 콤마로 변환
+  const formatNumber = (value: number | string) => {
+    if (!value) return "";
+    const num = Number(value.toString().replace(/[^0-9]/g, ""));
+    return num.toLocaleString();
+  };
+
+  // 세 자리 콤마를 제거하고 숫자로 변환
+  const parseNumber = (value: string) => {
+    return Number(value.replace(/[^0-9]/g, ""));
+  };
+
   // 변수에 따라 원가 항목 입력을 숨긴다
   function chkInputHide() {
     if (inputHide == "N")
@@ -81,6 +93,7 @@ const IncreaseRateCalulator: React.FC<Props> = ({ inputHide, itemData }) => {
                   <div className={styled.title}>
                     <input
                       type="text"
+                      className={styled.inputText}
                       ref={inputRef}
                       defaultValue={item.name}
                       onChange={(e) =>
@@ -90,12 +103,16 @@ const IncreaseRateCalulator: React.FC<Props> = ({ inputHide, itemData }) => {
                   </div>
                   <div className={styled.input}>
                     <input
-                      type="number"
+                      type="text"
+                      className={styled.inputNumber}
                       ref={inputRef}
-                      defaultValue={item.amount}
+                      defaultValue={formatNumber(item.amount)}
                       placeholder="금액을 입력하세요."
                       onChange={(e) =>
-                        handleCostChange(item.apiId, Number(e.target.value))
+                        handleCostChange(
+                          item.apiId,
+                          parseNumber(e.target.value)
+                        )
                       }
                     />
                   </div>

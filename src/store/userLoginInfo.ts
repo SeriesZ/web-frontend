@@ -26,6 +26,7 @@ interface Store {
 
     setUserInfo: (data: UserInfo) => void;
     removeUserInfo: () => void;
+    updateBearer: (bearer: string) => void;
 }
 
 const userLoginInfo = create<Store>((set) => ({
@@ -33,6 +34,13 @@ const userLoginInfo = create<Store>((set) => ({
 
     setUserInfo: (data) => set({ userInfo: data }),
     removeUserInfo: () => set({ userInfo: defaultUserInfo }),
+    updateBearer: (bearer: string) =>
+        set((state) => ({
+            userInfo: {
+                ...state.userInfo, // Keep existing userInfo properties
+                bearer, // Update only the bearer property
+            },
+        })),
 }));
 
 export default userLoginInfo;
