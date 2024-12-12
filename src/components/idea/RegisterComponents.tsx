@@ -28,6 +28,8 @@ import ToolTipComponent from "./ToolTipComponent";
 import YearUserCnt from "./YearUserCnt";
 import userStore from "@/store/userLoginInfo";
 import dynamic from "next/dynamic";
+import Modal from "react-modal";
+import InvestSimulationPop from "./InvestSimulationPop";
 
 type Props = {
   activeIndex: number;
@@ -74,6 +76,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
   const [repreReadyUpload, setRepreReadyUpload] = useState(false);
   const [detailReadyUpload, setDetailReadyUpload] = useState(false);
   const [attachReadyUpload, setAttachReadyUpload] = useState(false);
+  const [imagePreview, setImagePreview] = useState(""); // 이미지 미리보기 상태
 
   // step2 관련
   const { setCostDataAll, getAmountByApiId, costData } = useFinanceStore();
@@ -97,7 +100,20 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
   );
   const [averageSales, setAverageSales] = useState(0);
 
+  // step4 관련
+  const [isInvestSimulationOpen, setInvestSimulationOpen] = useState(false); // 투자 시뮬레이션 모달
+  const showInvestSimulationModal = () => {
+    setInvestSimulationOpen(true);
+  };
+  const closInvestSimulationModal = () => {
+    setInvestSimulationOpen(false);
+  };
+
   const performanceParams = {
+    ideaName,
+    editorContent,
+    selectedTheme,
+    imagePreview,
     categoryData,
     costItems,
     setCostItems,
@@ -217,6 +233,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
         const { file_name } = images;
         return new File([], file_name);
       });
+      setImagePreview(contents.images[0].file_path);
       setRepreFiles(files);
 
       const newMap = new Map<string, string>();
@@ -372,7 +389,8 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
   };
 
   const preview = () => {
-    console.log("미리보기");
+    console.log("미리보기 누름");
+    setInvestSimulationOpen(true);
   };
 
   // 파일 수정
@@ -683,6 +701,44 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
       alert("저장에 실패하였습니다.");
     }
   };
+
+  interface CustomModalProps {
+    isOpen: boolean;
+    closeModal: () => void;
+    content: React.ReactNode; // or React.ReactElement if you want to be more specific
+    customStyles?: React.CSSProperties; // Optional, as not all modals may need custom styles
+  }
+
+  /* 모달 재사용 */
+  const ModalComponent: React.FC<CustomModalProps> = ({
+    isOpen,
+    closeModal,
+    content,
+    customStyles,
+  }) => (
+    <Modal
+      isOpen={isOpen}
+      ariaHideApp={false}
+      onRequestClose={closeModal}
+      style={{
+        content: {
+          top: "50%",
+          left: "50%",
+          marginRight: "-50%",
+          transform: "translate(-50%, -50%)",
+          ...customStyles,
+          borderRadius: "8px",
+          boxShadow: "0px 6px 16px 0px #A5ABBA4D",
+        },
+        overlay: {
+          backgroundColor: "rgba(0, 0, 0, 0.5)", // 검은색 배경, 투명도 50%
+          zIndex: 1000, // 다른 요소 위에 나타나도록 설정
+        },
+      }}
+    >
+      {content}
+    </Modal>
+  );
 
   const Step1 = () => {
     return (
@@ -1079,278 +1135,307 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
   const Step4 = () => {
     return (
       <>
-        <div className={`${styled.section} ${styled.final}`}>
-          <div className={`${styled.sectionTitle} ${styled.final}`}>
-            <span>1</span> 아이디어 입력
-          </div>
-          <div className={`${styled.form} ${styled.final}`}>
-            <div className={`${styled.label} ${styled.final}`}>아이디어명</div>
-            <div className={styled.finalContent}>{ideaName}</div>
-          </div>
-          <div className={styled.form}>
-            <div className={`${styled.label} ${styled.final}`}>
-              아이디어 설명
+        <div>
+          <div className={`${styled.section} ${styled.final}`}>
+            <div className={`${styled.sectionTitle} ${styled.final}`}>
+              <span>1</span> 아이디어 입력
             </div>
-            <div className={styled.finalContent}>
-              <NoSsrEditor
-                content={editorContent}
-                editorRef={editorRef}
-                onChange={handleBlurEditor}
-                showType={"viewer"}
-              ></NoSsrEditor>
+            <div className={`${styled.form} ${styled.final}`}>
+              <div className={`${styled.label} ${styled.final}`}>
+                아이디어명
+              </div>
+              <div className={styled.finalContent}>{ideaName}</div>
             </div>
-          </div>
-          <div className={styled.form}>
-            <div className={`${styled.label} ${styled.final}`}>대표 이미지</div>
-            <div className={styled.desc}></div>
-            <FileUpload
-              uploadData={repreFiles}
-              uploadDataMap={repreFilesMap}
-              setUploadData={setRepreFiles}
-              setReadyUpload={setRepreReadyUpload}
-              extList={["jpeg", "jpg", "png"]}
-              limitCnt={10}
-              type={"image"}
-              id={"representative"}
-            />
-          </div>
-          <div className={styled.form}>
-            <div className={`${styled.label} ${styled.final}`}>
-              아이디어 상세 이미지
+            <div className={styled.form}>
+              <div className={`${styled.label} ${styled.final}`}>
+                아이디어 설명
+              </div>
+              <div className={styled.finalContent}>
+                <NoSsrEditor
+                  content={editorContent}
+                  editorRef={editorRef}
+                  onChange={handleBlurEditor}
+                  showType={"viewer"}
+                ></NoSsrEditor>
+              </div>
             </div>
-            <FileUpload
-              uploadData={detailFiles}
-              uploadDataMap={repreFilesMap}
-              setUploadData={setDetailFiles}
-              setReadyUpload={setDetailReadyUpload}
-              extList={["jpeg", "jpg", "png"]}
-              limitCnt={10}
-              type={"image"}
-              id={"detail"}
-            />
-          </div>
-          <div className={styled.form}>
-            <div className={`${styled.label} ${styled.final}`}>산업군</div>
-            <div className={styled.finalContent}>예술/스포츠업</div>
-          </div>
+            <div className={styled.form}>
+              <div className={`${styled.label} ${styled.final}`}>
+                대표 이미지
+              </div>
+              <div className={styled.desc}></div>
+              <FileUpload
+                uploadData={repreFiles}
+                uploadDataMap={repreFilesMap}
+                setUploadData={setRepreFiles}
+                setReadyUpload={setRepreReadyUpload}
+                extList={["jpeg", "jpg", "png"]}
+                limitCnt={10}
+                type={"image"}
+                id={"representative"}
+              />
+            </div>
+            <div className={styled.form}>
+              <div className={`${styled.label} ${styled.final}`}>
+                아이디어 상세 이미지
+              </div>
+              <FileUpload
+                uploadData={detailFiles}
+                uploadDataMap={repreFilesMap}
+                setUploadData={setDetailFiles}
+                setReadyUpload={setDetailReadyUpload}
+                extList={["jpeg", "jpg", "png"]}
+                limitCnt={10}
+                type={"image"}
+                id={"detail"}
+              />
+            </div>
+            <div className={styled.form}>
+              <div className={`${styled.label} ${styled.final}`}>산업군</div>
+              <div className={styled.finalContent}>{selectedTheme?.name}</div>
+            </div>
 
-          <div className={styled.form}>
-            <div className={`${styled.label} ${styled.final}`}>
-              아이디어 첨부파일
-            </div>
-            <FileUpload
-              uploadData={attachFiles}
-              uploadDataMap={repreFilesMap}
-              setUploadData={setAttachFiles}
-              setReadyUpload={setAttachReadyUpload}
-              extList={[]}
-              limitCnt={10}
-              type={"etc"}
-              id={"attach"}
-            />
-          </div>
-        </div>
-        <div className={`${styled.section} ${styled.final}`}>
-          <div className={`${styled.sectionTitle} ${styled.final}`}>
-            <span>2-1</span> 상품가격결정
-          </div>
-          <div className={styled.tableContainer}>
-            <div className={styled.tableTitleWrap}>
-              <div className={`${styled.tableTitle} ${styled.final}`}>
-                상품가격결정
+            <div className={styled.form}>
+              <div className={`${styled.label} ${styled.final}`}>
+                아이디어 첨부파일
               </div>
-              <div className={styled.tableInfo}>단위: 원, %</div>
-            </div>
-            <div className={styled.tableContentsWrap}>
-              {/* <PriceTable /> */}
-              <PriceCalculator inputHide="Y" itemData={performanceParams} />
-            </div>
-          </div>
-          <div className={styled.totalContainer}>
-            <div className={styled.title}>
-              판매가<span>(소비자가격)</span>
-            </div>
-            <div className={styled.amount}>
-              <span>{sellingPrice.toLocaleString()}</span>원
-            </div>
-          </div>
-          <div className={styled.tableContainer}>
-            <div className={styled.tableTitleWrap}>
-              <div className={`${styled.tableTitle} ${styled.final}`}>
-                실적 단위 계산
-              </div>
-              <div className={styled.tableInfo}>단위: 원, %</div>
-            </div>
-            <div className={styled.tableContentsWrap}>
-              <PerformanceCalculator
-                inputHide="Y"
-                itemData={performanceParams}
+              <FileUpload
+                uploadData={attachFiles}
+                uploadDataMap={repreFilesMap}
+                setUploadData={setAttachFiles}
+                setReadyUpload={setAttachReadyUpload}
+                extList={[]}
+                limitCnt={10}
+                type={"etc"}
+                id={"attach"}
               />
             </div>
           </div>
-          <div className={styled.totalContainer}>
-            <div className={styled.title}>
-              판관비 계<span>(연비용)</span>
+          <div className={`${styled.section} ${styled.final}`}>
+            <div className={`${styled.sectionTitle} ${styled.final}`}>
+              <span>2-1</span> 상품가격결정
             </div>
-            <div className={styled.amount}>
-              <span>{totalSelYear.toLocaleString()}</span>원
+            <div className={styled.tableContainer}>
+              <div className={styled.tableTitleWrap}>
+                <div className={`${styled.tableTitle} ${styled.final}`}>
+                  상품가격결정
+                </div>
+                <div className={styled.tableInfo}>단위: 원, %</div>
+              </div>
+              <div className={styled.tableContentsWrap}>
+                {/* <PriceTable /> */}
+                <PriceCalculator inputHide="Y" itemData={performanceParams} />
+              </div>
+            </div>
+            <div className={styled.totalContainer}>
+              <div className={styled.title}>
+                판매가<span>(소비자가격)</span>
+              </div>
+              <div className={styled.amount}>
+                <span>{sellingPrice.toLocaleString()}</span>원
+              </div>
+            </div>
+            <div className={styled.tableContainer}>
+              <div className={styled.tableTitleWrap}>
+                <div className={`${styled.tableTitle} ${styled.final}`}>
+                  실적 단위 계산
+                </div>
+                <div className={styled.tableInfo}>단위: 원, %</div>
+              </div>
+              <div className={styled.tableContentsWrap}>
+                <PerformanceCalculator
+                  inputHide="Y"
+                  itemData={performanceParams}
+                />
+              </div>
+            </div>
+            <div className={styled.totalContainer}>
+              <div className={styled.title}>
+                판관비 계<span>(연비용)</span>
+              </div>
+              <div className={styled.amount}>
+                <span>{totalSelYear.toLocaleString()}</span>원
+              </div>
+            </div>
+            <div className={styled.tableContainer}>
+              <div className={styled.tableTitleWrap}>
+                <div className={`${styled.tableTitle} ${styled.final}`}>
+                  인상율 설정
+                </div>
+                <div className={styled.tableInfo}>단위: %</div>
+              </div>
+              <div className={styled.tableContentsWrap}>
+                <IncreaseRateCalulator
+                  inputHide="Y"
+                  itemData={performanceParams}
+                />
+              </div>
             </div>
           </div>
-          <div className={styled.tableContainer}>
-            <div className={styled.tableTitleWrap}>
-              <div className={`${styled.tableTitle} ${styled.final}`}>
-                인상율 설정
-              </div>
-              <div className={styled.tableInfo}>단위: %</div>
+          <div className={`${styled.section} ${styled.final}`}>
+            <div className={`${styled.sectionTitle} ${styled.final}`}>
+              <span>2-2</span> 매출계획 수립
             </div>
-            <div className={styled.tableContentsWrap}>
-              <IncreaseRateCalulator
-                inputHide="Y"
-                itemData={performanceParams}
-              />
+            <div className={styled.tableContainer}>
+              <div className={styled.tableTitleWrap}>
+                <div className={`${styled.tableTitle} ${styled.final}`}>
+                  매출계획표
+                </div>
+                <div className={styled.tableInfo}>단위: 수, 원, %</div>
+              </div>
+              <div className={styled.tableContentsWrap}>
+                <FinanceCaculator itemData={performanceParams} />
+              </div>
+            </div>
+            <div className={`${styled.totalContainer} ${styled.final}`}>
+              <div className={styled.title}>
+                BEP 달성<span>({positiveYear}년차)</span>
+              </div>
+              <div className={styled.amounts}>
+                <div className={styled.item}>
+                  <div>매출</div>
+                  <div>
+                    <span>{achieveBep.sales.toLocaleString()}</span>원
+                  </div>
+                </div>
+                <div className={styled.item}>
+                  <div>매출원가</div>
+                  <div>
+                    <span>{achieveBep.salesCost.toLocaleString()}</span>원
+                  </div>
+                </div>
+                <div className={styled.item}>
+                  <div>매출총이익</div>
+                  <div>
+                    <span>{achieveBep.grossProfit.toLocaleString()}</span>원
+                  </div>
+                </div>
+                <div className={styled.item}>
+                  <div>판관비</div>
+                  <div>
+                    <span>
+                      {Number(
+                        achieveBep.adminExpenses.toFixed(0)
+                      ).toLocaleString()}
+                    </span>
+                    원
+                  </div>
+                </div>
+                <div className={styled.item}>
+                  <div>영업이익</div>
+                  <div>
+                    <span>
+                      {Number(
+                        achieveBep.operatingIncome.toFixed(0)
+                      ).toLocaleString()}
+                    </span>
+                    원
+                  </div>
+                </div>
+                <div className={styled.item}>
+                  <div>영업이익률</div>
+                  <div>
+                    <span>
+                      {Number(
+                        achieveBep.operatingIncomeRate.toFixed(0)
+                      ).toLocaleString()}
+                    </span>
+                    %
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className={`${styled.section} ${styled.final}`}>
+            <div className={`${styled.sectionTitle} ${styled.final}`}>
+              <span>3-1</span> 기업가치평가
+            </div>
+            <div className={styled.tableContainer}>
+              <div className={styled.tableTitleWrap}>
+                <div className={`${styled.tableTitle} ${styled.final}`}>
+                  PSR 가치평가
+                </div>
+                <div className={styled.tableInfo}>단위: 원</div>
+              </div>
+              <div className={styled.tableContentsWrap}>
+                {/* <PriceTable /> */}
+                <PsrCalulator inputHide="Y" itemData={performanceParams} />
+              </div>
+            </div>
+            <div className={styled.tableContainer}>
+              <div className={styled.tableTitleWrap}>
+                <div className={`${styled.tableTitle} ${styled.final}`}>
+                  발행주식 수 설정
+                </div>
+                <div className={styled.tableInfo}>단위: 원</div>
+              </div>
+              <div className={styled.tableContentsWrap}>
+                {/* <PriceTable /> */}
+                <StockCalulator
+                  name="stock"
+                  inputHide="Y"
+                  itemData={performanceParams}
+                />
+              </div>
+            </div>
+          </div>
+          <div className={`${styled.section} ${styled.final}`}>
+            <div className={`${styled.sectionTitle} ${styled.final}`}>
+              <span>3-2</span> 투자목표 설정
+            </div>
+            <div className={styled.tableContainer}>
+              <div className={styled.tableTitleWrap}>
+                <div className={`${styled.tableTitle} ${styled.final}`}>
+                  투자목표 설정
+                </div>
+                <div className={styled.tableInfo}>단위: 원</div>
+              </div>
+              <div className={styled.tableContentsWrap}>
+                {/* <PriceTable /> */}
+                <StockCalulator
+                  name="investGoal"
+                  inputHide="Y"
+                  itemData={performanceParams}
+                />
+              </div>
+            </div>
+          </div>
+          <div className={styled.btnWrap}>
+            {/* <div className={`${styled.btn} ${styled.white}`} onClick={tempSave}>
+            임시저장 </div> */}
+            <div className={`${styled.btn} ${styled.white}`} onClick={preview}>
+              미리보기
+            </div>
+            <div className={styled.btn} onClick={onSubmit}>
+              최종 업로드
             </div>
           </div>
         </div>
-
-        <div className={`${styled.section} ${styled.final}`}>
-          <div className={`${styled.sectionTitle} ${styled.final}`}>
-            <span>2-2</span> 매출계획 수립
-          </div>
-          <div className={styled.tableContainer}>
-            <div className={styled.tableTitleWrap}>
-              <div className={`${styled.tableTitle} ${styled.final}`}>
-                매출계획표
-              </div>
-              <div className={styled.tableInfo}>단위: 수, 원, %</div>
-            </div>
-            <div className={styled.tableContentsWrap}>
-              <FinanceCaculator itemData={performanceParams} />
-            </div>
-          </div>
-          <div className={`${styled.totalContainer} ${styled.final}`}>
-            <div className={styled.title}>
-              BEP 달성<span>({positiveYear}년차)</span>
-            </div>
-            <div className={styled.amounts}>
-              <div className={styled.item}>
-                <div>매출</div>
-                <div>
-                  <span>{achieveBep.sales.toLocaleString()}</span>원
-                </div>
-              </div>
-              <div className={styled.item}>
-                <div>매출원가</div>
-                <div>
-                  <span>{achieveBep.salesCost.toLocaleString()}</span>원
-                </div>
-              </div>
-              <div className={styled.item}>
-                <div>매출총이익</div>
-                <div>
-                  <span>{achieveBep.grossProfit.toLocaleString()}</span>원
-                </div>
-              </div>
-              <div className={styled.item}>
-                <div>판관비</div>
-                <div>
-                  <span>
-                    {Number(
-                      achieveBep.adminExpenses.toFixed(0)
-                    ).toLocaleString()}
-                  </span>
-                  원
-                </div>
-              </div>
-              <div className={styled.item}>
-                <div>영업이익</div>
-                <div>
-                  <span>
-                    {Number(
-                      achieveBep.operatingIncome.toFixed(0)
-                    ).toLocaleString()}
-                  </span>
-                  원
-                </div>
-              </div>
-              <div className={styled.item}>
-                <div>영업이익률</div>
-                <div>
-                  <span>
-                    {Number(
-                      achieveBep.operatingIncomeRate.toFixed(0)
-                    ).toLocaleString()}
-                  </span>
-                  %
-                </div>
+        {/* 투자 시뮬레이션 모달 */}
+        <ModalComponent
+          isOpen={isInvestSimulationOpen}
+          closeModal={closInvestSimulationModal}
+          content={
+            <div>
+              {" "}
+              <InvestSimulationPop itemData={performanceParams} />
+              <div className={styled.modalBtn}>
+                <button
+                  onClick={closInvestSimulationModal}
+                  className={styled.closeBtn}
+                >
+                  닫기
+                </button>
               </div>
             </div>
-          </div>
-        </div>
-        <div className={`${styled.section} ${styled.final}`}>
-          <div className={`${styled.sectionTitle} ${styled.final}`}>
-            <span>3-1</span> 기업가치평가
-          </div>
-          <div className={styled.tableContainer}>
-            <div className={styled.tableTitleWrap}>
-              <div className={`${styled.tableTitle} ${styled.final}`}>
-                PSR 가치평가
-              </div>
-              <div className={styled.tableInfo}>단위: 원</div>
-            </div>
-            <div className={styled.tableContentsWrap}>
-              {/* <PriceTable /> */}
-              <PsrCalulator inputHide="Y" itemData={performanceParams} />
-            </div>
-          </div>
-          <div className={styled.tableContainer}>
-            <div className={styled.tableTitleWrap}>
-              <div className={`${styled.tableTitle} ${styled.final}`}>
-                발행주식 수 설정
-              </div>
-              <div className={styled.tableInfo}>단위: 원</div>
-            </div>
-            <div className={styled.tableContentsWrap}>
-              {/* <PriceTable /> */}
-              <StockCalulator
-                name="stock"
-                inputHide="Y"
-                itemData={performanceParams}
-              />
-            </div>
-          </div>
-        </div>
-        <div className={`${styled.section} ${styled.final}`}>
-          <div className={`${styled.sectionTitle} ${styled.final}`}>
-            <span>3-2</span> 투자목표 설정
-          </div>
-          <div className={styled.tableContainer}>
-            <div className={styled.tableTitleWrap}>
-              <div className={`${styled.tableTitle} ${styled.final}`}>
-                투자목표 설정
-              </div>
-              <div className={styled.tableInfo}>단위: 원</div>
-            </div>
-            <div className={styled.tableContentsWrap}>
-              {/* <PriceTable /> */}
-              <StockCalulator
-                name="investGoal"
-                inputHide="Y"
-                itemData={performanceParams}
-              />
-            </div>
-          </div>
-        </div>
-        <div className={styled.btnWrap}>
-          {/* <div className={`${styled.btn} ${styled.white}`} onClick={tempSave}>
-            임시저장
-          </div> */}
-          <div className={`${styled.btn} ${styled.white}`} onClick={preview}>
-            미리보기
-          </div>
-          <div className={styled.btn} onClick={onSubmit}>
-            최종 업로드
-          </div>
-        </div>
+          }
+          customStyles={{
+            width: "960px",
+            height: "800px",
+            padding: "40px",
+            borderRadius: "8px",
+          }}
+        />
       </>
     );
   };

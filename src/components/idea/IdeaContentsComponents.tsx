@@ -38,6 +38,10 @@ const IdeaContentsComponents = ({
     psr_value: 3,
   };
 
+  const [ideaName, setIdeaName] = useState("");
+  const [selectedTheme, setSelectedTheme] = useState<Category>();
+  const [editorContent, setEditorContent] = useState<string>("");
+  const [imagePreview, setImagePreview] = useState("");
   const [profitMargin, setProfitMargin] = useState(0);
   const [totalCost, setTotalCost] = useState(0);
   const [sellingPrice, setSellingPrice] = useState(0);
@@ -56,6 +60,10 @@ const IdeaContentsComponents = ({
   const [averageSales, setAverageSales] = useState(0);
 
   const performanceParams = {
+    ideaName,
+    editorContent,
+    selectedTheme,
+    imagePreview,
     categoryData,
     costItems,
     setCostItems,
@@ -628,7 +636,7 @@ const IdeaContentsComponents = ({
           content={
             <div>
               {" "}
-              <InvestSimulationPop />
+              <InvestSimulationPop itemData={performanceParams} />
               <div className={styled.modalBtn}>
                 <button
                   onClick={closInvestSimulationModal}
