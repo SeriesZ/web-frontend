@@ -233,7 +233,10 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
         const { file_name } = images;
         return new File([], file_name);
       });
-      setImagePreview(contents.images[0].file_path);
+
+      if (contents?.images.length > 0) {
+        setImagePreview(contents.images[0].file_path);
+      }
       setRepreFiles(files);
 
       const newMap = new Map<string, string>();
