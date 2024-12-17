@@ -8,8 +8,8 @@ import {
   IdeaContentsType,
   initializeIdeaContents,
 } from "@/model/IdeaList";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+//import jsPDF from "jspdf";
+//import html2canvas from "html2canvas";
 
 interface Props {
   itemData: {
@@ -70,6 +70,7 @@ const InvestSimulationPop: React.FC<Props> = ({ itemData }) => {
   }
 
   // PDF 다운로드 함수
+  /*
   const handleDownloadPDF = () => {
     console.log("PDF 다운로드 버튼 클릭됨");
     const input = contentRef.current;
@@ -116,6 +117,7 @@ const InvestSimulationPop: React.FC<Props> = ({ itemData }) => {
         });
     }
   };
+*/
 
   // 워드 다운로드 함수
   // const handleDownloadWord = () => {
@@ -133,7 +135,7 @@ const InvestSimulationPop: React.FC<Props> = ({ itemData }) => {
 
   return (
     <div className={styled.modalContainer}>
-      <div className={styled.btn} onClick={handleDownloadPDF}>
+      <div className={styled.btn}>
         <div className={styled.downloadImg}></div>
         Export
       </div>
