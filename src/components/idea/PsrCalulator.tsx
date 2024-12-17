@@ -10,7 +10,6 @@ interface Props {
   itemData: {
     categoryData: Category[];
     selectedTheme4Psr?: Category;
-    setSelectedTheme4Psr: React.Dispatch<React.SetStateAction<Category>>;
     maraketCap: number;
     setMaraketCap: React.Dispatch<React.SetStateAction<number>>;
     averageSales: number;
@@ -22,23 +21,22 @@ const PsrCalulator: React.FC<Props> = ({ inputHide, itemData }) => {
   const {
     categoryData,
     selectedTheme4Psr,
-    setSelectedTheme4Psr,
     maraketCap,
     setMaraketCap,
     averageSales,
   } = itemData;
 
   // 산업군 선택
-  const handleSelectTheme = (value: Category) => {
-    setSelectedTheme4Psr(value);
-  };
+  const handleSelectTheme = (value: Category) => {};
 
   // 구분 단위값 셋팅
-  const selectedBox = categoryData.filter((item) => item === selectedTheme4Psr);
-  const labelText = selectedBox.map((item) => item.name);
-  const labelPsr = selectedBox.map((item) => item.psr_value);
-  const marketPrice = averageSales * +labelPsr;
+  const labelText = selectedTheme4Psr?.name;
+  const labelPsr = selectedTheme4Psr?.psr_value
+    ? selectedTheme4Psr?.psr_value
+    : 0;
+  const marketPrice = averageSales * labelPsr;
 
+  console.log("평균매출22 : " + marketPrice + "/" + labelPsr);
   useEffect(() => {
     setMaraketCap(marketPrice);
   }, [marketPrice]);
@@ -88,7 +86,7 @@ const PsrCalulator: React.FC<Props> = ({ inputHide, itemData }) => {
           <tr>
             <th className={styled.total}>시가총액</th>
             <th className={`${styled.total} ${styled.em}`}>
-              {maraketCap.toLocaleString()}
+              {marketPrice.toLocaleString()}
               <span>
                 <ToolTipComponent index={9} />
               </span>
@@ -101,7 +99,7 @@ const PsrCalulator: React.FC<Props> = ({ inputHide, itemData }) => {
       <div className={styled.totalContainer}>
         <div className={styled.title}>시가총액</div>
         <div className={styled.amount}>
-          <span>{maraketCap.toLocaleString()}</span>원
+          <span>{marketPrice.toLocaleString()}</span>원
         </div>
       </div>
     </div>

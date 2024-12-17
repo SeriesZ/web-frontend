@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@/components/idea/Idea.module.scss";
 import PriceCalculator from "./PriceCalculator";
 import PerformanceCalculator from "./PerformanceCalculator";
@@ -14,6 +14,7 @@ import BeforeCheckContractPop from "./BeforeCheckContractPop";
 import ContractWritePop from "./ContractWritePop";
 import ContractSignPop from "./ContractSignPop";
 import ChatPop from "./ChatPop";
+import IdeaCompanyInfoPop from "./IdeaCompanyInfoPop";
 import { Viewer } from "@toast-ui/react-editor";
 import { Category, IdeaContentsType, Attachment } from "@/model/IdeaList";
 import { ICostInputItem, YearData } from "@/model/financeType";
@@ -22,12 +23,23 @@ import { defaultYearData } from "@/model/financeDefaultData";
 type Props = {
   activeIndex: number;
   data: IdeaContentsType;
+  itemData: {
+    costItems: ICostInputItem[];
+    profitMargin: number;
+    tradeCounts: number[];
+    employeeCounts: number[];
+    totalCost: number;
+    sellingPrice: number;
+    totalSelYear: number;
+    plan: YearData[];
+  };
   setActiveIndex: React.Dispatch<React.SetStateAction<number>>;
 };
 
 const IdeaContentsComponents = ({
   activeIndex,
   data,
+  itemData,
   setActiveIndex,
 }: Props) => {
   const initCategory: Category = {
@@ -42,21 +54,27 @@ const IdeaContentsComponents = ({
   const [selectedTheme, setSelectedTheme] = useState<Category>();
   const [editorContent, setEditorContent] = useState<string>("");
   const [imagePreview, setImagePreview] = useState("");
-  const [profitMargin, setProfitMargin] = useState(0);
-  const [totalCost, setTotalCost] = useState(0);
-  const [sellingPrice, setSellingPrice] = useState(0);
-  const [totalSelYear, setTotalSelYear] = useState(0);
-  const [costItems, setCostItems] = useState<ICostInputItem[]>([]);
+  const [profitMargin, setProfitMargin] = useState(itemData.profitMargin);
+  const [totalCost, setTotalCost] = useState(itemData.totalCost);
+  const [sellingPrice, setSellingPrice] = useState(itemData.sellingPrice);
+  const [totalSelYear, setTotalSelYear] = useState(itemData.totalSelYear);
+  const [costItems, setCostItems] = useState<ICostInputItem[]>(
+    itemData.costItems
+  );
   const [categoryData, setCategoryData] = useState<Category[]>([]);
   const [selectedTheme4Psr, setSelectedTheme4Psr] =
     useState<Category>(initCategory);
   const [maraketCap, setMaraketCap] = useState(0);
-  const [tradeCounts, setTradeCounts] = useState<number[]>([]);
-  const [employeeCounts, setEmployeeCounts] = useState<number[]>([]);
+  const [tradeCounts, setTradeCounts] = useState<number[]>(
+    itemData.tradeCounts
+  );
+  const [employeeCounts, setEmployeeCounts] = useState<number[]>(
+    itemData.employeeCounts
+  );
   const [achieveBep, setAchieveBep] = useState<YearData>(defaultYearData);
   const [yearData, setYearData] = useState<YearData[]>([]);
   const [positiveYear, setPositiveYear] = useState(0);
-  const [plan, setPlan] = useState<YearData[]>([]);
+  const [plan, setPlan] = useState<YearData[]>(itemData.plan);
   const [averageSales, setAverageSales] = useState(0);
 
   const performanceParams = {
@@ -89,6 +107,9 @@ const IdeaContentsComponents = ({
     plan,
     averageSales,
   };
+
+  const parValueItem = costItems.find((item) => item.apiId === "par_value");
+  const parValue = parValueItem ? parValueItem.amount : 0;
 
   // 화면 동적 구성
   const attachSetArray = data.attachments.map((file, index) => (
@@ -205,6 +226,10 @@ const IdeaContentsComponents = ({
           borderRadius: "8px",
           boxShadow: "0px 6px 16px 0px #A5ABBA4D",
         },
+        overlay: {
+          backgroundColor: "rgba(0, 0, 0, 0.5)", // 검은색 배경, 투명도 50%
+          zIndex: 1000, // 다른 요소 위에 나타나도록 설정
+        },
       }}
     >
       {content}
@@ -218,6 +243,7 @@ const IdeaContentsComponents = ({
   const [isContractWriteOpen, setContractWriteOpen] = useState(false); // 투자의향계약서 작성 모달
   const [isContractSignOpen, setContractSignOpen] = useState(false); // 전자서명 모달
   const [isChatOpen, setChatOpen] = useState(false); // 채팅방 모달
+  const [isIdeaCompanyInfoOpen, setIdeaCompanyInfoOpen] = useState(false); // 아이디어 보유자 정보보 모달
   const [investorInfo, setInvestorInfo] = useState<any>(null);
 
   const showInvestSimulationModal = () => {
@@ -261,6 +287,12 @@ const IdeaContentsComponents = ({
   };
   const closChatModal = () => {
     setChatOpen(false);
+  };
+  const showIdeaCompanyInfoModal = () => {
+    setIdeaCompanyInfoOpen(true);
+  };
+  const closIdeaCompanyInfoModal = () => {
+    setIdeaCompanyInfoOpen(false);
   };
 
   const openBeforeCheckContractPop = (data: any) => {
@@ -363,11 +395,13 @@ const IdeaContentsComponents = ({
                 <tbody>
                   <tr>
                     <td>주당 액면가</td>
-                    <td className={styled.tableRight}>{0}</td>
+                    <td className={styled.tableRight}>{parValue}</td>
                   </tr>
                   <tr>
                     <td>최소 투자금액</td>
-                    <td className={styled.tableRight}>{0}</td>
+                    <td className={styled.tableRight}>
+                      {parValueItem ? parValue.toLocaleString() : 0}
+                    </td>
                   </tr>
                   <tr>
                     <td>최대 투자금액</td>
@@ -409,7 +443,10 @@ const IdeaContentsComponents = ({
               {/* 온라인사업설명회 버튼 */}
               {renderOnlineBtn("Y")}
 
-              <div className={`${styled.btn} ${styled.whithBtn}`}>
+              <div
+                className={`${styled.btn} ${styled.whithBtn}`}
+                onClick={showIdeaCompanyInfoModal}
+              >
                 아이디어 보유자정보확인
               </div>
             </div>
@@ -509,6 +546,24 @@ const IdeaContentsComponents = ({
             padding: "20px",
           }}
         />
+
+        {/* 아이디어 보유자 정보 확인 */}
+        <ModalComponent
+          isOpen={isIdeaCompanyInfoOpen}
+          closeModal={closIdeaCompanyInfoModal}
+          content={
+            <IdeaCompanyInfoPop
+              closeModal={closIdeaCompanyInfoModal}
+              data={investorInfo}
+            />
+          }
+          customStyles={{
+            width: "320px",
+            height: "auto",
+            minHeight: "600px",
+            padding: "22px 24px 22px 24px",
+          }}
+        />
       </div>
     );
   };
@@ -563,7 +618,7 @@ const IdeaContentsComponents = ({
           <div>
             <div className={styled.tableContainer}>
               <div className={styled.tableTitleWrap}>
-                <div className={`${styled.tableTitle}`}>실적 단위 계산</div>
+                <div className={`${styled.tableTitle}`}>매출계획표</div>
                 <div className={styled.tableInfo}>단위: 원, %</div>
               </div>
               <div className={styled.tableContentsWrap}>

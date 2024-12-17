@@ -126,7 +126,6 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
     totalSelYear,
     setTotalSelYear,
     selectedTheme4Psr,
-    setSelectedTheme4Psr,
     maraketCap,
     setMaraketCap,
     tradeCounts,
@@ -182,6 +181,8 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
       const calAverageSales =
         newPlan.slice(0, 5).reduce((sum, value) => sum + value.sales, 0) / 5;
       setAverageSales(calAverageSales);
+
+      console.log("평균매출 : " + calAverageSales);
     }
   }, [costItems, profitMargin, tradeCounts, employeeCounts]);
 
@@ -220,6 +221,13 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
     if (contents) {
       setIdeaName(contents?.title);
       setSelectedTheme({
+        id: contents?.theme.id,
+        name: contents?.theme.name,
+        image: "",
+        description: "",
+        psr_value: contents?.theme.psr_value,
+      });
+      setSelectedTheme4Psr({
         id: contents?.theme.id,
         name: contents?.theme.name,
         image: "",
@@ -519,7 +527,6 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
       );
       const data1 = await response1.json();
       setCategoryData(data1);
-      setSelectedTheme4Psr(data1[0]);
 
       // 아이디어ID가 있으면 데이터 로딩
       if (ideationId) {

@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint"
   },
-  "proxy": "http://127.0.0.1:8083",
+  "proxy": "http://222.239.126.176:8083",
   "dependencies": {
     "@tanstack/react-query": "^5.17.8",
     "@tanstack/react-query-next-experimental": "^5.32.1",

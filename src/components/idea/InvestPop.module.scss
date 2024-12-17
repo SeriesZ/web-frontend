@@ -779,3 +779,67 @@
     color: #A2A9B0;
   }
 }
+
+/* 아이디어 보유자 정보 팝업 */
+.companyContainer {
+  color: #333;
+  display: flex;
+  flex-direction: column; /* 자식 요소를 세로 방향으로 배치 */
+  gap: 30px; /* 내부 요소 사이의 간격 설정 */
+  .section {  
+    display: flex;
+    flex-direction: column; /* 자식 요소를 세로 방향으로 배치 */
+    gap: 12px; /* 내부 요소 사이의 간격 설정 */
+  }
+  h3 {
+    font-family: Pretendard;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 24px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+  }
+  .infoRow {
+    display: flex;
+    justify-content: space-between;
+    .imgContainer{
+      height: 24px;
+    }
+    img {
+      cursor: pointer;
+      @include background;
+      width: 24px;
+      height: 24px;
+      padding: 2px 1.98px 2px 2px;
+    }
+  }
+  p, span {
+    align-content: center;
+    align-items: center;
+    font-family: Pretendard;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 16.71px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;    
+    color: #616161;
+  }
+  .section2 {
+    display: flex;           /* Flexbox 적용 */
+    flex-direction: column;  /* 자식 요소를 세로로 배치 */
+    gap: 20px;               /* 자식 요소 사이의 간격 설정 */
+    .section3 {
+      display: flex;
+      flex-direction: column; /* 내용물은 세로로 정렬 */
+      gap: 8px;               /* 자식 요소 사이의 간격 설정 */
+    }
+  }
+  
+
+}
+
+
+
+

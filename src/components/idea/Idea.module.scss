@@ -71,7 +71,7 @@
       height: 42px;
       border: 1px solid transparent;
       border-radius: 3px;
-      background-color: #1363df;
+      background-color: #2d415f;
       color: #fff;
       font-size: 16px;
       font-weight: 500;
@@ -1245,6 +1245,8 @@
         line-height: 16.71px;
         text-align: center;
         margin: 10px 0 0px 0;
+        transition: background-color 0.3s ease;
+        cursor: pointer;
         &.whithBtn {
           background: #FFFFFF;
           border: 1px solid var(--main-color, #1363DF);
@@ -1254,6 +1256,12 @@
           background: #1363DF;
           border: 1px solid var(--main-color, #1363DF);
           color:  #FFFFFF;
+        }
+        &.whithBtn:hover {
+          background: #1363DF1A;
+        }
+        &.blueBtn:hover {
+          background: #003B97;
         }
       }
       .bookMarkShareWrap{
@@ -1376,6 +1384,8 @@
         line-height: 16.71px;
         text-align: center;
         margin: 10px 0 1px 0;
+        transition: background-color 0.3s ease;
+        cursor: pointer;
         &.whithBtn {
           background: #FFFFFF;
           border: 1px solid var(--main-color, #1363DF);
@@ -1385,6 +1395,12 @@
           background: #1363DF;
           border: 1px solid var(--main-color, #1363DF);
           color:  #FFFFFF;
+        }
+        &.whithBtn:hover {
+          background: #1363DF1A;
+        }
+        &.blueBtn:hover {
+          background: #003B97;
         }
       }
     }
