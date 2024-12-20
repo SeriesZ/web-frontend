@@ -71,20 +71,23 @@
       height: 42px;
       border: 1px solid transparent;
       border-radius: 3px;
-      background-color: #2d415f;
+      background-color: #1363DF;
       color: #fff;
       font-size: 16px;
       font-weight: 500;
       &.white {
         background-color: #fff;
-        border: 1px solid #e8ecf2;
+        border: 1px solid #E8ECF2;
         color: #aaa;
       }
+    }
+    .blue:hover {
+      background: #003B97;
     }
   }
   .boundaryLine {
     padding-top: 40px;
-    border-bottom: 1px solid #e8ecf2;
+    border-bottom: 1px solid #B6BDC4;
   }
   .section {
     padding-top: 120px;
@@ -151,7 +154,7 @@
       textarea {
         width: 100%;
         box-sizing: 100%;
-        border: 1px solid #e8ecf2;
+        border: 1px solid #B6BDC4;
         border-radius: 3px;
         padding: 10px;
         font-size: 12px;
@@ -159,8 +162,13 @@
         resize: none;
         outline: 0 none;
         &::placeholder {
-          color: #aaa;
+          font-family: Pretendard;
+          color: #aaaaaa;
         }
+      }
+      input[type="text"]:focus,
+      textarea:focus {
+        border: 1px solid var(--main-color, #1363DF);
       }
       textarea {
         height: 110px;
@@ -171,7 +179,7 @@
       .editorWrap{
         .editor {
           height: 300px;
-          border: 1px solid #e8ecf2;
+          border: 1px solid #B6BDC4;
           padding: 10px;  
           resize: vertical;
         }
@@ -188,7 +196,7 @@
     .uploadBox {
       width: 100%;
       height: 140px;
-      border: 1px solid #e8ecf2;
+      border: 1px solid #B6BDC4;
       border-radius: 3px;
       padding: 24.5px 10px;
       &.uploaded {
@@ -221,7 +229,7 @@
           .filename {
             @include flex;
             padding: 5px;
-            background-color: #e8ecf2;
+            background-color: #B6BDC4;
             border-radius: 3px;
             color: #000;
             font-size: 14px;
@@ -374,7 +382,7 @@
         font-weight: 400;
         color: #000;
         padding: 10px;
-        border: 1px solid #e8ecf2;
+        border: 1px solid #E8ECF2;
         text-align: center;
         &.em {
           color: #1363df;
@@ -722,13 +730,17 @@
           resize: none;
           outline: 0 none;
           &::placeholder {
-            color: #aaa;
+            font-family: Pretendard;
+            color: #aaaaaa;
           }
+        }
+        .inputText:focus {
+          border: 1px solid #1363DF;
         }
         .inputNumber {
           width: 240px;
           box-sizing: 100%;
-          border: 1px solid #e8ecf2;
+          border: 1px solid #B6BDC4;
           border-radius: 3px;
           padding: 10px;
           font-size: 14px;
@@ -736,10 +748,27 @@
           resize: none;
           outline: 0 none;
           &::placeholder {
-            color: #aaa;
+            font-family: Pretendard;
+            color: #aaaaaa;
           }
-
-      }
+        }
+        .inputNumber:focus {
+          border: 1px solid #1363DF;
+        }
+        .inputTextarea{
+          width: 100%;
+          height: auto;
+          resize: none;
+          align-content: center;
+          box-sizing: border-box; /* 패딩 포함 너비 계산 */
+          font-size: 14px;
+          color: #000;
+          resize: none;
+          &::placeholder {
+            font-family: Pretendard;
+            color: #aaaaaa;
+          }
+        }
       .iconRemove {
         @include background;
         width: 24px;
@@ -762,7 +791,7 @@
   font-size: 20px;
   font-weight: 600;
   color: #000;
-  border-bottom: 1px solid #e8ecf2;
+  border-bottom: 1px solid #B6BDC4;
   margin-bottom: 80px;
   .title {
     span {
@@ -943,12 +972,13 @@
       height: Fixed (40px)px;
       border-radius: 3px;
       box-sizing: border-box;
-      border: 1px solid #e8ecf2;
+      border: 1px solid #B6BDC4;
       padding: 10px 10px;
       color: #000;
       font-size: 14px;
       &::placeholder {
-        color: #aaa;
+        font-family: Pretendard;
+        color: #aaaaaa;
       }
     }
     .iconSearch {
@@ -1123,7 +1153,7 @@
       background-image: url("/images/ideaContents_file_icon.png");
     }
     .teamMemberWrap {
-      border-top: 1px solid #E8ECF2;
+      border-top: 1px solid #B6BDC4;
       height: Hug (380px)px;
       padding: 40px 0px 40px 0px;
       gap: 117px;
@@ -1198,7 +1228,7 @@
       border: 1px 0px 0px 0px;
       
       background: #FEFEFE;
-      border: 1px solid #E8ECF2;
+      border: 1px solid #B6BDC4;
       box-shadow: 0px 6px 16px 0px #A5ABBA4D;
       margin-bottom: 10px;
       .statusWrap {
@@ -1341,7 +1371,7 @@
       border: 1px 0px 0px 0px;
       
       background: #FFFFFF;
-      border: 1px solid #E8ECF2;
+      border: 1px solid #B6BDC4;
       box-shadow: 0px 6px 16px 0px #A5ABBA4D;
       .sideTitle {
         font-family: Pretendard;
@@ -1443,7 +1473,7 @@
     width: 140px;
     height: 42px;
     border-radius: 3px;
-    border: 1px solid #E8ECF2;
+    border: 1px solid #B6BDC4;
     font-size: 16px;
     font-weight: 500;
     line-height: 19.36px;

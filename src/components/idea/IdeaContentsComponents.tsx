@@ -9,12 +9,13 @@ import StockCalulator from "./StockCalulator";
 import InvestSimulationPop from "./InvestSimulationPop";
 import Modal from "react-modal";
 import InvestStatusPop from "./InvestStatusPop";
-import PopupIframe from "./PopupIframe";
+import userStore from "@/store/userLoginInfo";
 import BeforeCheckContractPop from "./BeforeCheckContractPop";
 import ContractWritePop from "./ContractWritePop";
 import ContractSignPop from "./ContractSignPop";
 import ChatPop from "./ChatPop";
 import IdeaCompanyInfoPop from "./IdeaCompanyInfoPop";
+import InvestSendPop from "./InvestSendPop";
 import { Viewer } from "@toast-ui/react-editor";
 import { Category, IdeaContentsType, Attachment } from "@/model/IdeaList";
 import { ICostInputItem, YearData } from "@/model/financeType";
@@ -50,6 +51,7 @@ const IdeaContentsComponents = ({
     psr_value: 3,
   };
 
+  const { userInfo } = userStore();
   const [ideaName, setIdeaName] = useState("");
   const [selectedTheme, setSelectedTheme] = useState<Category>();
   const [editorContent, setEditorContent] = useState<string>("");
@@ -168,6 +170,29 @@ const IdeaContentsComponents = ({
     }
   };
 
+  // 로그인 유형에 따라 달라짐(온라인 사업설명회/투자의향전달)
+  const renderInvestApplyBtn = () => {
+    if (userInfo.role == "예비창업자") {
+      return (
+        <div
+          className={`${styled.btn} ${styled.whithBtn}`}
+          onClick={showInvestmentStatusModal}
+        >
+          투자 신청현황
+        </div>
+      );
+    } else {
+      return (
+        <div
+          className={`${styled.btn} ${styled.whithBtn}`}
+          onClick={showInvestSendModal}
+        >
+          투자의향전달
+        </div>
+      );
+    }
+  };
+
   // 기타 함수
   const formatDate = (dateString: string) => {
     if (!dateString) return "";
@@ -243,7 +268,8 @@ const IdeaContentsComponents = ({
   const [isContractWriteOpen, setContractWriteOpen] = useState(false); // 투자의향계약서 작성 모달
   const [isContractSignOpen, setContractSignOpen] = useState(false); // 전자서명 모달
   const [isChatOpen, setChatOpen] = useState(false); // 채팅방 모달
-  const [isIdeaCompanyInfoOpen, setIdeaCompanyInfoOpen] = useState(false); // 아이디어 보유자 정보보 모달
+  const [isIdeaCompanyInfoOpen, setIdeaCompanyInfoOpen] = useState(false); // 아이디어 보유자 정보 모달
+  const [isInvestSendOpen, setInvestSendOpen] = useState(false); // 투자의향전달달 모달
   const [investorInfo, setInvestorInfo] = useState<any>(null);
 
   const showInvestSimulationModal = () => {
@@ -293,6 +319,12 @@ const IdeaContentsComponents = ({
   };
   const closIdeaCompanyInfoModal = () => {
     setIdeaCompanyInfoOpen(false);
+  };
+  const showInvestSendModal = () => {
+    setInvestSendOpen(true);
+  };
+  const closInvestSendModal = () => {
+    setInvestSendOpen(false);
   };
 
   const openBeforeCheckContractPop = (data: any) => {
@@ -360,12 +392,7 @@ const IdeaContentsComponents = ({
                   <div>{formatDate(data.close_date)}</div>
                 </div>
               </div>
-              <div
-                className={`${styled.btn} ${styled.whithBtn}`}
-                onClick={showInvestmentStatusModal}
-              >
-                투자 신청현황
-              </div>
+              {renderInvestApplyBtn()}
               <div
                 className={`${styled.btn} ${styled.blueBtn}`}
                 onClick={showFinalInvestStatusModal}
@@ -562,6 +589,23 @@ const IdeaContentsComponents = ({
             height: "auto",
             minHeight: "600px",
             padding: "22px 24px 22px 24px",
+          }}
+        />
+
+        {/* 투자의향전달 */}
+        <ModalComponent
+          isOpen={isInvestSendOpen}
+          closeModal={closInvestSendModal}
+          content={
+            <InvestSendPop
+              closeModal={closInvestSendModal}
+              data={investorInfo}
+            />
+          }
+          customStyles={{
+            width: "800px",
+            height: "649px",
+            padding: "40px",
           }}
         />
       </div>

@@ -55,7 +55,12 @@ const CustomSelectBox: React.FC<CustomSelectBoxProps> = ({
 
   return (
     <div className={styles.customSelectBox} ref={wrapperRef}>
-      <div className={styles.selected} onClick={() => setIsOpen(!isOpen)}>
+      <div
+        className={`${styles.selected} ${
+          selectedLabel !== (placeholder || "Select...") ? styles.hasValue : ""
+        }`}
+        onClick={() => setIsOpen(!isOpen)}
+      >
         {selectedLabel}
       </div>
       {isOpen && (

@@ -12,6 +12,11 @@ const Register = (props: Props) => {
   const handleActiveIndex = (index: number) => {
     setActiveIndex(index);
   };
+
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [id]);
+
   return (
     <div className={styled.mainContainer}>
       <div className={styled.headerWrap}>

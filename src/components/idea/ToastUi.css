@@ -2,13 +2,21 @@
     font-family: 'Pretendard', 'Open Sans', 'Helvetica Neue', 'Helvetica', 'Arial', '나눔바른고딕',
       'Nanum Barun Gothic', '맑은고딕', 'Malgun Gothic', sans-serif;
     color: #aaa;
+    font-size: 14px;
     overflow-y: auto;
     overflow-X: hidden;
     height: calc(100% - 36px);
   }
   
   .ProseMirror .placeholder {
-    color: #aaa;
-    font-size: 12px !important;
+    color: #aaaaaa;
+    font-size: 14px !important;
   }
-  
+
+  .toastui-editor-defaultUI .ProseMirror {
+    border: 1px solid #B6BDC4;
+  }
+
+  .toastui-editor-toolbar {
+    border: 1px solid #B6BDC4;
+  }

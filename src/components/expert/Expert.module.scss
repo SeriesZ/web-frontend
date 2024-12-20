@@ -86,7 +86,10 @@
     @include flex;
     gap: 10px;
     flex-wrap: wrap; 
-    .card {
+    .card {    
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
       position: relative;
       width: 432px;
       height: 182px;
@@ -135,6 +138,9 @@
     display: flex;
     gap: 10px;
     .feedbackCard {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
       position: relative;
       width: 282.67px;
       height: 182px;
@@ -151,28 +157,30 @@
     font-weight: 600;
     line-height: 19.09px;
     text-align: left;
-    margin-bottom: 10px;
   }
   p {
     font-family: Pretendard;
     font-size: 12px;
     font-weight: 400;
     line-height: 14.32px;
-    text-align: left;    
-    margin-bottom: 10px;    
+    text-align: left;     
   }
   .blueText {
-    color: var(--main-color, #1363DF);
+    color: var(--main-color, #1363DF) !important;
     font-size: 12px;
     font-weight: 500;
     line-height: 14.32px;
     text-align: left;
-    margin-bottom: 10px;
   }
   .bottomText {
-    position: absolute;
-    bottom: 5px;
-    left: 10px;
+    font-family: Pretendard;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 14.32px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+    color: #6C6C6C;
   }
 }
 

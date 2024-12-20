@@ -43,6 +43,17 @@
           transition: color 0.3s ease;
           cursor: pointer;
         }
+        .menuItem::after {
+          content: "";
+          position: absolute;
+          top: 100%; /* menuItem 바로 아래에 위치 */
+          left: 0;
+          z-index: 5;
+          width: 100%; /* menuItem의 너비에 맞춤 */
+          height: 6px; /* dropdownMenu의 여백만큼 커버 */
+          background: transparent; /* 눈에 보이지 않도록 설정 */
+          pointer-events: auto; /* 마우스 이벤트 활성화 */
+        }
         .menuItem:hover {
           color: black; /* 호버한 항목은 검은색 */
         }
@@ -108,6 +119,17 @@
           display: block;
         }
       }
+      .myinfo::after {
+        content: "";
+        position: absolute;
+        top: 100%; /* menuItem 바로 아래에 위치 */
+        left: 0;
+        z-index: 5;
+        width: 100%; /* menuItem의 너비에 맞춤 */
+        height: 6px; /* dropdownMenu의 여백만큼 커버 */
+        background: transparent; /* 눈에 보이지 않도록 설정 */
+        pointer-events: auto; /* 마우스 이벤트 활성화 */
+      }
       .btn {
         @include btnform;
         position: relative;
@@ -123,6 +145,7 @@
       }
       .btnText {
         cursor: pointer;
+        position: relative;
         font-weight: 500;
         font-size: 14px;
         line-height: 16.71px;
@@ -130,12 +153,9 @@
         padding: 10px;
         height: 100%;
         align-content: center;
-        &:hover {
-          font-weight: 800;
-        }
-        &:hover .dropdownMenuLogin {
-          display: block;
-        }
+      }
+      .btnText:hover {
+        font-weight: 800;
       }
     }
   }
@@ -143,15 +163,15 @@
 .dropdownMenu {
   display: none;
   position: absolute; 
-  top: 100%;
+  top: calc(100% + 6px); /* margin 대신 padding 없이 정확한 위치 조정 */
   left: 50%;
   transform: translate(-50%, 0%);
   width: auto;
   z-index: 5;
   padding: 10px 20px 10px 20px;
-  border-radius: 0  0 5px 5px;
+  border-radius: 5px 5px;
   background-color: #ffffff;
-  box-shadow: 0px 6px 16px -6px rgba(165, 171, 186, 0.3);
+  box-shadow: 0px 6px 16px -6px rgba(165, 171, 186, 0.5);
   li {
     width: auto;
     min-width: 105px;
@@ -177,31 +197,19 @@
   display: block;
 }
 
-.dropdownMenuContainer {
-  display: block;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  height: 180px;
-  width: 100%; /* gnbContainer의 너비에 맞춤 */
-  background-color: #ffffff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 10;
-  transition: height 0.5s ease-in-out;
-}
-
 .dropdownMenuLogin {
   display: none;
   position: absolute;
   top: 100%;
   left: 50%;
+  margin-top: 6px;
   transform: translate(-60%, 0%);
   width: auto;
   z-index: 5;
   padding: 10px 20px 10px 20px;
-  border-radius: 0  0 5px 5px;
+  border-radius: 5px 5px;
   background-color: #ffffff;
-  box-shadow: 0px 6px 16px -6px rgba(165, 171, 186, 0.3);
+  box-shadow: 0px 6px 16px -6px rgba(165, 171, 186, 0.5);
   li {
     width: auto;
     min-width: 105px;

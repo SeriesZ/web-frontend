@@ -45,7 +45,6 @@ const Gnb = (props: Props) => {
   ];
 
   const { setUserInfo, userInfo, updateBearer } = userStore();
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const router = useRouter();
 
   // 1. 새로고침 시 localStorage에서 로그인 정보 복원
@@ -94,7 +93,6 @@ const Gnb = (props: Props) => {
   };
   const doLogin = (role: string) => {
     let index = 0;
-    // 드롭메뉴 높이 설정
     switch (role) {
       case "예비창업자":
         index = 1;
@@ -109,6 +107,7 @@ const Gnb = (props: Props) => {
         break;
     }
 
+    moveMain();
     fetchCategoryData(index);
   };
 

@@ -2,18 +2,21 @@
 
 .customSelectBox {
   width: 100%;
-  //   max-width: 300px;
   position: relative;
   user-select: none;
 }
 
 .selected {
   padding: 10px;
-  border: 1px solid #e8ecf2;
+  border: 1px solid #B6BDC4;
   border-radius: 3px;
   background-color: #fff;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 14px;
+  color: #aaaaaa;
+  &.hasValue {
+    color: #000000; // 선택된 값이 있을 때 색상
+  }
   &::after {
     @include background;
     content: "";
@@ -32,13 +35,14 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  border: 1px solid #e8ecf2;
+  border: 1px solid #B6BDC4;
   border-radius: 3px;
   background-color: #fff;
   max-height: 200px;
   overflow-y: auto;
   font-size: 12px;
   z-index: 10;
+  box-shadow: 0px 6px 16px -6px rgba(165, 171, 186, 0.6);
   &::-webkit-scrollbar {
     width: 6px; /* 스크롤바의 너비 */
   }
@@ -46,7 +50,6 @@
   &::-webkit-scrollbar-thumb {
     height: 30%; /* 스크롤바의 길이 */
     background: #ccc; /* 스크롤바의 색상 */
-
     border-radius: 10px;
   }
 

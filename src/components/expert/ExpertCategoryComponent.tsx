@@ -31,7 +31,7 @@ const ExpertCategoryComponent = ({ activeIndex, setActiveIndex }: Props) => {
               <div className={expertStyled.card}>
                 <p className={expertStyled.blueText}>{item.category}</p>
                 <h3>{item.title}</h3>
-                <p>{item.detail}</p>
+                <p className={expertStyled.bottomText}>{item.detail}</p>
                 <p className={expertStyled.bottomText}>
                   답변+{item.answer_cnt}
                 </p>
@@ -50,7 +50,7 @@ const ExpertCategoryComponent = ({ activeIndex, setActiveIndex }: Props) => {
             {expertSolutionData.slice(0, 2).map((item, index) => (
               <div className={expertStyled.card}>
                 <h3>{item.title}</h3>
-                <p>{item.detail}</p>
+                <p className={expertStyled.bottomText}>{item.detail}</p>
                 <p
                   className={`${expertStyled.blueText} ${expertStyled.bottomText} `}
                 >
@@ -93,7 +93,7 @@ const ExpertCategoryComponent = ({ activeIndex, setActiveIndex }: Props) => {
               <div className={expertStyled.feedbackCard}>
                 <h3 className={expertStyled.blueText}>{item.expert_name}</h3>
                 <h3>{item.title}</h3>
-                <p>{item.detail}</p>
+                <p className={expertStyled.bottomText}>{item.detail}</p>
                 <p className={expertStyled.bottomText}>{item.writer}의 후기</p>
               </div>
             ))}

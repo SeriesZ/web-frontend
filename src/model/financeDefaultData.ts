@@ -203,7 +203,7 @@ export const defaultPriceData: ICostInputItem[] = [
 
   {
     id: 9999,
-    name: "목표 투자자 지분율",
+    name: "목표 투자자\n지분율",
     amount: 0,
     description: "경영권 유지를 위해 49%이하를 가정해야 함",
     apiId: "target_investor_rate",
@@ -256,7 +256,7 @@ export const defaultPriceData: ICostInputItem[] = [
   },
   {
     id: 9999,
-    name: "최대 투자자 수 설정(명)",
+    name: "최대 투자자 수\n설정(명)",
     amount: 0,
     description: "",
     apiId: "max_invest_per",

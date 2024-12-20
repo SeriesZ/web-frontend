@@ -37,6 +37,10 @@ type Props = {
   setActiveIndex: React.Dispatch<React.SetStateAction<number>>;
 };
 
+interface SaveNewIdeaResponse {
+  id: string; // 반환할 데이터의 타입
+}
+
 const NoSsrEditor = dynamic(() => import("./ToastEditor"), {
   ssr: false,
 });
@@ -289,6 +293,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
 
   const handleSelectTheme = (value: Category) => {
     setSelectedTheme(value);
+    setSelectedTheme4Psr(value);
   };
 
   const handleBlur = () => {
@@ -304,7 +309,133 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
   // 버튼
   const onSubmit = () => {
     console.log("최종 업로드");
-    router.push("./registerList");
+    if (!ideationId) {
+      saveNewIdea().then((data) => {
+        checkAndSaveFinanceData(data.id).then((data) => {
+          alert(data);
+        });
+      });
+    } else {
+      checkAndSaveFinanceData(ideationId).then((data) => {
+        alert(data);
+      });
+    }
+    //router.push("./registerList");
+  };
+
+  const saveNewIdea = (): Promise<SaveNewIdeaResponse> => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // 유효성 검사
+        if (!ideaName) {
+          alert("아이디어 제목을 입력해주세요.");
+          reject("아이디어 제목 미입력");
+          return;
+        }
+        if (!editorContent) {
+          alert("내용을 입력해주세요.");
+          reject("내용 미입력");
+          return;
+        }
+        if (!selectedTheme?.id) {
+          alert("테마를 선택해주세요.");
+          reject("테마 미선택");
+          return;
+        }
+        if (repreFiles.length === 0) {
+          alert("대표 이미지를 선택해주세요.");
+          reject("대표 이미지 미선택");
+          return;
+        }
+
+        // FormData 생성
+        const formData = new FormData();
+        formData.append("title", ideaName);
+        formData.append("content", editorContent);
+        formData.append("theme_id", selectedTheme.id);
+
+        repreFiles.forEach((file) => {
+          formData.append("images", file, file.name);
+        });
+        attachFiles.forEach((file) => {
+          formData.append("files", file, file.name);
+        });
+
+        const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation`;
+
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${userInfo.bearer}`,
+            Accept: "application/json",
+          },
+          body: formData,
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setIdeaId(data.id);
+          resolve({ id: data.id }); // 성공 시 resolve 호출
+        } else {
+          const error = `아이디어 저장 실패: ${response.statusText}`;
+          alert(error);
+          reject(error); // 실패 시 reject 호출
+        }
+      } catch (error) {
+        console.error("아이디어 저장 중 오류 발생:", error);
+        reject("서버 요청 오류: " + error); // 오류 시 reject 호출
+      }
+    });
+  };
+
+  const updateIdea = () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // 유효성 검사
+        if (!ideaName) {
+          alert("아이디어 제목을 입력해주세요.");
+          reject("아이디어 제목 미입력");
+          return;
+        }
+        if (!editorContent) {
+          alert("내용을 입력해주세요.");
+          reject("내용 미입력");
+          return;
+        }
+        if (!selectedTheme?.id) {
+          alert("테마를 선택해주세요.");
+          reject("테마 미선택");
+          return;
+        }
+
+        const queryParams = new URLSearchParams({
+          title: ideaName,
+          content: editorContent,
+          theme_id: selectedTheme.id,
+        }).toString();
+
+        const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/${ideaId}?${queryParams}`;
+
+        const response = await fetch(url, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${userInfo.bearer}`,
+            Accept: "application/json",
+          },
+        });
+
+        if (response.ok) {
+          resolve("아이디어 업데이트 성공"); // 성공 시 resolve 호출
+        } else {
+          const error = "아이디어 업데이트 실패: " + response.statusText;
+          alert(error);
+          reject(error); // 실패 시 reject 호출
+        }
+      } catch (error) {
+        console.error("아이디어 업데이트 중 오류 발생:", error);
+        reject("서버 요청 오류: " + error); // 오류 발생 시 reject 호출
+      }
+    });
   };
 
   const tempSave = async (data: any) => {
@@ -314,80 +445,25 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
       switch (activeIndex) {
         // 아이디어 내용 저장
         case 0:
-          // 저장 전 확인
-          if (!ideaName) {
-            alert("아이디어 제목을 입력해주세요.");
-            return;
-          }
-          if (!editorContent) {
-            alert("내용을 입력해주세요.");
-            return;
-          }
-          if (!selectedTheme?.id) {
-            alert("테마를 선택해주세요.");
-            return;
-          }
-          if (repreFiles.length == 0) {
-            alert("대표 이미지를 선택해주세요.");
-            return;
-          }
-
-          let method = "";
-          let url = "";
-          const formData = new FormData();
-          formData.append("title", ideaName);
-          formData.append("content", editorContent);
-          formData.append("theme_id", selectedTheme.id);
-
-          // 최초 등록
-          if (ideaId == "init") {
-            method = "POST";
-            url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation`;
-            repreFiles.forEach((file, index) => {
-              formData.append(`images`, file, file.name);
-            });
-            attachFiles.forEach((file, index) => {
-              formData.append(`files`, file, file.name);
-            });
+          if (ideaId === "init") {
+            await saveNewIdea().then((data) => {
+              alert("성공적으로 저장되었습니다.");
+            }); // 아이디어 최초 저장
           } else {
-            const queryParams = new URLSearchParams({
-              title: ideaName,
-              content: editorContent,
-              theme_id: selectedTheme.id,
-            }).toString();
-
-            method = "PUT";
-            url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/${ideaId}?${queryParams}`;
-            formData.append("ideation_id", ideaId);
+            await updateIdea().then((data) => {
+              alert("성공적으로 저장되었습니다.");
+            }); // 아이디어 업데이트
           }
-
-          const response = await fetch(url, {
-            method: method,
-            headers: {
-              Authorization: `Bearer ${userInfo.bearer}`,
-              Accept: "application/json",
-            },
-            body: method === "POST" ? formData : undefined,
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            setIdeaId(data.id);
-            //localStorage.setItem("ideaId", JSON.stringify(data.id));
-
-            alert("임시저장 되었습니다.");
-          } else {
-            alert("임시 저장 실패:" + response.statusText + "ideaId:" + ideaId);
-          }
-          break;
         case 1:
         case 2:
           if (!ideationId) {
-            alert("아이디어 입력 저장을 먼저 진행해주세요.");
-            return;
+            // 아이디어 저장 먼저 하고 step2 저장 함수로 이동
+            saveNewIdea().then((data) => {
+              checkAndSaveFinanceData(data.id);
+            });
+          } else {
+            checkAndSaveFinanceData(ideationId);
           }
-          // step2 저장 함수로 이동
-          checkAndSaveFinanceData();
           break;
 
         default:
@@ -395,7 +471,6 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
       }
     } catch (error) {
       console.error("서버 요청 오류:", error);
-      alert("서버 요청 오류: " + error);
     }
   };
 
@@ -531,7 +606,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
       // 아이디어ID가 있으면 데이터 로딩
       if (ideationId) {
         const response2 = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/${ideaId}`,
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/${ideationId}`,
           {
             method: "GET",
             headers: {
@@ -605,44 +680,54 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
     }
   };
 
-  const checkAndSaveFinanceData = async () => {
-    try {
-      // 공통 URL 및 헤더 설정
-      const financeUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/finance/${ideationId}`;
-      const headers = {
-        Authorization: `Bearer ${bearer}`,
-        Accept: "application/json",
-      };
+  const checkAndSaveFinanceData = (pramIdeaId: string) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // 공통 URL 및 헤더 설정
+        const financeUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/finance/${pramIdeaId}`;
+        const headers = {
+          Authorization: `Bearer ${bearer}`,
+          Accept: "application/json",
+        };
 
-      // 데이터 존재 여부 확인
-      const checkResponse = await fetch(financeUrl, {
-        method: "GET",
-        headers,
-      });
+        // 데이터 존재 여부 확인
+        const checkResponse = await fetch(financeUrl, {
+          method: "GET",
+          headers,
+        });
 
-      // 데이터 준비
-      const serverPayload = transformDataForServer(costItems, ideaId);
-      serverPayload.profit_rate = profitMargin;
-      serverPayload.sale_price = sellingPrice;
-      serverPayload.total_expense = totalSelYear;
-      serverPayload.trade_counts = tradeCounts;
-      serverPayload.employee_counts = employeeCounts;
-      serverPayload.ideation_id = ideationId;
-      serverPayload.id = financeId;
-      console.log("저장할 데이터:", serverPayload);
+        // 데이터 준비
+        const serverPayload = transformDataForServer(costItems, ideaId);
+        serverPayload.profit_rate = profitMargin;
+        serverPayload.sale_price = sellingPrice;
+        serverPayload.total_expense = totalSelYear;
+        serverPayload.trade_counts = tradeCounts;
+        serverPayload.employee_counts = employeeCounts;
+        serverPayload.ideation_id = ideationId;
+        serverPayload.id = financeId;
+        console.log("저장할 데이터:", serverPayload);
 
-      if (checkResponse.ok) {
-        await updateFinanceData(financeUrl, headers, serverPayload);
-      } else if (checkResponse.status === 401 || checkResponse.status === 500) {
-        alert("데이터 로드 중 오류가 발생하였습니다.");
-      } else {
-        // 데이터가 없는 경우 (POST)
-        await createFinanceData(financeUrl, headers, serverPayload);
+        if (checkResponse.ok) {
+          await updateFinanceData(financeUrl, headers, serverPayload);
+          resolve("성공적으로 저장되었습니다.");
+        } else if (
+          checkResponse.status === 401 ||
+          checkResponse.status === 500
+        ) {
+          const error = "데이터 로드 중 오류가 발생하였습니다.";
+          alert(error);
+          reject(error);
+        } else {
+          // 데이터가 없는 경우 (POST)
+          await createFinanceData(financeUrl, headers, serverPayload);
+          resolve("성공적으로 저장되었습니다.");
+        }
+      } catch (error) {
+        console.error("An error occurred:", error);
+        alert("저장 권한이 없습니다.");
+        reject("저장 권한 오류 발생");
       }
-    } catch (error) {
-      console.error("An error occurred:", error);
-      alert("저장 권한이 없습니다.");
-    }
+    });
   };
 
   // PUT 요청
@@ -667,7 +752,6 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
 
       if (response.ok) {
         console.log("Finance data updated successfully.");
-        alert("임시저장 되었습니다.");
       } else {
         console.error(
           "Failed to update finance data. : " + response.statusText
@@ -701,14 +785,13 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
 
       if (response.ok) {
         console.log("Finance data created successfully.");
-        alert("임시저장 되었습니다.");
       } else {
         console.error("Failed to create finance data." + response.statusText);
-        alert("저장에 실패하였습니다.");
+        alert("재무 저장에 실패하였습니다.");
       }
     } catch (error) {
       console.error("An error occurred during creation:", error);
-      alert("저장에 실패하였습니다.");
+      alert("재무 저장에 실패하였습니다.");
     }
   };
 
@@ -855,7 +938,10 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
           <div className={`${styled.btn} ${styled.white}`} onClick={tempSave}>
             임시저장
           </div>
-          <div className={styled.btn} onClick={handleChangeNextStep}>
+          <div
+            className={`${styled.btn} ${styled.blue}`}
+            onClick={handleChangeNextStep}
+          >
             다음
           </div>
         </div>
@@ -1043,7 +1129,10 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
           <div className={`${styled.btn} ${styled.white}`} onClick={tempSave}>
             임시저장
           </div>
-          <div className={styled.btn} onClick={handleChangeNextStep}>
+          <div
+            className={`${styled.btn} ${styled.blue}`}
+            onClick={handleChangeNextStep}
+          >
             다음
           </div>
         </div>
@@ -1135,7 +1224,10 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
           <div className={`${styled.btn} ${styled.white}`} onClick={tempSave}>
             임시저장
           </div>
-          <div className={styled.btn} onClick={handleChangeNextStep}>
+          <div
+            className={`${styled.btn} ${styled.blue}`}
+            onClick={handleChangeNextStep}
+          >
             다음
           </div>
         </div>
@@ -1416,7 +1508,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
             <div className={`${styled.btn} ${styled.white}`} onClick={preview}>
               미리보기
             </div>
-            <div className={styled.btn} onClick={onSubmit}>
+            <div className={`${styled.btn} ${styled.blue}`} onClick={onSubmit}>
               최종 업로드
             </div>
           </div>

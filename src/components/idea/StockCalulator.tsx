@@ -144,7 +144,7 @@ const StockCalulator: React.FC<Props> = ({ name, inputHide, itemData }) => {
       }
     }
   }
-  const handleChangeNAme = () => {};
+  const handleChangeName = () => {};
 
   // 변수에 따라 원가 항목 입력을 숨긴다
   function chkInputHide() {
@@ -158,11 +158,10 @@ const StockCalulator: React.FC<Props> = ({ name, inputHide, itemData }) => {
                   <ToolTipComponent index={item.toolTip ? item.toolTip : 25} />
                 </div>
                 <div className={styled.title}>
-                  <input
-                    type="text"
-                    className={styled.inputText}
+                  <textarea
+                    className={styled.inputTextarea}
                     value={item.name}
-                    onChange={handleChangeNAme}
+                    onChange={handleChangeName}
                   />
                 </div>
                 <div className={styled.input}>
