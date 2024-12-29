@@ -440,7 +440,7 @@ const Gnb = (props: Props) => {
             </>
           ) : (
             <>
-              <div className={styled.btnText}>
+              <div className={`${styled.btnText} ${styled.myinfo}`}>
                 로그인
                 <div className={styled.dropdownMenuLogin}>
                   <ul>
