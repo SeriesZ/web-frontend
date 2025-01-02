@@ -459,10 +459,14 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
           if (!ideationId) {
             // 아이디어 저장 먼저 하고 step2 저장 함수로 이동
             saveNewIdea().then((data) => {
-              checkAndSaveFinanceData(data.id);
+              checkAndSaveFinanceData(data.id).then((data) => {
+                alert("성공적으로 저장되었습니다.");
+              });
             });
           } else {
-            checkAndSaveFinanceData(ideationId);
+            checkAndSaveFinanceData(ideationId).then((data) => {
+              alert("성공적으로 저장되었습니다.");
+            });
           }
           break;
 
@@ -703,7 +707,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
         serverPayload.total_expense = totalSelYear;
         serverPayload.trade_counts = tradeCounts;
         serverPayload.employee_counts = employeeCounts;
-        serverPayload.ideation_id = ideationId;
+        serverPayload.ideation_id = `${pramIdeaId}`;
         serverPayload.id = financeId;
         console.log("저장할 데이터:", serverPayload);
 
@@ -743,7 +747,6 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
           method: "PUT",
           headers: {
             Authorization: `Bearer ${userInfo.bearer}`,
-            Accept: "application/json",
             "Content-Type": "application/json",
           },
           body: JSON.stringify(payload),
@@ -776,7 +779,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
         {
           method: "POST",
           headers: {
-            ...headers,
+            Authorization: `Bearer ${userInfo.bearer}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify(payload),

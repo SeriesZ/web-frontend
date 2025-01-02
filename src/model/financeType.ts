@@ -203,7 +203,7 @@ export const transformDataForServer = (
     target_investor_rate: 0,
     max_investor_count: 0,
     max_invest_per: 0,
-    id:''
+    id:""
   };
 
   // items 배열을 매핑하여 data를 업데이트
