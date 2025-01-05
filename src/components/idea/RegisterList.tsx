@@ -6,6 +6,7 @@ import Paging from "./PagingComponents";
 import CustomSelectBox from "../common/CustomSelectBox";
 import { useRouter } from "next/navigation";
 import { Category, IdeaContentsType } from "@/model/IdeaList";
+import userStore from "@/store/userLoginInfo";
 
 type Props = {};
 
@@ -18,6 +19,8 @@ const RegisterList = (props: Props) => {
   const [categoryList, setCategoryData] = useState<Category[]>([]);
   const [selectedTheme, setSelectedTheme] = useState<Category>();
   const [registerList, setRegisterList] = useState<IdeaContentsType[]>([]);
+  const [isDataFetched, setIsDataFetched] = useState(false); // 성공 상태 관리
+  const { userInfo } = userStore();
 
   // 데이터 정렬 초기 셋팅
   const themeData: Category[] = [
@@ -28,30 +31,33 @@ const RegisterList = (props: Props) => {
 
   // 상태
   useEffect(() => {
-    const fetchData = async () => {
+    const initFetchData = async () => {
       try {
-        const [categoryRes, registerRes] = await Promise.all([
+        const [categoryRes] = await Promise.all([
           fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/themes`),
-          fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/themes?theme_id=`
-          ),
         ]);
 
         const categoryData = await categoryRes.json();
-        const registerData = await registerRes.json();
-
         setCategoryData(categoryData);
-        setRegisterList(registerData["농업"]);
+        setIsDataFetched(true); // 데이터 성공적으로 가져온 후 상태 업데이트
+        setSelectedTheme(categoryData[0]);
       } catch (error) {
         console.error("Error fetching registerList data:", error);
       } finally {
       }
     };
-    fetchData();
+    initFetchData();
   }, []);
+
+  useEffect(() => {
+    if (isDataFetched) {
+      fetchData(categoryList[0]);
+    }
+  }, [isDataFetched]); // 상태 변경 시 실행
 
   // 이벤트
   const handleSelectTheme = (value: Category) => {
+    setSelectedTheme(value);
     fetchData(value);
   };
   const fetchData = async (value: Category) => {
@@ -65,6 +71,43 @@ const RegisterList = (props: Props) => {
     } catch (error) {
       console.error("Error fetching registerList data:", error);
     } finally {
+    }
+  };
+
+  // 아이디어 삭제
+  const deleteIdeaCheck = (id: string) => {
+    const isConfirmed = window.confirm("삭제하시겠습니까?");
+    if (isConfirmed) {
+      deleteIdeaFetchData(id);
+    } else {
+      console.log("아니오");
+    }
+  };
+  const deleteIdeaFetchData = async (id: string) => {
+    try {
+      const IdeaDelUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideations/${id}`;
+      const ideaResponse = await fetch(IdeaDelUrl, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${userInfo.bearer}`,
+          Accept: "application/json",
+        },
+      });
+
+      if (!ideaResponse.ok) {
+        throw new Error("Idea URL 삭제 실패");
+      }
+
+      console.log("Idea URL 삭제 성공");
+      alert("정상적으로 삭제되었습니다.");
+
+      // 재조회
+      if (selectedTheme) {
+        fetchData(selectedTheme);
+      }
+    } catch (error) {
+      console.error("Error during deletion:", error);
+      alert("정상적으로 삭제되지 않았습니다.");
     }
   };
 
@@ -132,6 +175,14 @@ const RegisterList = (props: Props) => {
         id: "status",
         Cell: ({ cell: { value } }) => <StatusBox value={value} />,
       },
+      {
+        Header: "관리",
+        width: "8%",
+        id: "delete",
+        Cell: ({ cell: { value } }) => (
+          <button className={styled.delBtn}>삭제</button>
+        ),
+      },
     ],
     []
   );
@@ -163,7 +214,6 @@ const RegisterList = (props: Props) => {
   const router = useRouter();
   const moveMain = (path: string) => {
     router.push(`/idea/register?id=${path}`); // 수정가능한 페이지로 이동
-    //router.push(`./ideaContents?id=${path}`); // 등록된 페이지로 이동
   };
 
   return (
@@ -234,7 +284,11 @@ const RegisterList = (props: Props) => {
                           {...cell.getCellProps({
                             className: getDynamicClassName(cell.column.id),
                           })}
-                          onClick={() => moveMain(`${row.original.id}`)}
+                          onClick={() =>
+                            cell.column.id === "delete"
+                              ? deleteIdeaCheck(`${row.original.id}`)
+                              : moveMain(`${row.original.id}`)
+                          }
                         >
                           {cell.render("Cell")}
                         </td>

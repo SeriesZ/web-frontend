@@ -447,7 +447,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
         case 0:
           if (ideaId === "init") {
             await saveNewIdea().then((data) => {
-              alert("성공적으로 저장되었습니다.");
+              alert("아이디어가 성공적으로 저장되었습니다.");
             }); // 아이디어 최초 저장
           } else {
             await updateIdea().then((data) => {

@@ -31,12 +31,26 @@
         font-weight: 800;
       }
     }
-    .icon {
+    .icon1 {
       @include background;
       margin: 60px auto;
       width: 426.67px;
       height: 240px;
       background-image: url("/images/img-main-1.png");
+    }
+    .icon2 {
+      @include background;
+      margin: 60px auto;
+      width: 426.67px;
+      height: 240px;
+      background-image: url("/images/img-main-2.png");
+    }
+    .icon3 {
+      @include background;
+      margin: 60px auto;
+      width: 426.67px;
+      height: 240px;
+      background-image: url("/images/img-main-3.png");
     }
   }
 }

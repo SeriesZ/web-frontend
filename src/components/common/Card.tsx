@@ -85,7 +85,9 @@ const CompanyCard = ({ data, type }: Props) => {
   };
   return (
     <div
-      className={styled.companyCard}
+      className={`${
+        type === "magz" ? styled.magazineCard : styled.companyCard
+      }`}
       onClick={() => moveIdeaContents(data.id)}
     >
       <div className={styled.thumbWrap}>

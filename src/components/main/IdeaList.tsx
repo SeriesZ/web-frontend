@@ -46,14 +46,36 @@ const IdeaList = (props: Props) => {
         const data = await response.json();
         const firstDataKey = id ? id : data[0].id;
         const firstDataNm = nm ? nm : data[0].name;
+        let fetchUrl = "";
+
+        // 새로운 항목 정의
+        const newTheme = {
+          id: "",
+          name: "전체",
+          image: "/images/theme_all.png",
+          description: "",
+          psr_value: 0,
+        };
+        data.unshift(newTheme);
         setCategoryData(data);
 
         // 아이디어 리스트 로딩
-        const themes = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/themes?theme_id=${firstDataKey}&offset=0&limit=10`
-        );
+        if (id) {
+          fetchUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/themes?theme_id=${firstDataKey}&limit=1000`;
+        } else {
+          fetchUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/themes?limit=1000`;
+        }
+
+        const themes = await fetch(fetchUrl);
         const themesData = await themes.json();
-        setListData(themesData[firstDataNm]);
+        let ideaDataList: IdeaContentsType[] = [];
+        Object.keys(themesData).map((item, index) => {
+          themesData[item].forEach((element: IdeaContentsType) => {
+            ideaDataList.push(element);
+          });
+        });
+
+        setListData(ideaDataList);
       } catch (error) {
         console.error("Error fetching category data:", error);
       } finally {
@@ -79,17 +101,28 @@ const IdeaList = (props: Props) => {
   // 카테고리 클릭 시 조회
   const searchThemeList = async (data: any) => {
     try {
-      const themes = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/themes?theme_id=${data.id}`
-      );
+      var url = "";
+      if (data.id) {
+        url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/themes?theme_id=${data.id}&limit=100`;
+      } else {
+        url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/themes?limit=1000`;
+      }
+      const themes = await fetch(url);
 
       if (!themes.ok) {
         throw new Error("Network response was not ok");
       }
 
       const themesData = await themes.json();
-      const themeKey = Object.keys(themesData)[0];
-      setListData(themesData[themeKey]);
+
+      let ideaDataList: IdeaContentsType[] = [];
+      Object.keys(themesData).map((item, index) => {
+        themesData[item].forEach((element: IdeaContentsType) => {
+          ideaDataList.push(element);
+        });
+      });
+
+      setListData(ideaDataList);
     } catch (error) {
       console.error("Error fetching themes:", error);
     }

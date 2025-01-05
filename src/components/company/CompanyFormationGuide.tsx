@@ -5,10 +5,42 @@ import styled from "./Company.module.scss";
 type Props = {};
 
 const CompanyFormationGuide = (props: Props) => {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const handleActiveIndex = (index: number) => {
-    setActiveIndex(index);
+  const [capitalAmt, setCapitalAmt] = useState<string>("");
+  const [proofFee, setProofFee] = useState<number>(2000);
+  const [corpRegiTax, setCorpRegiTax] = useState<number>(0);
+  const [corpRegiFee, setCorpRegiFee] = useState<number>(20000);
+  const [valueAddedTax, setValueAddedTax] = useState<number>(0);
+  const [agencyFee, setAgencyFee] = useState<number>(0);
+  const [total, setTotal] = useState<number>(0);
+
+  // 자본금 입력되면 콤마 찍기
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/,/g, ""); // 입력 값에서 콤마 제거
+    if (!isNaN(Number(rawValue))) {
+      const formattedValue = new Intl.NumberFormat().format(Number(rawValue)); // 세 자리마다 콤마 추가
+      setCapitalAmt(formattedValue); // 상태 업데이트
+    }
   };
+
+  // 설립등기 비용계산하기
+  const clickCalBtn = () => {
+    const rawValue = capitalAmt.replace(/,/g, "");
+    const corpRegiTaxValue = Number(rawValue) * 0.004;
+    const valueAddedTaxValue = (proofFee + corpRegiTax + corpRegiFee) * 0.1;
+    const agencyFeeValue = Number(rawValue) * 0.01;
+    setCorpRegiTax(corpRegiTaxValue);
+    setValueAddedTax(valueAddedTaxValue);
+    setAgencyFee(agencyFeeValue);
+
+    const sum =
+      proofFee +
+      corpRegiTaxValue +
+      corpRegiFee +
+      valueAddedTaxValue +
+      agencyFeeValue;
+    setTotal(sum);
+  };
+
   return (
     <div>
       <div className={commonStyled.mainContainer}>
@@ -92,17 +124,27 @@ const CompanyFormationGuide = (props: Props) => {
             <label>설립 자본금</label>
             <div className={styled.inputContainer}>
               <div className={styled.searchWrap}>
-                <input type="text" placeholder="자본금을 입력해주세요." />
+                <input
+                  id="capitalInput"
+                  type="text" // 텍스트로 설정 (콤마 처리 때문에)
+                  placeholder="자본금을 입력해주세요."
+                  value={capitalAmt} // 포맷된 값 사용
+                  onChange={handleInputChange} // 입력 값 변경 핸들러
+                />
                 <div className={styled.iconSearch}></div>
               </div>
-              <button className={styled.calculateBtn} id="calculateBtn">
+              <button
+                className={styled.calculateBtn}
+                id="calculateBtn"
+                onClick={clickCalBtn} // 버튼 클릭 시 상태 출력
+              >
                 설립등기 비용계산하기
               </button>
             </div>
           </div>
           <p className={styled.result}>
             <strong>KTH1126</strong>님의 법인설립비용은{" "}
-            <strong>5,000,000</strong>원 입니다.
+            <strong>{total.toLocaleString()}</strong>원 입니다.
           </p>
           <table className={styled.estimateTable}>
             <thead>
@@ -114,27 +156,27 @@ const CompanyFormationGuide = (props: Props) => {
             <tbody>
               <tr>
                 <td>잔액고 증명수수료</td>
-                <td>2,000</td>
+                <td>{proofFee.toLocaleString()}</td>
               </tr>
               <tr>
                 <td>법인등록면허세</td>
-                <td>-</td>
+                <td>{corpRegiTax.toLocaleString()}</td>
               </tr>
               <tr>
                 <td>법인등기수수료</td>
-                <td>-</td>
+                <td>{corpRegiFee.toLocaleString()}</td>
               </tr>
               <tr>
                 <td>부가가치세</td>
-                <td>-</td>
+                <td>{valueAddedTax.toLocaleString()}</td>
               </tr>
               <tr>
-                <td>대법원 수수료</td>
-                <td>20,000</td>
+                <td>대행사 수수료</td>
+                <td>{agencyFee.toLocaleString()}</td>
               </tr>
               <tr>
                 <td>계</td>
-                <td>-</td>
+                <td>{total.toLocaleString()}</td>
               </tr>
             </tbody>
           </table>

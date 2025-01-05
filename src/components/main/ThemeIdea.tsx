@@ -25,12 +25,21 @@ const ThemeIdea = (props: Props) => {
         const firstDataNm = data[0].name;
         setCategoryData(data);
 
-        // 첫번째 카테고리 로딩
+        // 랜덤 4개 로딩
         const themes = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/themes?theme_id=${firstDataKey}&offset=0&limit=4`
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/themes?offset=1&limit=4`
         );
         const themesData = await themes.json();
-        setListData(themesData[firstDataNm]);
+        let ideaDataList: IdeaContentsType[] = [];
+        Object.keys(themesData).map((item, index) => {
+          themesData[item].forEach((element: IdeaContentsType) => {
+            if (ideaDataList.length < 4) {
+              ideaDataList.push(element);
+            }
+          });
+        });
+
+        setListData(ideaDataList);
       } catch (error) {
         console.error("Error fetching category data:", error);
       } finally {
@@ -50,9 +59,9 @@ const ThemeIdea = (props: Props) => {
       <MainTheme itemData={categoryData} moveUrl={"/idea/list"} />
       <div className={styled.cardWrap}>
         {listData && listData.length > 0 ? (
-          listData.map((item) => (
-            <React.Fragment key={item.id}>
-              <CompanyCard data={item} type={"idea"} />
+          listData.map((idea, index) => (
+            <React.Fragment key={idea.id}>
+              <CompanyCard data={idea} type={"idea"} />
             </React.Fragment>
           ))
         ) : (

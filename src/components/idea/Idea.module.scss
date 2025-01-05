@@ -845,7 +845,7 @@
   
   table {
     border-radius: 10px;
-    width: 70%;
+    width: 75%;
     height: Hug (60px)px;
     font-size: 14px;
     font-weight: 400;
@@ -895,6 +895,18 @@
     }
     tbody tr:hover {
       color: #1363DF;
+    }
+    .delBtn {
+      width: 58px;
+      height: 28px;
+      line-height: 28px; 
+      gap: 10px;
+      border-radius: 6px;
+      background: #1363DF;
+      color:  #ffffff;
+    }
+    .delBtn:hover{
+      background: #003B97;
     }
   }
 }

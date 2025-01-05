@@ -1,12 +1,21 @@
 .companyCard {
   width: 208px;
-  height: 240px;
+  min-height: 280px; /* 최소 높이를 280px로 설정 */
+  height: auto; /* 높이를 자동으로 늘어나게 설정 */
   border-radius: 6px;
   border: 1px solid #e8ecf2;
   box-sizing: border-box;
+}
+.magazineCard {
+  width: 208px;
+  height: 252px;
+  border-radius: 6px;
+  border: 1px solid #e8ecf2;
+  box-sizing: border-box;
+}
   .thumbWrap {
     width: 100%;
-    height: 84px;
+    height: 120px;
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
     background-color: #bababa;
@@ -28,14 +37,14 @@
     padding: 14px 12.48px 20px;
     .top {
       .title {
-        height: 17px;
+        // height: 17px;
         color: #000;
         font-weight: 600;
         margin-bottom: 10px;
         line-height: 19.09px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        // white-space: nowrap;
+        // overflow: hidden;
+        // text-overflow: ellipsis;
       }
       .desc {
         width: 100%;
@@ -78,4 +87,4 @@
       }
     }
   }
-}
+
