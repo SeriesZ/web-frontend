@@ -1,7 +1,11 @@
 import {} from "react";
 import styled from "@/components/idea/Idea.module.scss";
 import { YearData } from "@/model/financeType";
-import HorizontalScroll from "react-scroll-horizontal";
+import dynamic from "next/dynamic";
+
+const ScrollHorizontal = dynamic(() => import("react-scroll-horizontal"), {
+  ssr: false, // SSR 비활성화
+});
 
 interface Props {
   itemData: {
@@ -26,7 +30,7 @@ const FinanceCaculator: React.FC<Props> = ({ itemData }) => {
   });
   return (
     <div className={styled.xScrollContainer}>
-      <HorizontalScroll className={styled.xScroll}>
+      <ScrollHorizontal className={styled.xScroll}>
         <div style={{ display: "inline-block", minWidth: "100%" }}>
           <table className={styled.years10}>
             <thead>
@@ -172,7 +176,7 @@ const FinanceCaculator: React.FC<Props> = ({ itemData }) => {
             </tbody>
           </table>
         </div>
-      </HorizontalScroll>
+      </ScrollHorizontal>
     </div>
   );
 };
