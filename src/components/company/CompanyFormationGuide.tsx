@@ -48,11 +48,11 @@ const CompanyFormationGuide = (props: Props) => {
           <div className={commonStyled.titleWrap}>
             <div className={commonStyled.title}>법인 설립 가이드</div>
             <div className={commonStyled.desc}>
-              법인 설립가이드는 아이디어를 통해 신규법인을 설립하시고자 하는
-              예비창업자 분들을 위해 시리즈제로에서 제공하고 있는
-              가이드페이지입니다. 예비창업자님은 본 페이지를 통해 법인설립단계와
+              법인 설립 가이드는 아이디어를 통해 신규법인을 설립하시고자 하는
+              예비창업자분들을 위해 시리즈제로에서 제공하고 있는 가이드
+              페이지입니다. 예비창업자님은 본 페이지를 통해 법인설립 단계와
               방법을 확인하실 수 있으며, 가장 중요한 법인설립 시 발생되는 비용에
-              대한 계산과 설립업체와의 연계를 통한 실제설립까지 진행하실 수
+              대한 계산과 설립 업체와의 연계를 통한 실제 설립까지 진행하실 수
               있습니다.
             </div>
           </div>
@@ -60,7 +60,7 @@ const CompanyFormationGuide = (props: Props) => {
 
         <div className={styled.contentContainer}>
           <div className={styled.contentWrap}>
-            <h2>법인설립신청단계</h2>
+            <h2>법인설립 신청 단계</h2>
             <div className={styled.steps}>
               <div className={styled.step}>
                 <h4>

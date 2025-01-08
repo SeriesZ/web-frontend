@@ -438,7 +438,7 @@ const Gnb = (props: Props) => {
                 </div>
               </div>
               <div className={styled.btn} onClick={moveMakeIdea}>
-                아이디어 만들기
+                아이디어 입력
               </div>
             </>
           ) : (

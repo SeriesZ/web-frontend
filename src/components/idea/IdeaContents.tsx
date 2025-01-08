@@ -55,49 +55,20 @@ const IdeaContents = (props: Props) => {
 
   // 상태
   useEffect(() => {
-    if (typeof navigator !== "undefined") {
-      fetchCategoryData();
+    // if (typeof navigator !== "undefined") {
+    //   fetchSearchData();
+    // }
+    console.log("안들어와?");
+    if (id) {
+      fetchSearchData();
     }
-  }, [id]);
+  }, []);
 
   useEffect(() => {
-    // 상품가격결정
-    const totalTotal = costItems
-      .filter((item) => item.formPath === "PriceCalculator")
-      .reduce((sum, item) => sum + (item.amount ? item.amount : 0), 0);
-    const sellingPrice = totalTotal + totalTotal * (profitMargin / 100);
-    setTotalCost(totalTotal);
-    setSellingPrice(sellingPrice);
-
-    // 실적 단위 계산
-    const totalSelYear = costItems
-      .filter((item) => item.formPath === "PerformanceCalculator")
-      .reduce((sum, item) => sum + (item.amount ? item.amount : 0), 0);
-    setTotalSelYear(totalSelYear);
-
-    // 매출계획표 데이터 셋팅
-    setCostDataAll(costItems);
-
-    // 매출계획표 계산
-    if (tradeCounts.length > 0 && employeeCounts.length > 0) {
-      const newPlan = create10YearPlan(
-        sellingPrice,
-        totalCost,
-        getAmountByApiId("salary"),
-        getAmountByApiId("business_expense"),
-        getAmountByApiId("office_rent"),
-        getAmountByApiId("maintenance_cost"),
-        getAmountByApiId("ad_cost"),
-        getAmountByApiId("contingency")
-      );
-      setPlan(newPlan);
-
-      // 평균매출 계산
-      const calAverageSales =
-        newPlan.slice(0, 5).reduce((sum, value) => sum + value.sales, 0) / 5;
-      setAverageSales(calAverageSales);
+    if (financeId) {
+      settingFinanceData();
     }
-  }, [costItems, profitMargin, tradeCounts, employeeCounts]);
+  }, [financeId]);
 
   // 이벤트
   const handleActiveIndex = (index: number) => {
@@ -188,11 +159,7 @@ const IdeaContents = (props: Props) => {
     return years;
   };
 
-  // 서버 통신
-  const fetchCategoryData = async () => {
-    console.log(process.env.NEXT_PUBLIC_API_BASE_URL);
-    console.log(`${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/${id}`);
-
+  const fetchSearchData = async () => {
     try {
       // 아이디어 내용 조회
       const response = await fetch(
@@ -212,7 +179,13 @@ const IdeaContents = (props: Props) => {
       if (response.ok) {
         const data = await response.json();
         setIdeaContents(data);
-        getServerFinanceData();
+        const financeData = await getServerFinanceData();
+        if (financeData) {
+          console.log("데이터 가져오기 성공:", financeData);
+          settingFinanceData();
+        } else {
+          console.log("데이터가 없습니다.");
+        }
       } else {
         console.error("아이디어 불러오기 실패:", response.statusText);
       }
@@ -221,46 +194,92 @@ const IdeaContents = (props: Props) => {
     }
   };
 
-  // 상품가격 로딩
-  const getServerFinanceData = async () => {
-    try {
-      // 공통 URL 및 헤더 설정
-      const financeUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/finance`;
-      const headers = {
-        Authorization: `Bearer ${userInfo.bearer}`,
-        Accept: "application/json",
-      };
+  const getServerFinanceData = (): Promise<any> => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // 공통 URL 및 헤더 설정
+        const financeUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/finance`;
+        const headers = {
+          Authorization: `Bearer ${userInfo.bearer}`,
+          Accept: "application/json",
+        };
 
-      // 데이터 존재 여부 확인
-      const checkResponse = await fetch(`${financeUrl}/${id}`, {
-        method: "GET",
-        headers,
-      });
+        // 데이터 존재 여부 확인
+        const checkResponse = await fetch(`${financeUrl}/${id}`, {
+          method: "GET",
+          headers,
+        });
 
-      // 404 예외 처리
-      if (checkResponse.status === 404) {
-        console.warn("데이터를 찾을 수 없습니다. (404)");
-        setCostItems(defaultPriceData);
-        setTradeCounts([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-        setEmployeeCounts([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-        return;
-      }
+        // 404 예외 처리
+        if (checkResponse.status === 404) {
+          console.warn("데이터를 찾을 수 없습니다. (404)");
+          setCostItems(defaultPriceData);
+          setTradeCounts([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+          setEmployeeCounts([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+          resolve(null); // 데이터가 없음을 resolve
+          return;
+        }
 
-      if (checkResponse.ok) {
-        const data = await checkResponse.json();
-        const updatedData = updatePriceDataFromServer(defaultPriceData, data);
+        if (checkResponse.ok) {
+          const data = await checkResponse.json();
+          const updatedData = updatePriceDataFromServer(defaultPriceData, data);
 
-        setFinanceId(data.id);
-        setCostItems(updatedData);
-        setProfitMargin(data.profit_rate);
-        setEmployeeCounts(data.employee_counts);
-        setTimeout(() => {
+          setFinanceId(data.id);
+          setCostItems(updatedData);
+          setProfitMargin(data.profit_rate);
+          setEmployeeCounts(data.employee_counts);
           setTradeCounts(data.trade_counts);
-        }, 300);
+          console.log("들어왔는가? " + updatedData);
+
+          resolve(data); // 데이터를 resolve
+        } else {
+          const error = `Failed to fetch data: ${checkResponse.statusText}`;
+          console.error(error);
+          reject(error); // 실패 시 reject
+        }
+      } catch (error) {
+        console.error("An error occurred:", error);
+        reject("An error occurred while fetching finance data."); // 오류 시 reject
       }
-    } catch (error) {
-      console.error("An error occurred:", error);
-      alert("저장 권한이 없습니다.");
+    });
+  };
+
+  const settingFinanceData = () => {
+    // 상품가격결정
+    const totalTotal = costItems
+      .filter((item) => item.formPath === "PriceCalculator")
+      .reduce((sum, item) => sum + (item.amount ? item.amount : 0), 0);
+    const sellingPrice = totalTotal + totalTotal * (profitMargin / 100);
+    setTotalCost(totalTotal);
+    setSellingPrice(sellingPrice);
+
+    // 실적 단위 계산
+    const totalSelYear = costItems
+      .filter((item) => item.formPath === "PerformanceCalculator")
+      .reduce((sum, item) => sum + (item.amount ? item.amount : 0), 0);
+    setTotalSelYear(totalSelYear);
+
+    // 매출계획표 데이터 셋팅
+    setCostDataAll(costItems);
+
+    // 매출계획표 계산
+    if (tradeCounts.length > 0 && employeeCounts.length > 0) {
+      const newPlan = create10YearPlan(
+        sellingPrice,
+        totalTotal,
+        getAmountByApiId("salary"),
+        getAmountByApiId("business_expense"),
+        getAmountByApiId("office_rent"),
+        getAmountByApiId("maintenance_cost"),
+        getAmountByApiId("ad_cost"),
+        getAmountByApiId("contingency")
+      );
+      setPlan(newPlan);
+
+      // 평균매출 계산
+      const calAverageSales =
+        newPlan.slice(0, 5).reduce((sum, value) => sum + value.sales, 0) / 5;
+      setAverageSales(calAverageSales);
     }
   };
 

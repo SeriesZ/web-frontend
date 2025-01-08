@@ -392,6 +392,9 @@
       text-align: center;
       color: #616161;
     }
+    .submitMsg {
+      text-align: left;
+    }
   }
   .actionCell {
     display: flex;
@@ -412,7 +415,10 @@
       color: #FFFFFF;
       background: #1363DF;
     }
-    
+    button:first-child:hover {
+      color: #FFFFFF;
+      background: #003B97;
+    }
     button:last-child {
       align-items: right;
       color: #373E44;

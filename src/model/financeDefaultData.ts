@@ -123,7 +123,7 @@ export const defaultPriceData: ICostInputItem[] = [
   },
   {
     id: 9999,
-    name: "급여인상율",
+    name: "급여인상율(%)",
     amount: 0,
     description: "직원 1명당 연봉 인상율",
     apiId: "salary_increase_rate",
@@ -131,7 +131,7 @@ export const defaultPriceData: ICostInputItem[] = [
   },
   {
     id: 9999,
-    name: "업무추진비 인상율",
+    name: "업무추진비 인상율(%)",
     amount: 0,
     description: "직원 증가 시 인상되도록 설정",
     apiId: "business_expense_increase_rate",
@@ -139,7 +139,7 @@ export const defaultPriceData: ICostInputItem[] = [
   },
   {
     id: 9999,
-    name: "사무실 임차료 인상율",
+    name: "사무실 임차료 인상율(%)",
     amount: 0,
     description: "직원 증가 시 인상되도록 설정",
     apiId: "office_rent_increase_rate",
@@ -147,7 +147,7 @@ export const defaultPriceData: ICostInputItem[] = [
   },
   {
     id: 9999,
-    name: "접대비 인상율",
+    name: "접대비 인상율(%)",
     amount: 0,
     description: "예상 및 추정",
     apiId: "maintenance_cost_increase_rate",
@@ -155,7 +155,7 @@ export const defaultPriceData: ICostInputItem[] = [
   },
   {
     id: 9999,
-    name: "광고선전비 인상율",
+    name: "광고선전비 인상율(%)",
     amount: 0,
     description: "예상 및 추정",
     apiId: "ad_cost_increase_rate",
@@ -163,7 +163,7 @@ export const defaultPriceData: ICostInputItem[] = [
   },
   {
     id: 9999,
-    name: "예비비 인상율",
+    name: "예비비 인상율(%)",
     amount: 0,
     description: "예상 및 추정",
     apiId: "contingency_increase_rate",

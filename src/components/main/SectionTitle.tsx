@@ -7,9 +7,10 @@ type Props = {
   title: string;
   desc: string;
   moveUrl?: string;
+  iconHidden?: boolean;
 };
 
-const SectionTitle = ({ title, desc, moveUrl }: Props) => {
+const SectionTitle = ({ title, desc, moveUrl, iconHidden }: Props) => {
   const router = useRouter();
   const moveLink = () => {
     if (!moveUrl) return;
@@ -18,7 +19,10 @@ const SectionTitle = ({ title, desc, moveUrl }: Props) => {
   return (
     <div className={styled.sectionTitle}>
       <div className={styled.desc}>{desc}</div>
-      <div className={styled.title} onClick={moveLink}>
+      <div
+        className={`${styled.title} ${iconHidden ? styled.iconHidden : ""}`}
+        onClick={moveLink}
+      >
         {title}
       </div>
     </div>

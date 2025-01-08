@@ -633,7 +633,7 @@ const IdeaContentsComponents = ({
                 판매가<span>(소비자가격)</span>
               </div>
               <div className={styled.amount}>
-                <span>30,000</span>원
+                <span>{sellingPrice.toLocaleString()}</span>원
               </div>
             </div>
           </div>
@@ -655,7 +655,7 @@ const IdeaContentsComponents = ({
                 판관비 계<span>(연비용)</span>
               </div>
               <div className={styled.amount}>
-                <span>64,600,000</span>원
+                <span>{totalSelYear.toLocaleString()}</span>원
               </div>
             </div>
           </div>

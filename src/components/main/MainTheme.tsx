@@ -25,7 +25,15 @@ const MainTheme: React.FC<Props> = ({ itemData, moveUrl }) => {
               className={styled.themeItem}
               onClick={() => handleSelect(item)}
             >
-              {item.name}
+              {item.name === "IT SW&SVC" ? (
+                <>
+                  <span>IT SW</span>
+                  <span className={styled.themeItemMargin}>&</span>
+                  <span>SVC</span>
+                </>
+              ) : (
+                <>{item.name}</>
+              )}
             </div>
           );
         })}

@@ -30,6 +30,7 @@ import userStore from "@/store/userLoginInfo";
 import dynamic from "next/dynamic";
 import Modal from "react-modal";
 import InvestSimulationPop from "./InvestSimulationPop";
+import IdeaRegistFinalSubmitPop from "./IdeaRegistFinalSubmitPop";
 
 type Props = {
   activeIndex: number;
@@ -71,6 +72,8 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
   const [contents, setIdeaContents] = useState<IdeaContentsType>();
   const [selectedTheme, setSelectedTheme] = useState<Category>();
   const [ideaName, setIdeaName] = useState("");
+  const [closeDt, setCloseDt] = useState("");
+  const [status, setStatus] = useState("");
   const [repreFilesMap, setRepreFilesMap] = useState<Map<string, string>>(
     new Map()
   );
@@ -106,11 +109,18 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
 
   // step4 관련
   const [isInvestSimulationOpen, setInvestSimulationOpen] = useState(false); // 투자 시뮬레이션 모달
+  const [isFinalSubmitOpen, setFinalSubmitOpen] = useState(false); // 투자 시뮬레이션 모달
   const showInvestSimulationModal = () => {
     setInvestSimulationOpen(true);
   };
   const closInvestSimulationModal = () => {
     setInvestSimulationOpen(false);
+  };
+  const showFinalSubmitModal = () => {
+    setFinalSubmitOpen(true);
+  };
+  const closFinalSubmitModal = () => {
+    setFinalSubmitOpen(false);
   };
 
   const performanceParams = {
@@ -185,8 +195,6 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
       const calAverageSales =
         newPlan.slice(0, 5).reduce((sum, value) => sum + value.sales, 0) / 5;
       setAverageSales(calAverageSales);
-
-      console.log("평균매출 : " + calAverageSales);
     }
   }, [costItems, profitMargin, tradeCounts, employeeCounts]);
 
@@ -239,6 +247,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
         psr_value: contents?.theme.psr_value,
       });
       setEditorContent(contents?.content);
+      setCloseDt(contents?.close_date);
     }
     if (contents?.images) {
       const files = contents.images.map((images) => {
@@ -277,6 +286,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
   useEffect(() => {
     if (ideaId == "init") {
       setIdeaId("");
+      setCloseDt("");
       setIdeaContents(initializeIdeaContents);
       setCostItems(defaultPriceData);
       setTradeCounts([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
@@ -306,24 +316,34 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
     }
   };
 
-  // 버튼
-  const onSubmit = () => {
-    console.log("최종 업로드");
+  const clickFinalSubmit = () => {
+    // 최종 제출
     if (!ideationId) {
-      saveNewIdea().then((data) => {
+      saveNewIdea("final").then((data) => {
         checkAndSaveFinanceData(data.id).then((data) => {
+          closFinalSubmitModal();
           alert(data);
+          router.push("./registerList");
         });
       });
     } else {
-      checkAndSaveFinanceData(ideationId).then((data) => {
-        alert(data);
+      updateIdea("final").then((data) => {
+        checkAndSaveFinanceData(ideationId).then((data) => {
+          closFinalSubmitModal();
+          alert(data);
+          router.push("./registerList");
+        });
       });
     }
-    //router.push("./registerList");
   };
 
-  const saveNewIdea = (): Promise<SaveNewIdeaResponse> => {
+  // 버튼
+  const onSubmit = () => {
+    console.log("최종 업로드");
+    showFinalSubmitModal();
+  };
+
+  const saveNewIdea = (statue: string): Promise<SaveNewIdeaResponse> => {
     return new Promise(async (resolve, reject) => {
       try {
         // 유효성 검사
@@ -353,6 +373,12 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
         formData.append("title", ideaName);
         formData.append("content", editorContent);
         formData.append("theme_id", selectedTheme.id);
+        if (statue == "final") {
+          const date = new Date(); // 현재 날짜
+          date.setDate(date.getDate() + 30); // 30일 추가
+          const futureDate = date.toISOString();
+          formData.append("close_date", futureDate);
+        }
 
         repreFiles.forEach((file) => {
           formData.append("images", file, file.name);
@@ -388,7 +414,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
     });
   };
 
-  const updateIdea = () => {
+  const updateIdea = (statue: string) => {
     return new Promise(async (resolve, reject) => {
       try {
         // 유효성 검사
@@ -408,10 +434,16 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
           return;
         }
 
+        // close_dt 셋팅팅
+        const date = new Date(); // 현재 날짜
+        date.setDate(date.getDate() + 30); // 30일 추가
+        const futureDate = date.toISOString();
+
         const queryParams = new URLSearchParams({
           title: ideaName,
           content: editorContent,
           theme_id: selectedTheme.id,
+          close_date: statue == "final" ? futureDate : closeDt,
         }).toString();
 
         const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/${ideaId}?${queryParams}`;
@@ -446,11 +478,11 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
         // 아이디어 내용 저장
         case 0:
           if (ideaId === "init") {
-            await saveNewIdea().then((data) => {
+            await saveNewIdea("").then((data) => {
               alert("아이디어가 성공적으로 저장되었습니다.");
             }); // 아이디어 최초 저장
           } else {
-            await updateIdea().then((data) => {
+            await updateIdea("").then((data) => {
               alert("성공적으로 저장되었습니다.");
             }); // 아이디어 업데이트
           }
@@ -458,7 +490,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
         case 2:
           if (!ideationId) {
             // 아이디어 저장 먼저 하고 step2 저장 함수로 이동
-            saveNewIdea().then((data) => {
+            saveNewIdea("").then((data) => {
               checkAndSaveFinanceData(data.id).then((data) => {
                 alert("성공적으로 저장되었습니다.");
               });
@@ -1539,6 +1571,23 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
             height: "800px",
             padding: "40px",
             borderRadius: "8px",
+          }}
+        />
+
+        {/* 최종 제출 팝업 */}
+        <ModalComponent
+          isOpen={isFinalSubmitOpen}
+          closeModal={closFinalSubmitModal}
+          content={
+            <IdeaRegistFinalSubmitPop
+              closeModal={closFinalSubmitModal}
+              clickFinalSubmit={clickFinalSubmit}
+            />
+          }
+          customStyles={{
+            width: "600px",
+            height: "300px",
+            padding: "22px 24px 22px 24px",
           }}
         />
       </>

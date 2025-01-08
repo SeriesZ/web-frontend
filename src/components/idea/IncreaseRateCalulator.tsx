@@ -15,6 +15,7 @@ interface Props {
 // [인상률 설정]
 const IncreaseRateCalulator: React.FC<Props> = ({ inputHide, itemData }) => {
   const inputRef = useRef<HTMLInputElement>(null);
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const { costItems, setCostItems } = itemData;
 
   // 기존 원가 항목의 금액을 변경
@@ -91,10 +92,9 @@ const IncreaseRateCalulator: React.FC<Props> = ({ inputHide, itemData }) => {
                 <div key={index} className={styled.inputItem}>
                   {item.id !== 9999 && <div className={styled.iconInfo}></div>}
                   <div className={styled.title}>
-                    <input
-                      type="text"
-                      className={styled.inputText}
-                      ref={inputRef}
+                    <textarea
+                      className={styled.inputTextarea}
+                      ref={textAreaRef}
                       defaultValue={item.name}
                       onChange={(e) =>
                         handleNameChange(item.apiId, e.target.value)

@@ -104,8 +104,10 @@
         }
       }
       .warningInfo {
+        font-size: 14px;
         max-width: 587px;
         margin-bottom: 26px;
+        color: #808080a0;
       }
       .logo {
         @include background;

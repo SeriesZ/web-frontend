@@ -2,7 +2,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { EffectCoverflow, Pagination, Navigation } from "swiper/modules";
+import {
+  EffectCoverflow,
+  Pagination,
+  Navigation,
+  Autoplay,
+} from "swiper/modules";
 import { Category, IdeaContentsType } from "@/model/IdeaList";
 import styled from "@/components/main/MainComponent.module.scss";
 import CategoryItem from "./CategoryItem";
@@ -32,6 +37,7 @@ const IdeaList = (props: Props) => {
 
   // 배너 스와이프 버튼
   const handleActiveIndex = (index: number) => {
+    console.log("변경");
     setActiveIndex(index);
   };
 
@@ -68,11 +74,21 @@ const IdeaList = (props: Props) => {
 
         const themes = await fetch(fetchUrl);
         const themesData = await themes.json();
+
         let ideaDataList: IdeaContentsType[] = [];
         Object.keys(themesData).map((item, index) => {
           themesData[item].forEach((element: IdeaContentsType) => {
-            ideaDataList.push(element);
+            if (element.close_date) {
+              ideaDataList.push(element); // 최종 제출이 된 건만 표시
+            }
           });
+        });
+
+        // close_date가 최신순으로 정렬
+        ideaDataList.sort((a, b) => {
+          const dateA = new Date(a.close_date).getTime(); // close_date를 Date 객체로 변환
+          const dateB = new Date(b.close_date).getTime();
+          return dateB - dateA; // 최신순 정렬
         });
 
         setListData(ideaDataList);
@@ -118,8 +134,17 @@ const IdeaList = (props: Props) => {
       let ideaDataList: IdeaContentsType[] = [];
       Object.keys(themesData).map((item, index) => {
         themesData[item].forEach((element: IdeaContentsType) => {
-          ideaDataList.push(element);
+          if (element.close_date) {
+            ideaDataList.push(element); // 최종 제출이 된 건만 표시
+          }
         });
+      });
+
+      // close_date가 최신순으로 정렬
+      ideaDataList.sort((a, b) => {
+        const dateA = new Date(a.close_date).getTime(); // close_date를 Date 객체로 변환
+        const dateB = new Date(b.close_date).getTime();
+        return dateB - dateA; // 최신순 정렬
       });
 
       setListData(ideaDataList);
@@ -129,6 +154,27 @@ const IdeaList = (props: Props) => {
   };
 
   const swiperData = [
+    {
+      id: 1,
+      title: "홈짐",
+      desc: "나만의 PT 선생님",
+      adYn: "Y",
+      image: "/images/ideaContents_homeGyn.png",
+    },
+    {
+      id: 2,
+      title: "마이풋볼러",
+      desc: "내 축구선수의 꿈을 이루어주는 트레이닝 코치",
+      adYn: "N",
+      image: "/images/ideaContents_myfootball.png",
+    },
+    {
+      id: 3,
+      title: "R House",
+      desc: "무인 로봇이 운영하는 차세대 첨단 숙박시설",
+      adYn: "Y",
+      image: "/images/ideaContents_rHouse.png",
+    },
     {
       id: 1,
       title: "홈짐",
@@ -178,21 +224,26 @@ const IdeaList = (props: Props) => {
             prevEl: prevButtonRef.current,
             nextEl: nextButtonRef.current,
           }}
-          slidesPerView={3}
-          spaceBetween={64}
+          slidesPerView={2}
+          spaceBetween={-300}
+          initialSlide={1}
           pagination={true}
           centeredSlides={true}
-          initialSlide={1}
+          loop={true}
           coverflowEffect={{
             rotate: 0,
             stretch: 0,
-            depth: 100,
+            depth: 200,
             modifier: 1,
             slideShadows: false,
           }}
+          autoplay={{
+            delay: 3000, // 3초마다 자동으로 넘기기
+            disableOnInteraction: false, // 유저가 슬라이드 넘겨도 autoplay 유지
+          }}
           onSwiper={setSwiper}
           onSlideChange={(swiper: any) => handleActiveIndex(swiper.activeIndex)}
-          modules={[EffectCoverflow, Navigation]}
+          modules={[EffectCoverflow, Navigation, Autoplay]}
         >
           {swiperData.map((item, index) => {
             return (

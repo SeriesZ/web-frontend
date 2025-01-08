@@ -2,7 +2,7 @@
 import React from "react";
 import styled from "@/components/main/MainComponent.module.scss";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination } from "swiper/modules";
+import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 
@@ -59,7 +59,16 @@ const MainSwiper = (props: Props) => {
   return (
     <div className={styled.mainSwiper}>
       <div className={styled.swiperWrap}>
-        <Swiper slidesPerView={1} pagination={true} modules={[Pagination]}>
+        <Swiper
+          slidesPerView={1}
+          pagination={true}
+          autoplay={{
+            delay: 3000, // 3초마다 자동으로 넘기기
+            disableOnInteraction: false, // 유저가 슬라이드 넘겨도 autoplay 유지
+          }}
+          loop={true} // 마지막 슬라이드에서 첫 슬라이드로 순환
+          modules={[Pagination, Autoplay]}
+        >
           {swiperData.map((item, index) => {
             return <SwiperSlide key={item.id}>{item.content}</SwiperSlide>;
           })}

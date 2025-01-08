@@ -4,6 +4,7 @@ import ThemeIdea from "./ThemeIdea";
 import CorpList from "./CorpList";
 import Magazine from "./Magazine";
 import NoticePreview from "./NoticePreview";
+import AccountInfo from "./AccountInfo";
 
 type Props = {};
 
@@ -14,6 +15,7 @@ const MainComponent = (props: Props) => {
       <CorpList />
       <Magazine />
       <NoticePreview />
+      <AccountInfo />
     </div>
   );
 };
