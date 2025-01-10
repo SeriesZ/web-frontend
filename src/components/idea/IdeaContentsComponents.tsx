@@ -30,6 +30,8 @@ import {
   useFinanceStore,
   updatePriceDataFromServer,
 } from "@/model/financeType";
+import html2pdf from "html2pdf.js";
+import DaumPostcode from "react-daum-postcode";
 
 type Props = {
   activeIndex: number;

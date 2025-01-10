@@ -8,6 +8,7 @@ import {
   IdeaContentsType,
   initializeIdeaContents,
 } from "@/model/IdeaList";
+import html2pdf from "html2pdf.js";
 
 interface Props {
   itemData: {
@@ -27,7 +28,6 @@ const InvestSimulationPop: React.FC<Props> = ({ itemData, contents }) => {
     positiveYear,
   };
 
-  const contentRef = useRef<HTMLDivElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [capitalAmt, setCapitalAmt] = useState<string>("0");
   const [ownershipPercentage, setOwnershipPercentage] = useState<number>(0); //지분율
@@ -84,7 +84,7 @@ const InvestSimulationPop: React.FC<Props> = ({ itemData, contents }) => {
         <div className={styled.downloadImg}></div>
         Export
       </div>
-      <div ref={contentRef}>
+      <div>
         <div>
           <div className={styled.majorTitle}>투자 시뮬레이션</div>
           <div className={styled.middleTitle}>

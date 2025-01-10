@@ -4,6 +4,7 @@ import styled from "@/components/idea/InvestPop.module.scss";
 import SearchAddressPop from "./SearchAddressPop";
 import Modal from "react-modal";
 import html2pdf from "html2pdf.js";
+import DaumPostcode from "react-daum-postcode";
 
 type Investor = {
   id: number;

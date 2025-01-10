@@ -14,6 +14,7 @@ import {
   transformDataForServer,
   updatePriceDataFromServer,
 } from "@/model/financeType";
+import DaumPostcode from "react-daum-postcode";
 
 type Props = {};
 const IdeaContentsComponents = dynamic(
