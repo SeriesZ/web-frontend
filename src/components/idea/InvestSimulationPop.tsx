@@ -8,41 +8,31 @@ import {
   IdeaContentsType,
   initializeIdeaContents,
 } from "@/model/IdeaList";
-//import jsPDF from "jspdf";
-//import html2canvas from "html2canvas";
 
 interface Props {
   itemData: {
-    ideaName: string;
-    editorContent: string;
-    selectedTheme?: Category;
-    imagePreview: string;
     costItems: ICostInputItem[];
     setCostItems: React.Dispatch<React.SetStateAction<ICostInputItem[]>>;
     maraketCap: number;
     plan: YearData[];
     positiveYear: number;
   };
+  contents: IdeaContentsType;
 }
 
-const InvestSimulationPop: React.FC<Props> = ({ itemData }) => {
-  const {
-    ideaName,
-    editorContent,
-    selectedTheme,
-    imagePreview,
-    costItems,
-    setCostItems,
-    maraketCap,
-    plan,
-    positiveYear,
-  } = itemData;
+const InvestSimulationPop: React.FC<Props> = ({ itemData, contents }) => {
+  const { costItems, setCostItems, maraketCap, plan, positiveYear } = itemData;
   const performanceParams = {
     plan,
     positiveYear,
   };
+
+  const contentRef = useRef<HTMLDivElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
-  const contentRef = useRef<HTMLDivElement>(null); // ref에 타입 설정
+  const [capitalAmt, setCapitalAmt] = useState<string>("0");
+  const [ownershipPercentage, setOwnershipPercentage] = useState<number>(0); //지분율
+  const [ownershipCnt, setOwnershiCnt] = useState<number>(0); //취득 주식수수
+
   const charLimit = 100; // 500자 제한
   const handleToggle = () => {
     setIsExpanded(!isExpanded);
@@ -51,7 +41,7 @@ const InvestSimulationPop: React.FC<Props> = ({ itemData }) => {
     return input.replace(/<[^>]*>/g, "").trim();
   }
 
-  const cleanedText = removeHtmlTags(editorContent);
+  const cleanedText = removeHtmlTags(contents?.content);
   const parValueItem = costItems.find((item) => item.apiId === "par_value");
   const parValue = parValueItem ? parValueItem.amount : 0;
   const totalStockCnt = maraketCap / parValue;
@@ -69,69 +59,24 @@ const InvestSimulationPop: React.FC<Props> = ({ itemData }) => {
     return `${year}.${month}.${day}`; // "2024.12.12" 형식
   }
 
-  // PDF 다운로드 함수
-  /*
-  const handleDownloadPDF = () => {
-    console.log("PDF 다운로드 버튼 클릭됨");
-    const input = contentRef.current;
-
-    if (input) {
-      const padding = 20; // 패딩값 (단위: mm)
-      const pageWidth = 210; // A4 너비 (mm)
-      const pageHeight = 297; // A4 높이 (mm)
-
-      html2canvas(input, { scale: 2 })
-        .then((canvas) => {
-          const imgData = canvas.toDataURL("image/png");
-          const pdf = new jsPDF("p", "mm", "a4");
-
-          const imgWidth = pageWidth - padding * 2; // 패딩 적용 너비
-          const imgHeight = (canvas.height * imgWidth) / canvas.width; // 비율에 맞춘 높이
-
-          let heightLeft = imgHeight;
-          let position = padding;
-
-          // 첫 페이지에 이미지 삽입
-          pdf.addImage(imgData, "PNG", padding, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight - padding * 2;
-
-          // 남은 이미지가 있으면 새로운 페이지에 추가
-          while (heightLeft > 0) {
-            position -= pageHeight - padding * 2; // 이미지 위치 조정
-            pdf.addPage(); // 새로운 페이지 추가
-            pdf.addImage(
-              imgData,
-              "PNG",
-              padding,
-              position,
-              imgWidth,
-              imgHeight
-            );
-            heightLeft -= pageHeight - padding * 2;
-          }
-
-          pdf.save("download.pdf");
-        })
-        .catch((error) => {
-          console.error("PDF 생성 중 오류 발생:", error);
-        });
+  // 자본금 입력되면 콤마 찍기
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/,/g, ""); // 입력 값에서 콤마 제거
+    if (!isNaN(Number(rawValue))) {
+      const formattedValue = new Intl.NumberFormat().format(Number(rawValue)); // 세 자리마다 콤마 추가
+      setCapitalAmt(formattedValue); // 상태 업데이트
     }
   };
-*/
 
-  // 워드 다운로드 함수
-  // const handleDownloadWord = () => {
-  //   if (contentRef.current) {
-  //     const htmlContent = contentRef.current.outerHTML; // HTML 내용 가져오기
-  //     const docx = htmlDocx.asBlob(htmlContent) as Blob; // 반환값을 Blob으로 명시적으로 지정
+  // 투자금금 비용계산하기
+  const clickCalBtn = () => {
+    const rawValue = capitalAmt.replace(/,/g, "");
+    const ownershipPercentageCal = (maraketCap / Number(rawValue)) * 0.01; // 지분율
+    const ownershipCntCal = maraketCap / Number(rawValue);
 
-  //     // Blob을 Word 파일로 저장
-  //     const link = document.createElement("a");
-  //     link.href = URL.createObjectURL(docx);
-  //     link.download = "exported.docx";
-  //     link.click();
-  //   }
-  // };
+    setOwnershipPercentage(ownershipPercentageCal);
+    setOwnershiCnt(ownershipCntCal);
+  };
 
   return (
     <div className={styled.modalContainer}>
@@ -161,13 +106,13 @@ const InvestSimulationPop: React.FC<Props> = ({ itemData }) => {
                   <td>
                     <img
                       className={styled.ideaImg}
-                      src={imagePreview ? imagePreview : ""}
+                      src={contents.images[0].file_path}
                     />
                   </td>
                 </tr>
                 <tr>
                   <td colSpan={2}>아이디어 명</td>
-                  <td>{ideaName}</td>
+                  <td>{contents?.title}</td>
                 </tr>
                 <tr>
                   <td colSpan={2}>아이디어 설명</td>
@@ -195,9 +140,7 @@ const InvestSimulationPop: React.FC<Props> = ({ itemData }) => {
                 </tr>
                 <tr>
                   <td colSpan={2}>산업 구분</td>
-                  <td>
-                    {selectedTheme ? selectedTheme?.name : "선택해주세요"}
-                  </td>
+                  <td>{contents?.theme?.name}</td>
                 </tr>
                 <tr>
                   <td colSpan={2}>아이디어 보유자</td>
@@ -232,10 +175,8 @@ const InvestSimulationPop: React.FC<Props> = ({ itemData }) => {
               <tbody>
                 <tr className={styled.investSettingTableCol}>
                   <td>PSR</td>
-                  <td>
-                    {selectedTheme ? selectedTheme?.name : "선택해주세요"}
-                  </td>
-                  <td>{selectedTheme ? selectedTheme?.psr_value : "0"}</td>
+                  <td>{contents?.theme?.name}</td>
+                  <td>{contents?.theme?.psr_value}</td>
                 </tr>
                 <tr>
                   <td>예상 시가총액 (PSR Valuation)</td>
@@ -294,15 +235,15 @@ const InvestSimulationPop: React.FC<Props> = ({ itemData }) => {
               <tbody className={styled.investAmtTable}>
                 <tr className={`${styled.investAmtTableCol}`}>
                   <td>개인 투자금액</td>
-                  <td className={styled.focusAmt}>100,000,000원</td>
+                  <td className={styled.focusAmt}>{capitalAmt}</td>
                 </tr>
                 <tr>
                   <td>지분율</td>
-                  <td>10.3%</td>
+                  <td>{ownershipPercentage}%</td>
                 </tr>
                 <tr>
                   <td>취득 주식 수</td>
-                  <td>100,000주</td>
+                  <td>{ownershipCnt.toLocaleString()}주</td>
                 </tr>
                 <tr>
                   <td>(EXIT까지의) 수익율</td>
@@ -321,8 +262,15 @@ const InvestSimulationPop: React.FC<Props> = ({ itemData }) => {
               type="text"
               id="investment"
               placeholder="금액을 입력하세요."
+              value={capitalAmt} // 포맷된 값 사용
+              onChange={handleInputChange} // 입력 값 변경 핸들러
             />
-            <button type="button">입력</button>
+            <button
+              type="button"
+              onClick={clickCalBtn} // 버튼 클릭 시 상태 출력
+            >
+              입력
+            </button>
           </div>
           <div className={styled.majorTitle}>
             EXIT 시뮬레이션<span></span>

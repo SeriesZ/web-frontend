@@ -12,8 +12,10 @@ type Investor = {
 const ContractSignPop: React.FC<{
   closeModal: () => void;
   data: any;
+  openRoot: string;
   openChatPop: (data: any) => void;
-}> = ({ closeModal, data, openChatPop }) => {
+  onSignComplete: (imageUrl: string) => void; // 서명 이미지 전달
+}> = ({ closeModal, data, openRoot, openChatPop, onSignComplete }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [drawing, setDrawing] = useState(false);
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
@@ -61,10 +63,8 @@ const ContractSignPop: React.FC<{
     const canvas = canvasRef.current;
     if (canvas) {
       const imageUrl = canvas.toDataURL("image/png");
-      const link = document.createElement("a");
-      link.href = imageUrl;
-      link.download = "drawing.png"; // 저장할 파일 이름
-      link.click();
+      onSignComplete(imageUrl); // ✅ 상위 컴포넌트로 서명 전달
+      closeModal(); // 모달 닫기
     }
   };
 
@@ -93,7 +93,11 @@ const ContractSignPop: React.FC<{
       <div className={styled.actionCell}>
         <button
           onClick={() => {
-            openChatPop(data);
+            if (openRoot == "invest") {
+              saveCanvas();
+            } else {
+              openChatPop(data);
+            }
           }}
         >
           확인

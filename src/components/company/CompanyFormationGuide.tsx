@@ -125,8 +125,8 @@ const CompanyFormationGuide = (props: Props) => {
             <div className={styled.inputContainer}>
               <div className={styled.searchWrap}>
                 <input
-                  id="capitalInput"
                   type="text" // 텍스트로 설정 (콤마 처리 때문에)
+                  id="capitalInput"
                   placeholder="자본금을 입력해주세요."
                   value={capitalAmt} // 포맷된 값 사용
                   onChange={handleInputChange} // 입력 값 변경 핸들러

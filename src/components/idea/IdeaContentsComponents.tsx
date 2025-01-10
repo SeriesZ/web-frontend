@@ -8,18 +8,28 @@ import PsrCalulator from "./PsrCalulator";
 import StockCalulator from "./StockCalulator";
 import InvestSimulationPop from "./InvestSimulationPop";
 import Modal from "react-modal";
-import InvestStatusPop from "./InvestStatusPop";
+import InvestStatusPop from "./popup/InvestStatusPop";
 import userStore from "@/store/userLoginInfo";
-import BeforeCheckContractPop from "./BeforeCheckContractPop";
-import ContractWritePop from "./ContractWritePop";
-import ContractSignPop from "./ContractSignPop";
-import ChatPop from "./ChatPop";
-import IdeaCompanyInfoPop from "./IdeaCompanyInfoPop";
-import InvestSendPop from "./InvestSendPop";
+import BeforeCheckContractPop from "./popup/BeforeCheckContractPop";
+import BeforeCheckInvestPop from "./popup/BeforeCheckInvestPop";
+import ContractWritePop from "./popup/ContractWritePop";
+import ContractSignPop from "./popup/ContractSignPop";
+import ChatPop from "./popup/ChatPop";
+import IdeaCompanyInfoPop from "./popup/IdeaCompanyInfoPop";
+import InvestSendPop from "./popup/InvestSendPop";
+import InvestSecretWritePop from "./popup/InvestSecretWritePop";
+import InvestSecretAplConfirmPop from "./popup/InvestSecretAplConfirmPop";
+import InvestSecretAplDonePop from "./popup/InvestSecretAplDonePop";
 import { Viewer } from "@toast-ui/react-editor";
 import { Category, IdeaContentsType, Attachment } from "@/model/IdeaList";
-import { ICostInputItem, YearData } from "@/model/financeType";
-import { defaultYearData } from "@/model/financeDefaultData";
+import { defaultYearData, defaultPriceData } from "@/model/financeDefaultData";
+import { calculateYearData } from "@/model/financeCalculationFormula";
+import {
+  ICostInputItem,
+  YearData,
+  useFinanceStore,
+  updatePriceDataFromServer,
+} from "@/model/financeType";
 
 type Props = {
   activeIndex: number;
@@ -33,6 +43,7 @@ type Props = {
     sellingPrice: number;
     totalSelYear: number;
     plan: YearData[];
+    setFinanceId: React.Dispatch<React.SetStateAction<string>>;
   };
   setActiveIndex: React.Dispatch<React.SetStateAction<number>>;
 };
@@ -63,6 +74,7 @@ const IdeaContentsComponents = ({
   const [costItems, setCostItems] = useState<ICostInputItem[]>(
     itemData.costItems
   );
+  const [financeId, setFinanceId] = useState<string>();
   const [categoryData, setCategoryData] = useState<Category[]>([]);
   const [selectedTheme4Psr, setSelectedTheme4Psr] =
     useState<Category>(initCategory);
@@ -78,6 +90,9 @@ const IdeaContentsComponents = ({
   const [positiveYear, setPositiveYear] = useState(0);
   const [plan, setPlan] = useState<YearData[]>(itemData.plan);
   const [averageSales, setAverageSales] = useState(0);
+  const { setCostDataAll, getAmountByApiId, costData } = useFinanceStore();
+  const [openRoot, setOpenRoot] = useState<string>("contract");
+  const [signImage, setSignImage] = useState<string>("");
 
   const performanceParams = {
     ideaName,
@@ -108,10 +123,182 @@ const IdeaContentsComponents = ({
     yearData,
     plan,
     averageSales,
+    setFinanceId,
   };
 
   const parValueItem = costItems.find((item) => item.apiId === "par_value");
   const parValue = parValueItem ? parValueItem.amount : 0;
+
+  useEffect(() => {
+    getServerFinanceData();
+  }, [data]);
+
+  useEffect(() => {
+    if (costItems.length > 0) {
+      // 상품가격결정
+      const totalTotal = costItems
+        .filter((item) => item.formPath === "PriceCalculator")
+        .reduce((sum, item) => sum + (item.amount ? item.amount : 0), 0);
+      const sellingPrice = totalTotal + totalTotal * (profitMargin / 100);
+      setTotalCost(totalTotal);
+      setSellingPrice(sellingPrice);
+
+      // 실적 단위 계산
+      const totalSelYear = costItems
+        .filter((item) => item.formPath === "PerformanceCalculator")
+        .reduce((sum, item) => sum + (item.amount ? item.amount : 0), 0);
+      setTotalSelYear(totalSelYear);
+
+      // 매출계획표 데이터 셋팅
+      setCostDataAll(costItems);
+
+      // 매출계획표 계산
+      if (tradeCounts.length > 0 && employeeCounts.length > 0) {
+        const newPlan = create10YearPlan(
+          sellingPrice,
+          totalCost,
+          getAmountByApiId("salary"),
+          getAmountByApiId("business_expense"),
+          getAmountByApiId("office_rent"),
+          getAmountByApiId("maintenance_cost"),
+          getAmountByApiId("ad_cost"),
+          getAmountByApiId("contingency")
+        );
+        setPlan(newPlan);
+
+        // 평균매출 계산
+        const calAverageSales =
+          newPlan.slice(0, 5).reduce((sum, value) => sum + value.sales, 0) / 5;
+        setAverageSales(calAverageSales);
+      }
+    }
+  }, [costItems, profitMargin, tradeCounts, employeeCounts]);
+
+  // 매출계획표 계산
+  const create10YearPlan = (
+    salesPerTransaction: number,
+    salesCostPerTransaction: number,
+    initialSalaryPerStaff: number,
+    businessPromotionCost: number,
+    officeRent: number,
+    entertainmentExpenses: number,
+    advertisingCost: number,
+    contingencyExpenses: number
+  ): YearData[] => {
+    const years: YearData[] = [];
+    let staffCount = employeeCounts[0];
+    let salaryPerStaff = initialSalaryPerStaff;
+    const salaryIncreaseRate = getAmountByApiId("salary_increase_rate");
+    const businessExpenseIncreaseRate = getAmountByApiId(
+      "business_expense_increase_rate"
+    );
+    const officeRentIncreaseRate = getAmountByApiId(
+      "office_rent_increase_rate"
+    );
+    const mainCostIncreaseRate = getAmountByApiId(
+      "maintenance_cost_increase_rate"
+    );
+    const adCostIncreaseRate = getAmountByApiId("ad_cost_increase_rate");
+    const contingencyIncreaseRate = getAmountByApiId(
+      "contingency_increase_rate"
+    );
+
+    for (let year = 1; year <= 10; year++) {
+      if (!tradeCounts[year - 1]) {
+        console.error(
+          `Trade count for year ${year} is missing or invalid:`,
+          tradeCounts[year - 1]
+        );
+      }
+
+      const previousStaffCount =
+        year > 1 ? years[year - 2].staffCount : staffCount;
+      const previousBusinessPromotionCost =
+        year > 1
+          ? years[year - 2].businessPromotionCost
+          : businessPromotionCost;
+      const previousOfficeRent =
+        year > 1 ? years[year - 2].officeRent : officeRent;
+      const yearData = calculateYearData(
+        year,
+        tradeCounts[year - 1],
+        employeeCounts[year - 1],
+        salesPerTransaction,
+        salesCostPerTransaction,
+        salaryPerStaff,
+        businessPromotionCost,
+        officeRent,
+        entertainmentExpenses,
+        advertisingCost,
+        contingencyExpenses,
+        previousStaffCount,
+        previousBusinessPromotionCost,
+        businessExpenseIncreaseRate,
+        previousOfficeRent,
+        officeRentIncreaseRate
+      );
+
+      years.push(yearData);
+
+      // Adjust values for next year
+      salaryPerStaff *= 1 + salaryIncreaseRate * 0.01; // 연봉인상률
+      entertainmentExpenses =
+        entertainmentExpenses * (1 + mainCostIncreaseRate * 0.01);
+      advertisingCost = advertisingCost * (1 + adCostIncreaseRate * 0.01);
+      contingencyExpenses =
+        contingencyExpenses * (1 + contingencyIncreaseRate * 0.01);
+    }
+
+    return years;
+  };
+
+  const getServerFinanceData = (): Promise<any> => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // 공통 URL 및 헤더 설정
+        const financeUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/finance`;
+        const headers = {
+          Authorization: `Bearer ${userInfo.bearer}`,
+          Accept: "application/json",
+        };
+
+        // 데이터 존재 여부 확인
+        const checkResponse = await fetch(`${financeUrl}/${data.id}`, {
+          method: "GET",
+          headers,
+        });
+
+        // 404 예외 처리
+        if (checkResponse.status === 404) {
+          console.warn("데이터를 찾을 수 없습니다. (404)");
+          setCostItems(defaultPriceData);
+          setTradeCounts([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+          setEmployeeCounts([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+          resolve(null); // 데이터가 없음을 resolve
+          return;
+        }
+
+        if (checkResponse.ok) {
+          const data = await checkResponse.json();
+          const updatedData = updatePriceDataFromServer(defaultPriceData, data);
+
+          setFinanceId(data.id);
+          setCostItems(updatedData);
+          setProfitMargin(data.profit_rate);
+          setEmployeeCounts(data.employee_counts);
+          setTradeCounts(data.trade_counts);
+          resolve(data); // 데이터를 resolve
+        } else {
+          const error = `Failed to fetch data: ${checkResponse.statusText}`;
+          console.error(error);
+          reject(error); // 실패 시 reject
+        }
+      } catch (error) {
+        console.error("An error occurred:", error);
+        reject("An error occurred while fetching finance data."); // 오류 시 reject
+      }
+    });
+  };
 
   // 화면 동적 구성
   const attachSetArray = data.attachments.map((file, index) => (
@@ -269,7 +456,13 @@ const IdeaContentsComponents = ({
   const [isContractSignOpen, setContractSignOpen] = useState(false); // 전자서명 모달
   const [isChatOpen, setChatOpen] = useState(false); // 채팅방 모달
   const [isIdeaCompanyInfoOpen, setIdeaCompanyInfoOpen] = useState(false); // 아이디어 보유자 정보 모달
-  const [isInvestSendOpen, setInvestSendOpen] = useState(false); // 투자의향전달달 모달
+  const [isInvestSendOpen, setInvestSendOpen] = useState(false); // 투자의향전달 모달
+  const [isBeforeInvestOpen, setBeforeInvestOpen] = useState(false); // 투자의향전달 비밀유지협약 확인 모달
+  const [isInvestSecretWriteOpen, setInvestSecretWriteOpen] = useState(false); // 투자의향전달 비밀유지협약서
+  const [isInvestSecretAplConfirmOpen, setInvestSecretAplConfirmOpen] =
+    useState(false); // 투자의향전달 비밀유지협약서
+  const [isInvestSecretAplDoneOpen, setInvestSecretAplDoneOpen] =
+    useState(false); //  투자의향 신청 완료 팝업
   const [investorInfo, setInvestorInfo] = useState<any>(null);
 
   const showInvestSimulationModal = () => {
@@ -326,6 +519,15 @@ const IdeaContentsComponents = ({
   const closInvestSendModal = () => {
     setInvestSendOpen(false);
   };
+  const closInvestSecretWriteModal = () => {
+    setInvestSecretWriteOpen(false);
+  };
+  const closInvestSecretAplConfirmModal = () => {
+    setInvestSecretAplConfirmOpen(false);
+  };
+  const closInvestSecretAplDoneModal = () => {
+    setInvestSecretAplDoneOpen(false);
+  };
 
   const openBeforeCheckContractPop = (data: any) => {
     setInvestorInfo(data);
@@ -339,6 +541,7 @@ const IdeaContentsComponents = ({
   };
   const openContractSignPop = (data: any) => {
     setInvestorInfo(data);
+    setOpenRoot("contract");
     setContractWriteOpen(false);
     showContractSignModal();
   };
@@ -346,6 +549,39 @@ const IdeaContentsComponents = ({
     setInvestorInfo(data);
     setContractSignOpen(false);
     showChatModal();
+  };
+  const openBeforeCheckInvestPop = (data: any) => {
+    setInvestorInfo(data);
+    setBeforeInvestOpen(true);
+    setInvestSendOpen(false);
+  };
+  const openInvestSecretWritePop = (data: any) => {
+    setInvestorInfo(data);
+    setInvestSecretWriteOpen(true);
+    setBeforeInvestOpen(false);
+  };
+  const openContractSign4SecretPop = (data: any) => {
+    setInvestorInfo(data);
+    setOpenRoot("invest");
+    showContractSignModal();
+    setInvestSecretWriteOpen(false);
+  };
+  const onSignComplete = (imgUrl: string) => {
+    setSignImage(imgUrl);
+    setInvestSecretWriteOpen(true);
+  };
+  const openInvestSecretAplConfirmPop = (data: any) => {
+    setInvestorInfo(data);
+    setInvestSecretAplConfirmOpen(true);
+    setInvestSecretWriteOpen(false);
+  };
+  const clickInvestAplDone = () => {
+    setInvestSecretAplDoneOpen(true);
+    setInvestSecretAplConfirmOpen(false);
+  };
+  const moveInvestList = () => {
+    //showContractSignModal();
+    setInvestSecretAplDoneOpen(false);
   };
 
   const Step1 = () => {
@@ -397,7 +633,7 @@ const IdeaContentsComponents = ({
                 className={`${styled.btn} ${styled.blueBtn}`}
                 onClick={showFinalInvestStatusModal}
               >
-                최종 매칭신청형황
+                최종 매칭신청현황
               </div>
               <div className={styled.bookMarkShareWrap}>
                 <div className={styled.iconWrap}>
@@ -552,6 +788,8 @@ const IdeaContentsComponents = ({
             <ContractSignPop
               closeModal={closContractSignModal}
               data={investorInfo}
+              openRoot={openRoot}
+              onSignComplete={onSignComplete}
               openChatPop={openChatPop}
             />
           }
@@ -600,11 +838,84 @@ const IdeaContentsComponents = ({
             <InvestSendPop
               closeModal={closInvestSendModal}
               data={investorInfo}
+              openBeforeCheckInvestPop={openBeforeCheckInvestPop}
             />
           }
           customStyles={{
             width: "800px",
             height: "649px",
+            padding: "40px",
+          }}
+        />
+
+        {/* 투자의향전달 > 비밀유지협약 확인 모달 */}
+        <ModalComponent
+          isOpen={isBeforeInvestOpen}
+          closeModal={closInvestSendModal}
+          content={
+            <BeforeCheckInvestPop
+              closeModal={closInvestSendModal}
+              data={investorInfo}
+              openInvestSecretWritePop={openInvestSecretWritePop}
+            />
+          }
+          customStyles={{
+            width: "770px",
+            height: "305px",
+            padding: "40px 40px 0 40px",
+          }}
+        />
+
+        {/* 비밀유지계약서 */}
+        <ModalComponent
+          isOpen={isInvestSecretWriteOpen}
+          closeModal={closInvestSecretWriteModal}
+          content={
+            <InvestSecretWritePop
+              closeModal={closInvestSecretWriteModal}
+              data={investorInfo}
+              signImage={signImage}
+              openContractSign4SecretPop={openContractSign4SecretPop}
+              openInvestSecretAplConfirmPop={openInvestSecretAplConfirmPop}
+            />
+          }
+          customStyles={{
+            width: "800px",
+            height: "87%",
+            padding: "40px 30px",
+          }}
+        />
+
+        {/* 투자의향신청 완료 체크 */}
+        <ModalComponent
+          isOpen={isInvestSecretAplConfirmOpen}
+          closeModal={closInvestSendModal}
+          content={
+            <InvestSecretAplConfirmPop
+              closeModal={closInvestSendModal}
+              clickInvestAplDone={clickInvestAplDone}
+            />
+          }
+          customStyles={{
+            width: "600px",
+            height: "220px",
+            padding: "40px",
+          }}
+        />
+
+        {/* 투자의향 신청 완료 */}
+        <ModalComponent
+          isOpen={isInvestSecretAplDoneOpen}
+          closeModal={closInvestSecretAplDoneModal}
+          content={
+            <InvestSecretAplDonePop
+              closeModal={closInvestSecretAplDoneModal}
+              moveInvestList={moveInvestList}
+            />
+          }
+          customStyles={{
+            width: "600px",
+            height: "460px",
             padding: "40px",
           }}
         />
@@ -735,7 +1046,10 @@ const IdeaContentsComponents = ({
           content={
             <div>
               {" "}
-              <InvestSimulationPop itemData={performanceParams} />
+              <InvestSimulationPop
+                itemData={performanceParams}
+                contents={data}
+              />
               <div className={styled.modalBtn}>
                 <button
                   onClick={closInvestSimulationModal}

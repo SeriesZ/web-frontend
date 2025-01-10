@@ -153,7 +153,9 @@
       font-size: 14px;
       margin-right: 10px;
     }
-    
+    input[type="text"]:focus {
+        border: 1px solid var(--main-color, #1363DF);
+      }
     .inputWrap button {
       background-color: #1363DF;
       color: white;
@@ -457,7 +459,10 @@
       font-weight: 400;
       line-height: 23px;
       letter-spacing: -0.06400000303983688px;
-      text-align: left;    
+      text-align: left;  
+      p {
+        font-weight: 600;
+      }  
     }
     .note {
       font-family: Pretendard;
@@ -475,6 +480,14 @@
       letter-spacing: -0.06400000303983688px;
       text-align: left;      
     }
+    .dateCenter {
+      font-family: Pretendard;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 23px;
+      letter-spacing: -0.06400000303983688px;
+      text-align: center;      
+    }
     .signatures {
       display: flex;
       height: Hug (251px)px;
@@ -491,6 +504,7 @@
       }
       .signatureText {
         margin-left: 8px;
+        cursor: pointer;
       }
       .signature {
         display: flex;
@@ -543,7 +557,12 @@
             text-align: left;
             color: #4C4C4C;
           }
-          &.sign p {
+          &.sign {
+            align-items: center;
+          }
+          &.sign div {
+            display: flex;
+            align-items: center;
             width: 260px;
             font-family: Pretendard;
             font-size: 14px;
@@ -585,7 +604,9 @@
         color: #FFFFFF;
         background: #1363DF;
       }
-      
+      button:first-child:hover {
+        background-color: #003B97;
+      }
       button:last-child {
         align-items: right;
         color: #373E44;
@@ -945,15 +966,17 @@
     text-align: center;
   }
   th, td {
-    border-width: 1px;
-    border-style: solid;
-    border-color: #B6BDC4;
+    border: 1px solid #E8ECF2;
     padding: 10px;
+    font-size: 14px;
+    font-weight: 400;
+    color: #000;
+    text-align: center;
   }
   th {
     width: 336px;
     height: 18px;
-    background-color: #B6BDC480;
+    background-color: rgba(232, 236, 242, 0.5);
     font-family: Inter;
     font-size: 14px;
     font-weight: 600;
@@ -972,7 +995,7 @@
     text-decoration-skip-ink: none;    
   }
   table td:first-child {
-    background-color: #B6BDC433;
+    background-color: rgba(232, 236, 242, 0.2);
   }
   .buttonSection {
     display: flex;
@@ -1008,6 +1031,305 @@
   }
 }
 
+/* 주소찾기 */
+.searchAddressPopContainer {
+  display: flex;
+  flex-direction: column;  /* 세로 정렬 */
+  justify-content: flex-end;  /* ✅ 하단으로 정렬 */
+  align-items: center;     /* 가운데 정렬 */
+  height: 100%;            /* 전체 높이 */
+  button {
+    width: 140px;
+    height: 42px;
+    padding: 9px 10px;
+    border-radius: 6px;
+    border: none; 
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 16.71px;
+    text-align: center;      
+    color: #FFFFFF;
+    background: #1363DF;   
+    margin-top: 40px;  /* 위쪽 요소와 간격 */   
+  }
+  button:hover {
+    background-color: #0056b3;
+  }
+}
 
+/* 비밀유지계약서 작성 팝업 */
+.investSecretWritePopContainer {
+  .container {
+    display: flex;
+    flex-direction: column; 
+    gap: 20px;
+    .headerWrap {
+      display: flex;              /* ✅ Flexbox 적용 */
+      justify-content: space-between; /* ✅ 양쪽 끝으로 정렬 */
+      align-items: center;        /* ✅ 수직 중앙 정렬 */
+      width: 100%;               /* ✅ 전체 너비 */
+    }
+    h1 {
+      font-family: Inter;
+      font-size: 22px;
+      font-weight: 600;
+      line-height: 32px;
+    }
+    .btn{
+      width: 100px;
+      height: 25px;
+      gap: 10px;
+      font-size: 15px;
+      border-radius: 3px;
+      border: 1px;
+      justify-content: left;
+      background: #FFFFFF;
+      border: 1px solid #B6BDC4;
+      display: flex;                
+      align-items: center;        
+      cursor: pointer;    
+      justify-content: center;      
+      .downloadImg {
+          @include background;
+          background-image: url("/images/icon-download-file.png");
+          width: 15px;
+          height: 15px;
+          gap: 0px;  
+      }
+    }
+    .btn:hover{
+      background: #e6e6e638;
+    }
+    .subTitle {
+      font-family: Pretendard;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 23px;
+      letter-spacing: -0.06400000303983688px;
+      color: #616161;  
+      strong {
+        color: var(--main-color, #1363DF);
+      }
+    }
+    .contents {
+      font-family: Pretendard;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 23px;
+      letter-spacing: -0.06400000303983688px;
+      text-align: left;  
+      p {
+        font-weight: 600;
+      }  
+    }
+    .note {
+      font-family: Pretendard;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 23px;
+      letter-spacing: -0.06400000303983688px;
+      text-align: center;      
+    }
+    .date {
+      font-family: Pretendard;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 23px;
+      letter-spacing: -0.06400000303983688px;
+      text-align: left;      
+    }
+    .dateCenter {
+      font-family: Pretendard;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 23px;
+      letter-spacing: -0.06400000303983688px;
+      text-align: center;      
+    }
+    .signatures {
+      display: flex;
+      height: Hug (251px)px;
+      padding: 20px 0px 20px 0px;
+      justify-content: space-between;
+      h3 {
+        font-family: Pretendard;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 23px;
+        letter-spacing: -0.06400000303983688px;
+        text-align: left;    
+        margin-bottom: 16px;      
+      }
+      .signatureText {
+        margin-left: 8px;
+        cursor: pointer;
+      }
+      .signature {
+        display: flex;
+        flex-direction: column; 
+        p {
+          font-family: Pretendard;
+          font-size: 14px;
+          font-weight: bolder;
+          line-height: 16.71px;
+          text-align: left;      
+          margin-bottom: 10px;
+        }
+        span {
+          display: inline-block;
+          width: 28px;
+          font-family: Pretendard;
+          font-size: 14px;
+          font-weight: 400;
+          line-height: 16.71px;
+          text-align: left;
+          margin-right: 14px;
+        }
+      }
+      .founderInfo {
+        width: 383px;
+        .info {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 12px;
+          span {
+            display: inline-block;
+            font-family: Pretendard;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 34px;
+            text-align: left;
+            color: #616161;
+          }
+          input {
+            width: 260px;
+            height: 34px;
+            padding: 10px;
+            border-radius: 3px;
+            background: #B6BDC44D;
+            border: 1px solid #B6BDC4;
+            font-family: Pretendard;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 14.32px;
+            text-align: left;
+            color: #4C4C4C;
+          }
+          &.sign {
+            align-items: center;
+          }
+          &.sign div {
+            display: flex;
+            align-items: center;
+            width: 260px;
+            font-family: Pretendard;
+            font-size: 14px;
+            font-weight: bolder;
+            line-height: 16.71px;
+            text-align: left;      
+          }
+          &.addr input {
+            width: 260px;
+            font-family: Pretendard;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 14.32px;
+            text-align: left;      
+            background: #FFFFFF;
+            border: 1px solid #B6BDC4;
+            color: #AAAAAA;
+            cursor: pointer;
+          }
+        }
+      }
+    }
+    .actionCell {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      button {
+        width: 140px;
+        height: 42px;
+        padding: 9px 10px;
+        border-radius: 6px;
+        border: none; 
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 16.71px;
+        text-align: center;            
+      }
+      button:first-child {
+        color: #FFFFFF;
+        background: #1363DF;
+      }
+      button:first-child:hover {
+        background-color: #003B97;
+      }
+      button:last-child {
+        align-items: right;
+        color: #373E44;
+        background: #FFFFFF;
+        border: 1px solid #B6BDC4
+      }
+    } 
+  }
+}
 
-
+/* 투자의향 신청 완료료 */
+.investSecretAplDonePopContainer {
+  display: flex;
+  flex-direction: column; 
+  gap: 30px;
+  .modalContent {
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    gap: 20px;
+    h2 {
+      font-family: Inter;
+      font-size: 22px;
+      font-weight: 600;
+      line-height: 32px;
+      text-align: center;
+      span {
+        text-align: center;   
+        color: #1363DF;   
+      }    
+    }
+    div {
+      background-color: #d8d8d8;
+      height: 250px;
+      width: 280px;
+    }
+  }
+  .actionCell {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    button {
+      width: 140px;
+      height: 42px;
+      padding: 9px 10px;
+      border-radius: 6px;
+      border: none; 
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 16.71px;
+      text-align: center;            
+    }
+    button:first-child {
+      color: #FFFFFF;
+      background: #1363DF;
+    }
+    button:first-child:hover {
+      color: #FFFFFF;
+      background: #003B97;
+    }
+    button:last-child {
+      align-items: right;
+      color: #373E44;
+      background: #FFFFFF;
+      border: 1px solid #B6BDC4
+    }
+  } 
+}

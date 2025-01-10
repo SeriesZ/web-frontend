@@ -12,7 +12,8 @@ type Investor = {
 const InvestSendPop: React.FC<{
   closeModal: () => void;
   data: any;
-}> = ({ closeModal, data }) => {
+  openBeforeCheckInvestPop: (data: any) => void;
+}> = ({ closeModal, data, openBeforeCheckInvestPop }) => {
   const [investment, setInvestment] = useState("");
 
   const handleInputChange = (e: any) => {
@@ -78,7 +79,14 @@ const InvestSendPop: React.FC<{
         </div>
       </div>
       <div className={styled.buttonSection}>
-        <button className={styled.submitBtn}>최종완료</button>
+        <button
+          className={styled.submitBtn}
+          onClick={() => {
+            openBeforeCheckInvestPop(data);
+          }}
+        >
+          최종완료
+        </button>
         <button className={styled.cancelBtn} onClick={closeModal}>
           취소
         </button>

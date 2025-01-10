@@ -14,7 +14,7 @@ interface StatusProps {
   value: string;
 }
 
-const RegisterList = (props: Props) => {
+const MyInvestList = (props: Props) => {
   // 선언
   const [categoryList, setCategoryData] = useState<Category[]>([]);
   const [selectedTheme, setSelectedTheme] = useState<Category>();
@@ -153,14 +153,14 @@ const RegisterList = (props: Props) => {
       {
         Header: "아이디어 설명요약",
         accessor: "content",
-        width: "40%",
+        width: "35%",
         id: "idea_summery",
         Cell: ({ cell: { value } }) => <span>{stripHtmlTags(value)}</span>,
       },
       {
-        Header: "투자 상황",
+        Header: "내 투자 제안(지분율)",
         accessor: "investment_goal",
-        width: "15%",
+        width: "9%",
         Cell: ({ row }) => {
           const investments = row.original.investments || [];
           const totalInvestment =
@@ -185,17 +185,9 @@ const RegisterList = (props: Props) => {
       {
         Header: "상태",
         accessor: "status",
-        width: "8%",
+        width: "15%",
         id: "status",
         Cell: ({ cell: { value } }) => <StatusBox value={value} />,
-      },
-      {
-        Header: "관리",
-        width: "8%",
-        id: "delete",
-        Cell: ({ cell: { value } }) => (
-          <button className={styled.delBtn}>삭제</button>
-        ),
       },
     ],
     []
@@ -235,11 +227,11 @@ const RegisterList = (props: Props) => {
       <div className={styled.mainContainer}>
         <div className={styled.headerWrap}>
           <div className={styled.titleWrap}>
-            <div className={styled.title}>내 아이디어 관리</div>
+            <div className={styled.title}>내 투자 관리</div>
             <div className={styled.desc}>
-              내 아이디어 관리는 예비창업자분이 업로드한 아이디어 리스트를
-              확인할 수 있는 영역입니다. <br />본 페이지를 통해 투자 라운드
-              결과를 확인하실 수 있습니다.
+              내 투자 관리는 예비창업자분이 업로드한 아이디어 리스트를 확인할 수
+              있는 영역입니다. <br />본 페이지를 통해 투자 라운드 결과를
+              확인하실 수 있습니다.
             </div>
           </div>
         </div>
@@ -321,4 +313,4 @@ const RegisterList = (props: Props) => {
   );
 };
 
-export default RegisterList;
+export default MyInvestList;

@@ -8,10 +8,13 @@ type Props = {};
 
 const AccountInfo = (props: Props) => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [fade, setFade] = useState("fade-in");
+  const [imgSrc, setImgSrc] = useState("/images/main_account_info.png");
   const data = [
     {
       id: 1,
       categoryNm: "예비창업자",
+      imgUrl: "/images/main_account_info.png",
       desc: [
         "아이디어를 업로드하여 투자자에게 노출 ",
         "쉽게 활용할 수 있는 원가회계기반의 가격결정, 매출계획수립자동화 Tool ",
@@ -22,6 +25,7 @@ const AccountInfo = (props: Props) => {
     {
       id: 2,
       categoryNm: "개인/기관투자자",
+      imgUrl: "/images/main_account_invest.png",
       desc: [
         "키워드로 검색하여 우수한 아이디어를 발굴 ",
         "아이디어의 투자 지표를 확인하여 투자금액에 따라 Exit 시점을 확인할 수 있는 자동화 Tool",
@@ -31,6 +35,7 @@ const AccountInfo = (props: Props) => {
     {
       id: 3,
       categoryNm: "전문가",
+      imgUrl: "/images/main_account_expert.png",
       desc: [
         "법인설립과정, 사업운영 등 다양한 전문 영역의 이슈를 보유하고 있는 \n예비창업자, 스타트업 신규 고객을 유입",
         "고객에게 발생하는 초기 1회 자문료 수익으로 부가 수익 창출",
@@ -40,7 +45,14 @@ const AccountInfo = (props: Props) => {
 
   // 이벤트
   const handleActiveIndex = (index: number) => {
-    setActiveIndex(index);
+    if (activeIndex === index) return; // 같은 이미지는 변경하지 않음
+
+    setFade("fade-out");
+    setTimeout(() => {
+      setImgSrc(data[index].imgUrl);
+      setActiveIndex(index);
+      setFade("fade-in");
+    }, 100); // fade-out 지속 시간 (0.3초) 후 이미지 변경
   };
 
   const Step1 = () => {
@@ -135,9 +147,9 @@ const AccountInfo = (props: Props) => {
       <div className={styled.accountInfoContainer}>
         <div className={styled.imageWrapper}>
           <img
-            src="/images/main_account_info.png"
+            src={imgSrc}
             alt="창업 이미지"
-            className={styled.mainImage}
+            className={`${styled.mainImage} ${styled[fade]}`}
           />
         </div>
         <div className={styled.contentWrapper}>

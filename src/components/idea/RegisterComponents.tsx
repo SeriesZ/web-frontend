@@ -30,7 +30,7 @@ import userStore from "@/store/userLoginInfo";
 import dynamic from "next/dynamic";
 import Modal from "react-modal";
 import InvestSimulationPop from "./InvestSimulationPop";
-import IdeaRegistFinalSubmitPop from "./IdeaRegistFinalSubmitPop";
+import IdeaRegistFinalSubmitPop from "./popup/IdeaRegistFinalSubmitPop";
 
 type Props = {
   activeIndex: number;
@@ -215,7 +215,6 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
       repreFiles.forEach((file, index) => {
         formData.append(`file`, file, file.name);
       });
-      fetchUploadFile("image", formData);
     }
   }, [repreFiles]);
 
@@ -224,8 +223,8 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
       const formData = new FormData();
       attachFiles.forEach((file, index) => {
         formData.append(`file`, file, file.name);
+        fetchUploadFile("attachment", formData);
       });
-      fetchUploadFile("attach", formData);
     }
   }, [attachFiles]);
 
@@ -650,7 +649,6 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
               Accept: "application/json",
               "Content-Type": "application/json;charset=utf-8",
             },
-            mode: "cors",
           }
         );
 
@@ -1549,30 +1547,35 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
           </div>
         </div>
         {/* 투자 시뮬레이션 모달 */}
-        <ModalComponent
-          isOpen={isInvestSimulationOpen}
-          closeModal={closInvestSimulationModal}
-          content={
-            <div>
-              {" "}
-              <InvestSimulationPop itemData={performanceParams} />
-              <div className={styled.modalBtn}>
-                <button
-                  onClick={closInvestSimulationModal}
-                  className={styled.closeBtn}
-                >
-                  닫기
-                </button>
+        {contents && (
+          <ModalComponent
+            isOpen={isInvestSimulationOpen}
+            closeModal={closInvestSimulationModal}
+            content={
+              <div>
+                {" "}
+                <InvestSimulationPop
+                  itemData={performanceParams}
+                  contents={contents}
+                />
+                <div className={styled.modalBtn}>
+                  <button
+                    onClick={closInvestSimulationModal}
+                    className={styled.closeBtn}
+                  >
+                    닫기
+                  </button>
+                </div>
               </div>
-            </div>
-          }
-          customStyles={{
-            width: "960px",
-            height: "800px",
-            padding: "40px",
-            borderRadius: "8px",
-          }}
-        />
+            }
+            customStyles={{
+              width: "960px",
+              height: "800px",
+              padding: "40px",
+              borderRadius: "8px",
+            }}
+          />
+        )}
 
         {/* 최종 제출 팝업 */}
         <ModalComponent

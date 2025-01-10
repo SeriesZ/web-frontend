@@ -94,6 +94,9 @@ const Gnb = (props: Props) => {
   const moveIdeaList = () => {
     router.push("/idea/list");
   };
+  const moveInvestList = () => {
+    router.push("/idea/investList");
+  };
   const doLogin = (role: string) => {
     let index = 0;
     switch (role) {
@@ -299,14 +302,14 @@ const Gnb = (props: Props) => {
     } else if (userInfo.role === "투자자") {
       return (
         <>
-          <div className={styled.menuItem} onClick={moveIdeaList}>
+          <div className={styled.menuItem}>
             투자하기
             {
               <div className={styled.dropdownMenu}>
                 <ul>
                   <li onClick={moveIdeaList}>투자하기</li>
                   <li>아이디어 목록</li>
-                  <li>내 투자관리</li>
+                  <li onClick={moveInvestList}>내 투자관리</li>
                 </ul>
               </div>
             }
@@ -438,7 +441,7 @@ const Gnb = (props: Props) => {
                 </div>
               </div>
               <div className={styled.btn} onClick={moveMakeIdea}>
-                아이디어 입력
+                아이디어 등록
               </div>
             </>
           ) : (
