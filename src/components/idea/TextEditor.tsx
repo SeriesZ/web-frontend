@@ -1,10 +1,15 @@
 import React, {
-  useState,
+  useEffect,
   useRef,
   forwardRef,
   useImperativeHandle,
 } from "react";
-import ReactQuill from "react-quill-new"; //import1
+// import ReactQuill from "react-quill-new"; //import1
+import dynamic from "next/dynamic";
+
+// ReactQuill을 SSR에서 제외하고 동적 로딩
+const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
+
 import "react-quill-new/dist/quill.snow.css"; //import2
 
 interface Props {
@@ -13,7 +18,7 @@ interface Props {
 }
 
 const TextEditor = forwardRef<any, Props>(({ content, showType }, ref) => {
-  const quillRef = useRef<ReactQuill>(null);
+  const quillRef = useRef<any>(null);
 
   // 상위 컴포넌트에서 사용할 메서드 노출
   useImperativeHandle(ref, () => ({
@@ -50,7 +55,6 @@ const TextEditor = forwardRef<any, Props>(({ content, showType }, ref) => {
     <>
       {showType == "editor" && (
         <ReactQuill
-          ref={quillRef}
           placeholder="내용을 입력해주세요"
           theme="snow"
           value={content}

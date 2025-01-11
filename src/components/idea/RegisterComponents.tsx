@@ -1,8 +1,6 @@
 "use client";
 import React, { useEffect, useState, useRef, use } from "react";
 import { useRouter } from "next/navigation";
-import ReactQuill from "react-quill-new"; //import1
-import "react-quill-new/dist/quill.snow.css"; //import2
 import {
   Category,
   IdeaContentsType,
