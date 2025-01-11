@@ -3,8 +3,6 @@ import React, { useState, useRef } from "react";
 import styled from "@/components/idea/InvestPop.module.scss";
 import SearchAddressPop from "./SearchAddressPop";
 import Modal from "react-modal";
-import html2pdf from "html2pdf.js";
-import DaumPostcode from "react-daum-postcode";
 
 type Investor = {
   id: number;
@@ -93,6 +91,8 @@ const InvestSecretWritePop: React.FC<{
   const handleExportClick = async () => {
     const contentElement = contentRef.current;
     if (!contentElement) return;
+
+    const html2pdf = (await import("html2pdf.js")).default; // 동적 import
 
     // 1버튼 숨기기 (btn 클래스 모두 숨김)
     const buttons = contentElement.querySelectorAll(`.${styled.hiddenBtn}`);

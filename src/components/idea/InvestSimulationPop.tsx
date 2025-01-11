@@ -8,7 +8,6 @@ import {
   IdeaContentsType,
   initializeIdeaContents,
 } from "@/model/IdeaList";
-import html2pdf from "html2pdf.js";
 
 interface Props {
   itemData: {
