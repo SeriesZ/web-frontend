@@ -1,6 +1,8 @@
 "use client";
 import React, { useEffect, useState, useRef, use } from "react";
 import { useRouter } from "next/navigation";
+import ReactQuill from "react-quill-new"; //import1
+import "react-quill-new/dist/quill.snow.css"; //import2
 import {
   Category,
   IdeaContentsType,
@@ -42,9 +44,13 @@ interface SaveNewIdeaResponse {
   id: string; // 반환할 데이터의 타입
 }
 
-const NoSsrEditor = dynamic(() => import("./ToastEditor"), {
-  ssr: false,
-});
+const NoSsrEditor = dynamic(
+  () => import("./TextEditor").then((mod) => mod.default),
+  {
+    ssr: false,
+    loading: () => <p>에디터 불러오는 중...</p>,
+  }
+);
 
 const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
   const isBrowser = () => typeof window !== "undefined";
@@ -309,12 +315,6 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
     if (inputRef.current) setIdeaName(inputRef.current.value);
   };
 
-  const handleBlurEditor = () => {
-    if (editorRef.current) {
-      setEditorContent(editorRef.current.getInstance().getHTML());
-    }
-  };
-
   const clickFinalSubmit = () => {
     // 최종 제출
     if (!ideationId) {
@@ -336,6 +336,18 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
     }
   };
 
+  // 에디터 셋팅
+  const childInputRef = useRef<any>(null); // ✅ 타입 수정
+  const setEditorStat = () => {
+    if (childInputRef.current) {
+      const content = childInputRef.current.getEditor().root.innerHTML;
+      setEditorContent(content); // 상태 업데이트
+      console.log("저장된 내용:", content);
+    } else {
+      console.error("에디터가 초기화되지 않았습니다.");
+    }
+  };
+
   // 버튼
   const onSubmit = () => {
     console.log("최종 업로드");
@@ -345,6 +357,8 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
   const saveNewIdea = (statue: string): Promise<SaveNewIdeaResponse> => {
     return new Promise(async (resolve, reject) => {
       try {
+        setEditorStat();
+
         // 유효성 검사
         if (!ideaName) {
           alert("아이디어 제목을 입력해주세요.");
@@ -416,6 +430,8 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
   const updateIdea = (statue: string) => {
     return new Promise(async (resolve, reject) => {
       try {
+        setEditorStat();
+
         // 유효성 검사
         if (!ideaName) {
           alert("아이디어 제목을 입력해주세요.");
@@ -482,9 +498,10 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
             }); // 아이디어 최초 저장
           } else {
             await updateIdea("").then((data) => {
-              alert("성공적으로 저장되었습니다.");
+              alert("성공적으로 수정되었습니다.");
             }); // 아이디어 업데이트
           }
+          break;
         case 1:
         case 2:
           if (!ideationId) {
@@ -495,9 +512,11 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
               });
             });
           } else {
-            checkAndSaveFinanceData(ideationId).then((data) => {
-              alert("성공적으로 저장되었습니다.");
-            });
+            await updateIdea("").then((data) => {
+              checkAndSaveFinanceData(ideationId).then((data) => {
+                alert("성공적으로 저장되었습니다.");
+              });
+            }); // 아이디어 업데이트
           }
           break;
 
@@ -888,9 +907,8 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
             <div className={styled.editorWrap}>
               <NoSsrEditor
                 content={editorContent}
-                editorRef={editorRef}
-                onChange={handleBlurEditor}
                 showType={"editor"}
+                ref={childInputRef}
               ></NoSsrEditor>
             </div>
           </div>
@@ -1288,8 +1306,6 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
               <div className={styled.finalContent}>
                 <NoSsrEditor
                   content={editorContent}
-                  editorRef={editorRef}
-                  onChange={handleBlurEditor}
                   showType={"viewer"}
                 ></NoSsrEditor>
               </div>

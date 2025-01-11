@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import styled from "@/components/idea/Idea.module.scss";
 import PriceCalculator from "./PriceCalculator";
 import PerformanceCalculator from "./PerformanceCalculator";
@@ -20,7 +20,9 @@ import InvestSendPop from "./popup/InvestSendPop";
 import InvestSecretWritePop from "./popup/InvestSecretWritePop";
 import InvestSecretAplConfirmPop from "./popup/InvestSecretAplConfirmPop";
 import InvestSecretAplDonePop from "./popup/InvestSecretAplDonePop";
-import { Viewer } from "@toast-ui/react-editor";
+//import { Viewer } from "@toast-ui/react-editor";
+import dynamic from "next/dynamic";
+
 import { Category, IdeaContentsType, Attachment } from "@/model/IdeaList";
 import { defaultYearData, defaultPriceData } from "@/model/financeDefaultData";
 import { calculateYearData } from "@/model/financeCalculationFormula";
@@ -30,8 +32,7 @@ import {
   useFinanceStore,
   updatePriceDataFromServer,
 } from "@/model/financeType";
-import html2pdf from "html2pdf.js";
-import DaumPostcode from "react-daum-postcode";
+import { useRouter } from "next/navigation";
 
 type Props = {
   activeIndex: number;
@@ -95,6 +96,7 @@ const IdeaContentsComponents = ({
   const { setCostDataAll, getAmountByApiId, costData } = useFinanceStore();
   const [openRoot, setOpenRoot] = useState<string>("contract");
   const [signImage, setSignImage] = useState<string>("");
+  const router = useRouter();
 
   const performanceParams = {
     ideaName,
@@ -582,9 +584,15 @@ const IdeaContentsComponents = ({
     setInvestSecretAplConfirmOpen(false);
   };
   const moveInvestList = () => {
-    //showContractSignModal();
+    router.push("/idea/investList");
     setInvestSecretAplDoneOpen(false);
   };
+
+  // 에디터
+  const NoSsrEditor = dynamic(() => import("./TextEditor"), {
+    ssr: false,
+  });
+  const childInputRef = useRef<HTMLInputElement>(null);
 
   const Step1 = () => {
     return (
@@ -592,7 +600,10 @@ const IdeaContentsComponents = ({
         <div className={styled.ideaContentsContainer}>
           <div className={styled.contentsMainWrap}>
             <div className={styled.ideaDetail}>
-              <Viewer initialValue={data.content} />
+              <NoSsrEditor
+                content={data.content}
+                showType={"viewer"}
+              ></NoSsrEditor>
             </div>
 
             <div className={styled.ideaVideo} onClick={showLiveStreaming}>
