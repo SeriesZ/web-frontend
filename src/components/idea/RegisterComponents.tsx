@@ -31,6 +31,7 @@ import dynamic from "next/dynamic";
 import Modal from "react-modal";
 import InvestSimulationPop from "./InvestSimulationPop";
 import IdeaRegistFinalSubmitPop from "./popup/IdeaRegistFinalSubmitPop";
+import TextEditor from "./TextEditor";
 
 type Props = {
   activeIndex: number;
@@ -65,7 +66,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
   }
 
   // step1 관련
-  const editorRef = useRef<any>(null);
+  const childInputRef = useRef<any>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [repreFiles, setRepreFiles] = useState<File[]>([]);
   const [detailFiles, setDetailFiles] = useState<File[]>([]);
@@ -247,7 +248,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
         name: contents?.theme.name,
         image: "",
         description: "",
-        psr_value: contents?.theme.psr_value,
+        psr_value: 3,
       });
       setEditorContent(contents?.content);
       setCloseDt(contents?.close_date);
@@ -313,6 +314,10 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
     if (inputRef.current) setIdeaName(inputRef.current.value);
   };
 
+  const handleEditor = (value: string) => {
+    if (childInputRef.current) setEditorContent(value);
+  };
+
   const clickFinalSubmit = () => {
     // 최종 제출
     if (!ideationId) {
@@ -334,18 +339,6 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
     }
   };
 
-  // 에디터 셋팅
-  const childInputRef = useRef<any>(null); // ✅ 타입 수정
-  const setEditorStat = () => {
-    if (childInputRef.current) {
-      const content = childInputRef.current.getEditor().root.innerHTML;
-      setEditorContent(content); // 상태 업데이트
-      console.log("저장된 내용:", content);
-    } else {
-      console.error("에디터가 초기화되지 않았습니다.");
-    }
-  };
-
   // 버튼
   const onSubmit = () => {
     console.log("최종 업로드");
@@ -355,8 +348,6 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
   const saveNewIdea = (statue: string): Promise<SaveNewIdeaResponse> => {
     return new Promise(async (resolve, reject) => {
       try {
-        setEditorStat();
-
         // 유효성 검사
         if (!ideaName) {
           alert("아이디어 제목을 입력해주세요.");
@@ -428,8 +419,6 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
   const updateIdea = (statue: string) => {
     return new Promise(async (resolve, reject) => {
       try {
-        setEditorStat();
-
         // 유효성 검사
         if (!ideaName) {
           alert("아이디어 제목을 입력해주세요.");
@@ -456,9 +445,13 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
           title: ideaName,
           content: editorContent,
           theme_id: selectedTheme.id,
-          close_date: statue == "final" ? futureDate : closeDt,
-        }).toString();
+        });
 
+        if (statue == "final") {
+          queryParams.append("close_date", futureDate);
+        }
+
+        queryParams.toString();
         const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/${ideaId}?${queryParams}`;
 
         const response = await fetch(url, {
@@ -845,14 +838,13 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
     }
   };
 
+  /* 모달 재사용 */
   interface CustomModalProps {
     isOpen: boolean;
     closeModal: () => void;
     content: React.ReactNode; // or React.ReactElement if you want to be more specific
     customStyles?: React.CSSProperties; // Optional, as not all modals may need custom styles
   }
-
-  /* 모달 재사용 */
   const ModalComponent: React.FC<CustomModalProps> = ({
     isOpen,
     closeModal,
@@ -903,11 +895,12 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
           <div className={styled.form}>
             <div className={styled.label}>아이디어 설명</div>
             <div className={styled.editorWrap}>
-              <NoSsrEditor
+              <TextEditor
                 content={editorContent}
                 showType={"editor"}
                 ref={childInputRef}
-              ></NoSsrEditor>
+                onChangeContent={handleEditor}
+              ></TextEditor>
             </div>
           </div>
           <div className={styled.form}>
@@ -1302,10 +1295,10 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
                 아이디어 설명
               </div>
               <div className={styled.finalContent}>
-                <NoSsrEditor
+                <TextEditor
                   content={editorContent}
                   showType={"viewer"}
-                ></NoSsrEditor>
+                ></TextEditor>
               </div>
             </div>
             <div className={styled.form}>

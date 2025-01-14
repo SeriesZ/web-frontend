@@ -67,6 +67,16 @@ export interface YearData {
   adminExpenses: number;
   operatingIncome: number;
   operatingIncomeRate: number;
+  calSalesTotalProfit?:number;
+  calMarketCap?:number;
+  calTotalStockCnt?:number;
+  calOwnerShiCnt?:number;
+  calValuePerShare?:number;
+  calStockValueHeld?:number;
+  calExitProfit?:number;
+  calTransferTax?:number;
+  calProtitRate?:number;
+  calMultiple?:number;
 }
 
 // 기본 항목을 ICostItem 배열로 변환

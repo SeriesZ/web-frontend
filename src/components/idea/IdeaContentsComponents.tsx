@@ -7,6 +7,7 @@ import FinanceCaculator from "./FinanceCaculator";
 import PsrCalulator from "./PsrCalulator";
 import StockCalulator from "./StockCalulator";
 import InvestSimulationPop from "./InvestSimulationPop";
+import TextEditor from "./TextEditor";
 import Modal from "react-modal";
 import InvestStatusPop from "./popup/InvestStatusPop";
 import userStore from "@/store/userLoginInfo";
@@ -20,7 +21,6 @@ import InvestSendPop from "./popup/InvestSendPop";
 import InvestSecretWritePop from "./popup/InvestSecretWritePop";
 import InvestSecretAplConfirmPop from "./popup/InvestSecretAplConfirmPop";
 import InvestSecretAplDonePop from "./popup/InvestSecretAplDonePop";
-//import { Viewer } from "@toast-ui/react-editor";
 import dynamic from "next/dynamic";
 
 import { Category, IdeaContentsType, Attachment } from "@/model/IdeaList";
@@ -42,6 +42,7 @@ type Props = {
     profitMargin: number;
     tradeCounts: number[];
     employeeCounts: number[];
+    selectedTheme4Psr: Category;
     totalCost: number;
     sellingPrice: number;
     totalSelYear: number;
@@ -79,8 +80,9 @@ const IdeaContentsComponents = ({
   );
   const [financeId, setFinanceId] = useState<string>();
   const [categoryData, setCategoryData] = useState<Category[]>([]);
-  const [selectedTheme4Psr, setSelectedTheme4Psr] =
-    useState<Category>(initCategory);
+  const [selectedTheme4Psr, setSelectedTheme4Psr] = useState<Category>(
+    itemData.selectedTheme4Psr
+  );
   const [maraketCap, setMaraketCap] = useState(0);
   const [tradeCounts, setTradeCounts] = useState<number[]>(
     itemData.tradeCounts
@@ -160,7 +162,7 @@ const IdeaContentsComponents = ({
       if (tradeCounts.length > 0 && employeeCounts.length > 0) {
         const newPlan = create10YearPlan(
           sellingPrice,
-          totalCost,
+          totalTotal,
           getAmountByApiId("salary"),
           getAmountByApiId("business_expense"),
           getAmountByApiId("office_rent"),
@@ -588,22 +590,16 @@ const IdeaContentsComponents = ({
     setInvestSecretAplDoneOpen(false);
   };
 
-  // 에디터
-  const NoSsrEditor = dynamic(() => import("./TextEditor"), {
-    ssr: false,
-  });
-  const childInputRef = useRef<HTMLInputElement>(null);
-
   const Step1 = () => {
     return (
       <div>
         <div className={styled.ideaContentsContainer}>
           <div className={styled.contentsMainWrap}>
             <div className={styled.ideaDetail}>
-              <NoSsrEditor
+              <TextEditor
                 content={data.content}
                 showType={"viewer"}
-              ></NoSsrEditor>
+              ></TextEditor>
             </div>
 
             <div className={styled.ideaVideo} onClick={showLiveStreaming}>

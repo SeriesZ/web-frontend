@@ -32,11 +32,10 @@ const PsrCalulator: React.FC<Props> = ({ inputHide, itemData }) => {
   // 구분 단위값 셋팅
   const labelText = selectedTheme4Psr?.name;
   const labelPsr = selectedTheme4Psr?.psr_value
-    ? selectedTheme4Psr?.psr_value
+    ? 3 /*selectedTheme4Psr?.psr_value*/
     : 0;
   const marketPrice = averageSales * labelPsr;
 
-  console.log("평균매출22 : " + marketPrice + "/" + labelPsr);
   useEffect(() => {
     setMaraketCap(marketPrice);
   }, [marketPrice]);

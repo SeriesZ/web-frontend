@@ -74,6 +74,6 @@ export const calculateYearData = (
       contingencyExpenses,
       adminExpenses,
       operatingIncome,
-      operatingIncomeRate,
+      operatingIncomeRate
     };
   };

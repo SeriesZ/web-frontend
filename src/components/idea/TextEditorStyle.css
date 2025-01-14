@@ -1,0 +1,29 @@
+
+  .editor {
+    .ql-container.ql-snow {
+      border: 1px solid #B6BDC4;
+      height: 300px;
+      font-size: 12px !important;
+      padding: 10px;
+      border-radius: 0 0 3px 3px;
+      border-color: #B6BDC4;
+    }
+    .ql-toolbar.ql-snow {
+      border: 1px solid #B6BDC4;
+      border-radius: 3px 3px 0 0;
+      border-color: #B6BDC4;
+    }
+    .ql-editor.ql-blank::before {
+      font-family: 'Pretendard', 'Open Sans', 'Helvetica Neue', 'Helvetica', 'Arial', '나눔바른고딕', 'Nanum Barun Gothic', '맑은고딕', 'Malgun Gothic', sans-serif;
+      color: #aaaaaa;
+      font-size: 12px !important;
+      font-style:normal;
+    }
+}
+
+
+  .viewer .ql-container.ql-snow {
+    font-family: 'Pretendard', 'Open Sans', 'Helvetica Neue', 'Helvetica', 'Arial', '나눔바른고딕', 'Nanum Barun Gothic', '맑은고딕', 'Malgun Gothic', sans-serif;
+    border: 1px solid #b6bdc400;
+    font-style:normal;
+  }

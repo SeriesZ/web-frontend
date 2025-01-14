@@ -5,6 +5,7 @@ import { IdeaContentsType } from "@/model/IdeaList";
 import styled from "@/components/idea/Idea.module.scss";
 import userStore from "@/store/userLoginInfo";
 import dynamic from "next/dynamic";
+import { Category } from "@/model/IdeaList";
 import { defaultYearData, defaultPriceData } from "@/model/financeDefaultData";
 import { calculateYearData } from "@/model/financeCalculationFormula";
 import {
@@ -22,6 +23,14 @@ const IdeaContentsComponents = dynamic(
   { ssr: false }
 );
 
+const initCategory: Category = {
+  id: "theme_1",
+  name: "농업",
+  image: "https://cdn-icons-png.flaticon.com/512/194/194041.png",
+  description: "",
+  psr_value: 3,
+};
+
 const IdeaContents = (props: Props) => {
   // 선언
   const { userInfo } = userStore();
@@ -38,6 +47,8 @@ const IdeaContents = (props: Props) => {
   const [achieveBep, setAchieveBep] = useState<YearData>(defaultYearData);
   const [yearData, setYearData] = useState<YearData[]>([]);
   const [positiveYear, setPositiveYear] = useState(0);
+  const [selectedTheme4Psr, setSelectedTheme4Psr] =
+    useState<Category>(initCategory);
   const [plan, setPlan] = useState<YearData[]>([]);
   const [financeId, setFinanceId] = useState<string>("");
   const [averageSales, setAverageSales] = useState(0);
@@ -48,6 +59,7 @@ const IdeaContents = (props: Props) => {
     profitMargin,
     tradeCounts,
     employeeCounts,
+    selectedTheme4Psr,
     totalCost,
     sellingPrice,
     totalSelYear,
@@ -96,6 +108,16 @@ const IdeaContents = (props: Props) => {
       if (response.ok) {
         const data = await response.json();
         setIdeaContents(data);
+
+        // 선택한 카테고리 데이터 생성
+        const formattedData: Category = {
+          id: data.theme.id,
+          name: data.theme.name,
+          image: data.theme.image,
+          description: "",
+          psr_value: data.theme.psr_value,
+        };
+        setSelectedTheme4Psr(formattedData);
       } else {
         console.error("아이디어 불러오기 실패:", response.statusText);
       }

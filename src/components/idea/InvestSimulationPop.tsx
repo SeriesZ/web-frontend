@@ -1,13 +1,9 @@
 import React, { useState, useRef } from "react";
 import styled from "@/components/idea/InvestPop.module.scss";
 import styledFinance from "@/components/idea/Idea.module.scss";
-import FinanceCaculator from "./FinanceCaculator";
+import ExitSimulator from "./ExitSimulator";
 import { YearData, ICostInputItem } from "@/model/financeType";
-import {
-  Category,
-  IdeaContentsType,
-  initializeIdeaContents,
-} from "@/model/IdeaList";
+import { IdeaContentsType } from "@/model/IdeaList";
 
 interface Props {
   itemData: {
@@ -16,21 +12,29 @@ interface Props {
     maraketCap: number;
     plan: YearData[];
     positiveYear: number;
+    averageSales: number;
   };
   contents: IdeaContentsType;
 }
 
 const InvestSimulationPop: React.FC<Props> = ({ itemData, contents }) => {
-  const { costItems, setCostItems, maraketCap, plan, positiveYear } = itemData;
-  const performanceParams = {
+  const {
+    costItems,
+    setCostItems,
+    maraketCap,
     plan,
     positiveYear,
-  };
-
+    averageSales,
+  } = itemData;
   const [isExpanded, setIsExpanded] = useState(false);
   const [capitalAmt, setCapitalAmt] = useState<string>("0");
   const [ownershipPercentage, setOwnershipPercentage] = useState<number>(0); //지분율
-  const [ownershipCnt, setOwnershiCnt] = useState<number>(0); //취득 주식수수
+  const [ownershipCnt, setOwnershiCnt] = useState<number>(0); //취득 주식수
+  const [investAmt, setInvestAmt] = useState<number>(0); //투자금
+  const [psrValue, setPsrValue] = useState(3); //contents?.theme?.psr_value
+  const [plusProtitRate, setPlusProtitRate] = useState(0); // exit까지의 수익율
+  const [plusProfitYear, setPlusProfitYear] = useState(0);
+  let isfirstPlusYear = true;
 
   const charLimit = 100; // 500자 제한
   const handleToggle = () => {
@@ -48,7 +52,16 @@ const InvestSimulationPop: React.FC<Props> = ({ itemData, contents }) => {
     (item) => item.apiId === "max_investor_count"
   );
   const maxInvestValue = maxInvestorCnt ? maxInvestorCnt.amount : 0;
-
+  const performanceParams = {
+    plan,
+    positiveYear,
+    contents,
+    parValue,
+    averageSales,
+    ownershipCnt,
+    investAmt,
+  };
+  //  const totalStockCnt = (averageSales * psrValue) / parValue;
   // 현재 날짜
   function getCurrentFormattedDate() {
     const now = new Date(); // 현재 날짜 객체 생성
@@ -67,14 +80,78 @@ const InvestSimulationPop: React.FC<Props> = ({ itemData, contents }) => {
     }
   };
 
-  // 투자금금 비용계산하기
+  // 투자금 비용계산하기
   const clickCalBtn = () => {
-    const rawValue = capitalAmt.replace(/,/g, "");
-    const ownershipPercentageCal = (maraketCap / Number(rawValue)) * 0.01; // 지분율
-    const ownershipCntCal = maraketCap / Number(rawValue);
+    const rawValue = Number(capitalAmt.replace(/,/g, ""));
+    const ownershipPercentageCal = (rawValue / maraketCap) * 100; // 지분율
+    const ownershipCntCal =
+      (rawValue / maraketCap) * 100 * totalStockCnt * 0.01;
 
-    setOwnershipPercentage(ownershipPercentageCal);
+    setInvestAmt(rawValue);
+    setOwnershipPercentage(Math.floor(ownershipPercentageCal * 10) / 10);
     setOwnershiCnt(ownershipCntCal);
+
+    plan.map((item, index) => {
+      item.calSalesTotalProfit = item.sales - item.salesCost;
+      item.calMarketCap = calMarketCap(item.sales);
+      item.calTotalStockCnt = totalStockCnt;
+      item.calValuePerShare = calValuePerShare(item.sales);
+      item.calOwnerShiCnt = ownershipCntCal;
+      item.calStockValueHeld = calStockValueHeld(item.sales, ownershipCntCal);
+      item.calExitProfit = calExitProfit(item.sales, ownershipCntCal, rawValue);
+      item.calTransferTax =
+        calExitProfit(item.sales, ownershipCntCal, rawValue) > 0
+          ? transferTax(item.sales, ownershipCntCal, rawValue)
+          : 0;
+      item.calProtitRate =
+        ((calExitProfit(item.sales, ownershipCntCal, rawValue) -
+          transferTax(item.sales, ownershipCntCal, rawValue)) /
+          Number(rawValue)) *
+        100;
+      item.calMultiple =
+        (calExitProfit(item.sales, ownershipCntCal, rawValue) -
+          transferTax(item.sales, ownershipCntCal, rawValue)) /
+        Number(rawValue);
+
+      if (item.calExitProfit > 0 && isfirstPlusYear) {
+        setPlusProtitRate(item.calProtitRate);
+        setPlusProfitYear(index + 1);
+        isfirstPlusYear = false;
+      }
+    });
+  };
+
+  // 시가총액
+  const calMarketCap = (amt: number) => {
+    return amt * psrValue;
+  };
+
+  // 주당가치
+  const calValuePerShare = (amt: number) => {
+    return calMarketCap(amt) / totalStockCnt;
+  };
+
+  // 보유주식가치
+  const calStockValueHeld = (amt: number, ownershipCntCal: number) => {
+    return (ownershipCntCal * calMarketCap(amt)) / totalStockCnt;
+  };
+
+  // EXIT 차익
+  const calExitProfit = (
+    amt: number,
+    ownershipCntCal: number,
+    getinvsetAmt: number
+  ) => {
+    return calStockValueHeld(amt, ownershipCntCal) - getinvsetAmt;
+  };
+
+  // 양도세
+  const transferTax = (
+    amt: number,
+    ownershipCntCal: number,
+    getinvsetAmt: number
+  ) => {
+    return calExitProfit(amt, ownershipCntCal, getinvsetAmt) * 0.2;
   };
 
   return (
@@ -185,7 +262,7 @@ const InvestSimulationPop: React.FC<Props> = ({ itemData, contents }) => {
                 <tr>
                   <td>액면가</td>
                   <td>주당 금액</td>
-                  <td>{parValueItem ? parValue.toLocaleString() : 0}원</td>
+                  <td>{parValue.toLocaleString()}원</td>
                 </tr>
                 <tr>
                   <td>총 발행(예정) 주식 수</td>
@@ -246,11 +323,23 @@ const InvestSimulationPop: React.FC<Props> = ({ itemData, contents }) => {
                 </tr>
                 <tr>
                   <td>(EXIT까지의) 수익율</td>
-                  <td>17%</td>
+                  <td>
+                    {plusProtitRate
+                      ? Number(plusProtitRate.toFixed(0)).toLocaleString()
+                      : 0}
+                    %
+                  </td>
                 </tr>
                 <tr>
                   <td>연 수익율</td>
-                  <td>4%</td>
+                  <td>
+                    {plusProfitYear
+                      ? Number(
+                          (plusProtitRate / plusProfitYear).toFixed(0)
+                        ).toLocaleString()
+                      : 0}
+                    %
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -278,7 +367,7 @@ const InvestSimulationPop: React.FC<Props> = ({ itemData, contents }) => {
           <div>
             <div className={styledFinance.tableContainer}>
               <div className={styledFinance.tableContentsWrap}>
-                <FinanceCaculator itemData={performanceParams} />
+                <ExitSimulator itemData={performanceParams} />
               </div>
             </div>
           </div>
