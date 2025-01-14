@@ -17,18 +17,21 @@ const InvestSendPop: React.FC<{
   openBeforeCheckInvestPop: (data: any) => void;
   itemData: {
     costItems: ICostInputItem[];
-    maraketCap: number;
     plan: YearData[];
     selectedTheme4Psr: Category;
+    averageSales: number;
   };
 }> = ({ closeModal, data, openBeforeCheckInvestPop, itemData }) => {
-  const { costItems, maraketCap, plan, selectedTheme4Psr } = itemData;
+  const { costItems, plan, selectedTheme4Psr, averageSales } = itemData;
   const [capitalAmt, setCapitalAmt] = useState<string>("0");
   const [ownershipPercentage, setOwnershipPercentage] = useState<number>(0); //지분율
   const [ownershipCnt, setOwnershiCnt] = useState<number>(0); //취득 주식수
-  const [psrValue, setPsrValue] = useState(selectedTheme4Psr.psr_value);
+  const [psrValue, setPsrValue] = useState(
+    selectedTheme4Psr.psr_value ? selectedTheme4Psr.psr_value : 0
+  );
   const [plusProtitRate, setPlusProtitRate] = useState(0); // exit까지의 수익율
   const [plusProfitYear, setPlusProfitYear] = useState(0);
+  const [maraketCap, setMaraketCap] = useState(averageSales * psrValue);
   let isfirstPlusYear = true;
 
   const parValueItem = costItems.find((item) => item.apiId === "par_value");
@@ -163,11 +166,16 @@ const InvestSendPop: React.FC<{
               </tr>
               <tr>
                 <td>지분율</td>
-                <td>{ownershipPercentage}%</td>
+                <td>{Number(ownershipPercentage)}%</td>
               </tr>
               <tr>
                 <td>취득 주식 수</td>
-                <td>{ownershipCnt.toLocaleString()}주</td>
+                <td>
+                  {plusProtitRate
+                    ? Number(ownershipCnt.toFixed(0)).toLocaleString()
+                    : 0}
+                  주
+                </td>
               </tr>
               <tr>
                 <td>(EXIT까지의) 기간</td>
