@@ -248,7 +248,7 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
         name: contents?.theme.name,
         image: "",
         description: "",
-        psr_value: 3,
+        psr_value: contents?.theme.psr_value,
       });
       setEditorContent(contents?.content);
       setCloseDt(contents?.close_date);

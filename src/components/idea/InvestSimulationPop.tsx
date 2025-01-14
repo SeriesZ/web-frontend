@@ -31,7 +31,7 @@ const InvestSimulationPop: React.FC<Props> = ({ itemData, contents }) => {
   const [ownershipPercentage, setOwnershipPercentage] = useState<number>(0); //지분율
   const [ownershipCnt, setOwnershiCnt] = useState<number>(0); //취득 주식수
   const [investAmt, setInvestAmt] = useState<number>(0); //투자금
-  const [psrValue, setPsrValue] = useState(3); //contents?.theme?.psr_value
+  const [psrValue, setPsrValue] = useState(contents?.theme?.psr_value);
   const [plusProtitRate, setPlusProtitRate] = useState(0); // exit까지의 수익율
   const [plusProfitYear, setPlusProfitYear] = useState(0);
   let isfirstPlusYear = true;
