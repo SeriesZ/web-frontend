@@ -61,7 +61,7 @@ const InvestSimulationPop: React.FC<Props> = ({ itemData, contents }) => {
     ownershipCnt,
     investAmt,
   };
-  //  const totalStockCnt = (averageSales * psrValue) / parValue;
+
   // 현재 날짜
   function getCurrentFormattedDate() {
     const now = new Date(); // 현재 날짜 객체 생성

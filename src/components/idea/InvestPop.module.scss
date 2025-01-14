@@ -911,6 +911,20 @@
     display: flex;
     align-items: center;
   }
+  .inputSection button {
+    background-color: #1363DF;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    height: 35px;
+    cursor: pointer;
+  }
+  
+  .inputSection button:hover {
+    background-color: #0056b3;
+  }
   .label {
     width: 100px;
     height: 18px;
@@ -933,6 +947,7 @@
     text-align: left;
     text-underline-position: from-font;
     text-decoration-skip-ink: none;
+    margin-right: 10px;
   }
   .inputBox:focus {
     outline: 1px solid #1363DF; /* 파란색 테두리 */

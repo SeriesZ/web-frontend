@@ -847,6 +847,7 @@ const IdeaContentsComponents = ({
             <InvestSendPop
               closeModal={closInvestSendModal}
               data={investorInfo}
+              itemData={performanceParams}
               openBeforeCheckInvestPop={openBeforeCheckInvestPop}
             />
           }
