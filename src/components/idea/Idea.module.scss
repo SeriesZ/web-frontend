@@ -366,6 +366,9 @@
       &::-webkit-scrollbar-track {
         background: rgba(255, 255, 255, 0.1); /*스크롤바 뒷 배경 색상*/
       }
+      .blueText {
+        color: #1363df;
+      }
     }
     table {
       width: 100%;
@@ -832,6 +835,9 @@
           color: #1363df;
           margin-right: 6px;
         }
+      }
+      .minusValue{
+        color: #DF1316;
       }
     }
   }

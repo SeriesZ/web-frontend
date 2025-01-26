@@ -74,7 +74,6 @@ const TextEditor = forwardRef<any, Props>(
               placeholder="내용을 입력해주세요"
               theme="snow"
               value={content}
-              style={{ height: "600px" }}
               onChangeSelection={(range, source, editor) => {
                 if (range === null) {
                   const htmlContent = quillRef.current.getHTML();

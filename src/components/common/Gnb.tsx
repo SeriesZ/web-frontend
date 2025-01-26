@@ -80,6 +80,10 @@ const Gnb = (props: Props) => {
     router.push("/main");
   };
   const moveMakeIdea = () => {
+    if (userInfo.role == "비회원") {
+      alert("로그인 후 이용하실 수 있습니다.");
+      return;
+    }
     router.push(`/idea/register?id=init`);
   };
   const moveExpertPage = () => {
@@ -440,9 +444,14 @@ const Gnb = (props: Props) => {
                   </ul>
                 </div>
               </div>
-              <div className={styled.btn} onClick={moveMakeIdea}>
-                아이디어 등록
-              </div>
+
+              {userInfo.name == "예비창업자" ? (
+                <div className={styled.btn} onClick={moveMakeIdea}>
+                  아이디어 등록
+                </div>
+              ) : (
+                <></>
+              )}
             </>
           ) : (
             <>
@@ -457,6 +466,9 @@ const Gnb = (props: Props) => {
                 </div>
               </div>
               <div className={styled.btnText}>회원가입</div>
+              <div className={styled.btn} onClick={moveMakeIdea}>
+                아이디어 등록
+              </div>
             </>
           )}
         </div>

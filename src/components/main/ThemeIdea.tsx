@@ -27,13 +27,13 @@ const ThemeIdea = (props: Props) => {
 
         // 랜덤 4개 로딩
         const themes = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/themes?offset=1&limit=4`
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/themes?offset=1`
         );
         const themesData = await themes.json();
         let ideaDataList: IdeaContentsType[] = [];
         Object.keys(themesData).map((item, index) => {
           themesData[item].forEach((element: IdeaContentsType) => {
-            if (ideaDataList.length < 4) {
+            if (ideaDataList.length < 4 && element.close_date) {
               ideaDataList.push(element);
             }
           });

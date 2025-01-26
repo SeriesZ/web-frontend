@@ -452,7 +452,8 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
         }
 
         queryParams.toString();
-        const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/${ideaId}?${queryParams}`;
+        const realIdeaId = ideaId == "init" ? ideationId : ideaId;
+        const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/${realIdeaId}?${queryParams}`;
 
         const response = await fetch(url, {
           method: "PUT",
@@ -552,12 +553,20 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
   const findPositiveOperatingIncomeYear = (
     years: YearData[]
   ): number | null => {
+    const yearMap: Map<number, number> = new Map();
     for (let i = 0; i < years.length; i++) {
+      yearMap.set(i, years[i].operatingIncomeRate);
       if (years[i].operatingIncome > 0) {
         return i + 1;
       }
     }
-    return null;
+
+    let sortedByValue = new Map(
+      [...yearMap.entries()].sort((a, b) => a[1] - b[1])
+    );
+    const lastEntry = Array.from(sortedByValue.entries()).pop();
+
+    return lastEntry ? lastEntry[0] + 1 : null;
   };
 
   // 매출계획표 계산
@@ -1145,22 +1154,38 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
               <div className={styled.item}>
                 <div>영업이익</div>
                 <div>
-                  <span>
-                    {Number(
-                      achieveBep.operatingIncome.toFixed(0)
-                    ).toLocaleString()}
-                  </span>
+                  {achieveBep.operatingIncome < 0 ? (
+                    <span className={styled.minusValue}>
+                      {Number(
+                        achieveBep.operatingIncome.toFixed(0)
+                      ).toLocaleString()}
+                    </span>
+                  ) : (
+                    <span>
+                      {Number(
+                        achieveBep.operatingIncome.toFixed(0)
+                      ).toLocaleString()}
+                    </span>
+                  )}
                   원
                 </div>
               </div>
               <div className={styled.item}>
                 <div>영업이익률</div>
                 <div>
-                  <span>
-                    {Number(
-                      achieveBep.operatingIncomeRate.toFixed(0)
-                    ).toLocaleString()}
-                  </span>
+                  {achieveBep.operatingIncomeRate < 0 ? (
+                    <span className={styled.minusValue}>
+                      {Number(
+                        achieveBep.operatingIncomeRate.toFixed(0)
+                      ).toLocaleString()}
+                    </span>
+                  ) : (
+                    <span>
+                      {Number(
+                        achieveBep.operatingIncomeRate.toFixed(0)
+                      ).toLocaleString()}
+                    </span>
+                  )}
                   %
                 </div>
               </div>
@@ -1466,22 +1491,38 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
                 <div className={styled.item}>
                   <div>영업이익</div>
                   <div>
-                    <span>
-                      {Number(
-                        achieveBep.operatingIncome.toFixed(0)
-                      ).toLocaleString()}
-                    </span>
+                    {achieveBep.operatingIncome < 0 ? (
+                      <span className={styled.minusValue}>
+                        {Number(
+                          achieveBep.operatingIncome.toFixed(0)
+                        ).toLocaleString()}
+                      </span>
+                    ) : (
+                      <span>
+                        {Number(
+                          achieveBep.operatingIncome.toFixed(0)
+                        ).toLocaleString()}
+                      </span>
+                    )}
                     원
                   </div>
                 </div>
                 <div className={styled.item}>
                   <div>영업이익률</div>
                   <div>
-                    <span>
-                      {Number(
-                        achieveBep.operatingIncomeRate.toFixed(0)
-                      ).toLocaleString()}
-                    </span>
+                    {achieveBep.operatingIncomeRate < 0 ? (
+                      <span className={styled.minusValue}>
+                        {Number(
+                          achieveBep.operatingIncomeRate.toFixed(0)
+                        ).toLocaleString()}
+                      </span>
+                    ) : (
+                      <span>
+                        {Number(
+                          achieveBep.operatingIncomeRate.toFixed(0)
+                        ).toLocaleString()}
+                      </span>
+                    )}
                     %
                   </div>
                 </div>

@@ -134,6 +134,18 @@ const IdeaContentsComponents = ({
 
   const parValueItem = costItems.find((item) => item.apiId === "par_value");
   const parValue = parValueItem ? parValueItem.amount : 0;
+  const targetInvestorRateItem = costItems.find(
+    (item) => item.apiId === "target_investor_rate"
+  );
+  const targetInvestorRate = targetInvestorRateItem
+    ? targetInvestorRateItem.amount
+    : 0;
+  const maxInvestorCountItem = costItems.find(
+    (item) => item.apiId === "max_investor_count"
+  );
+  const maxInvestorCount = maxInvestorCountItem
+    ? maxInvestorCountItem.amount
+    : 0;
 
   useEffect(() => {
     getServerFinanceData();
@@ -178,7 +190,7 @@ const IdeaContentsComponents = ({
         setAverageSales(calAverageSales);
       }
     }
-  }, [costItems, profitMargin, tradeCounts, employeeCounts]);
+  }, [financeId]);
 
   // 매출계획표 계산
   const create10YearPlan = (
@@ -661,13 +673,17 @@ const IdeaContentsComponents = ({
                 <thead>
                   <tr>
                     <td>지분율</td>
-                    <td className={styled.tableRight}>{0}</td>
+                    <td className={styled.tableRight}>
+                      {parValueItem ? targetInvestorRate.toLocaleString() : 0}%
+                    </td>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
                     <td>주당 액면가</td>
-                    <td className={styled.tableRight}>{parValue}</td>
+                    <td className={styled.tableRight}>
+                      {parValueItem ? parValue.toLocaleString() : 0}
+                    </td>
                   </tr>
                   <tr>
                     <td>최소 투자금액</td>
@@ -677,7 +693,9 @@ const IdeaContentsComponents = ({
                   </tr>
                   <tr>
                     <td>최대 투자금액</td>
-                    <td className={styled.tableRight}>{0}</td>
+                    <td className={styled.tableRight}>
+                      {parValueItem ? maxInvestorCount.toLocaleString() : 0}
+                    </td>
                   </tr>
                 </tbody>
               </table>

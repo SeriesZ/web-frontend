@@ -21,7 +21,14 @@ const FinanceCaculator: React.FC<Props> = ({ itemData }) => {
             <tr>
               <th colSpan={2}>구분</th>
               {plan.map((_, index) => (
-                <th key={index}>{index + 1}년차</th>
+                <th key={index}>
+                  {index + 1}년차
+                  {index + 1 == positiveYear ? (
+                    <p className={styled.blueText}>BEP달성</p>
+                  ) : (
+                    <></>
+                  )}
+                </th>
               ))}
             </tr>
           </thead>
@@ -30,7 +37,7 @@ const FinanceCaculator: React.FC<Props> = ({ itemData }) => {
               <th>USER</th>
               <th>거래 발생 수</th>
               {plan.map((yearData, index) => (
-                <td key={index}>
+                <td key={index} className={styled.blueText}>
                   {Number(yearData.transactionCount).toLocaleString()}
                 </td>
               ))}
@@ -63,7 +70,7 @@ const FinanceCaculator: React.FC<Props> = ({ itemData }) => {
               <th rowSpan={8}>판관비</th>
               <th>직원 수</th>
               {plan.map((yearData, index) => (
-                <td key={index}>
+                <td key={index} className={styled.blueText}>
                   {Number(yearData.staffCount.toFixed(0)).toLocaleString()}
                 </td>
               ))}
@@ -135,7 +142,10 @@ const FinanceCaculator: React.FC<Props> = ({ itemData }) => {
                 영업이익
               </th>
               {plan.map((yearData, index) => (
-                <th className={styled.total} key={index}>
+                <th
+                  className={`${styled.total} ${styled.blueText}`}
+                  key={index}
+                >
                   {Number(yearData.operatingIncome.toFixed(0)).toLocaleString()}
                 </th>
               ))}
@@ -145,7 +155,10 @@ const FinanceCaculator: React.FC<Props> = ({ itemData }) => {
                 영업이익률
               </th>
               {plan.map((yearData, index) => (
-                <th className={styled.total} key={index}>
+                <th
+                  className={`${styled.total} ${styled.blueText}`}
+                  key={index}
+                >
                   {Number(
                     (yearData.operatingIncomeRate || 0).toFixed(0)
                   ).toLocaleString()}
