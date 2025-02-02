@@ -67,9 +67,9 @@ const IdeaList = (props: Props) => {
 
         // 아이디어 리스트 로딩
         if (id) {
-          fetchUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/themes?theme_id=${firstDataKey}&limit=1000`;
+          fetchUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/themes?theme_id=${firstDataKey}&limit=500`;
         } else {
-          fetchUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/themes?limit=1000`;
+          fetchUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/themes?limit=500`;
         }
 
         const themes = await fetch(fetchUrl);

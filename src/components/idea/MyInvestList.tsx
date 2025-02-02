@@ -20,6 +20,8 @@ const MyInvestList = (props: Props) => {
   const [selectedTheme, setSelectedTheme] = useState<Category>();
   const [registerList, setRegisterList] = useState<IdeaContentsType[]>([]);
   const [isDataFetched, setIsDataFetched] = useState(false); // 성공 상태 관리
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const [page, setPage] = useState<number>(1);
   const { userInfo } = userStore();
 
   // 데이터 정렬 초기 셋팅
@@ -308,7 +310,7 @@ const MyInvestList = (props: Props) => {
         </div>
       </div>
 
-      <Paging page={1} count={10} setPage={0} />
+      <Paging page={page} count={totalCount} setPage={setPage} />
     </div>
   );
 };

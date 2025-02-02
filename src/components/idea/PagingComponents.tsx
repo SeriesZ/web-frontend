@@ -6,11 +6,13 @@ import Pagination from "react-js-pagination";
 interface Props {
   page: number;
   count: number;
-  setPage: number;
+  setPage: (page: number) => void;
 }
 
 const Paging: React.FC<Props> = ({ page, count, setPage }) => {
-  const handlePageChange = (page: number) => {};
+  const handlePageChange = (page: number) => {
+    setPage(page);
+  };
 
   return (
     <div className={styled.pageContainer}>
@@ -22,6 +24,7 @@ const Paging: React.FC<Props> = ({ page, count, setPage }) => {
         prevPageText={"‹"} // "이전"을 나타낼 텍스트
         nextPageText={"›"} // "다음"을 나타낼 텍스트
         onChange={handlePageChange} // 페이지 변경을 핸들링하는 함수
+        activeClass={styled.activeClasse} // 활성화된 li 태그의 클래스
       />
     </div>
   );

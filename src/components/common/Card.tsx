@@ -93,7 +93,7 @@ const CompanyCard = ({ data, type }: Props) => {
       <div className={styled.thumbWrap}>
         <img
           className={styled.img}
-          src={data.images ? data.images[0].file_path : ""}
+          src={data.images[0] ? data.images[0].file_path : ""}
         />
       </div>
       <div className={styled.infoWrap}>
