@@ -21,6 +21,7 @@ import InvestSendPop from "./popup/InvestSendPop";
 import InvestSecretWritePop from "./popup/InvestSecretWritePop";
 import InvestSecretAplConfirmPop from "./popup/InvestSecretAplConfirmPop";
 import InvestSecretAplDonePop from "./popup/InvestSecretAplDonePop";
+import OnlineMeetSchedulePop from "./popup/OnlineMeetSchedulePop";
 import dynamic from "next/dynamic";
 
 import { Category, IdeaContentsType, Attachment } from "@/model/IdeaList";
@@ -37,6 +38,7 @@ import { useRouter } from "next/navigation";
 type Props = {
   activeIndex: number;
   data: IdeaContentsType;
+  refreshData: () => void;
   itemData: {
     costItems: ICostInputItem[];
     profitMargin: number;
@@ -55,6 +57,7 @@ type Props = {
 const IdeaContentsComponents = ({
   activeIndex,
   data,
+  refreshData,
   itemData,
   setActiveIndex,
 }: Props) => {
@@ -146,6 +149,10 @@ const IdeaContentsComponents = ({
   const maxInvestorCount = maxInvestorCountItem
     ? maxInvestorCountItem.amount
     : 0;
+  const maxInvestPerItem = costItems.find(
+    (item) => item.apiId === "max_invest_per"
+  );
+  const maxInvestPer = maxInvestPerItem ? maxInvestPerItem.amount : 0;
 
   useEffect(() => {
     getServerFinanceData();
@@ -347,12 +354,25 @@ const IdeaContentsComponents = ({
     </div>
   ));
 
+  const renderOnlineImg = (onlineYn: string) => {
+    if (onlineYn === "Y") {
+      return (
+        <div className={styled.ideaVideo} onClick={showLiveStreaming}></div>
+      );
+    }
+    return null;
+  };
+
   const renderOnlineInfoRow = (onlineYn: string) => {
     if (onlineYn === "Y") {
       return (
         <tr>
           <td>온라인사업설명회</td>
-          <td className={styled.tableRight}>D-30일</td>
+          <td className={styled.tableRight}>
+            {calculateDday(data.presentation_date) >= 0
+              ? "D-" + calculateDday(data.presentation_date)
+              : "종료"}
+          </td>
         </tr>
       );
     }
@@ -360,15 +380,21 @@ const IdeaContentsComponents = ({
   };
 
   const renderOnlineBtn = (onlineYn: string) => {
-    if (onlineYn === "Y") {
+    if (onlineYn === "Y" && userInfo.role != "예비창업자") {
       return (
-        <div className={`${styled.btn} ${styled.blueBtn}`}>
+        <div
+          className={`${styled.btn} ${styled.blueBtn}`}
+          onClick={showLiveStreaming}
+        >
           온라인 사업설명회
         </div>
       );
     } else {
       return (
-        <div className={`${styled.btn} ${styled.blueBtn}`}>
+        <div
+          className={`${styled.btn} ${styled.blueBtn}`}
+          onClick={() => setOnlineMeetScheduleOpen(true)}
+        >
           온라인 사업설명회 일정 선택
         </div>
       );
@@ -412,7 +438,7 @@ const IdeaContentsComponents = ({
 
     // 새 창에서 URL 열기
     window.open(
-      "https://meet.google.com/nou-stdt-ipm",
+      data.presentation_url,
       "GoogleMeetPopup",
       `width=${popupWidth},height=${popupHeight},top=${top},left=${left},resizable=yes,scrollbars=yes`
     );
@@ -427,6 +453,76 @@ const IdeaContentsComponents = ({
     link.download = ""; // 파일 이름을 지정할 수도 있습니다
     link.click();
   };
+
+  // 온라인 사업설명회 Url 및 날짜 저장
+  const saveOnlineUrlFn = (ptDate: string, url: string) => {
+    console.log(ptDate);
+    if (!ptDate || !url) {
+      alert("일정, URL을 모두 입력해주시기 바랍니다.");
+      return;
+    }
+    updateIdea(ptDate, url)
+      .then((data) => {
+        alert("온라인 사업설명회 일정이 등록되었습니다.");
+        refreshData();
+      })
+      .finally(() => {
+        setOnlineMeetScheduleOpen(false);
+      });
+  };
+
+  const updateIdea = (paramPtDate: string, paramUrl: string) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const queryParams = new URLSearchParams({
+          theme_id: data.theme.id,
+          presentation_url: paramUrl,
+          presentation_date: paramPtDate,
+        });
+
+        queryParams.toString();
+        const realIdeaId = data.id;
+        const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/${realIdeaId}?${queryParams}`;
+
+        const response = await fetch(url, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${userInfo.bearer}`,
+            Accept: "application/json",
+          },
+        });
+
+        if (response.ok) {
+          resolve("온라인 사업설명회 저장 성공"); // 성공 시 resolve 호출
+        } else {
+          const error = "온라인 사업설명회 저장 오류: " + response.statusText;
+          alert(error);
+          reject(error); // 실패 시 reject 호출
+        }
+      } catch (error) {
+        console.error("온라인 사업설명회 저장 중 오류 발생:", error);
+        reject("온라인 사업설명회 저장 오류: " + error); // 오류 발생 시 reject 호출
+      }
+    });
+  };
+
+  // 디데이 구하는 함수
+  function calculateDday(targetDateStr: string) {
+    const now: number = new Date().getTime(); // 현재 날짜 및 시간
+    const targetDate: number = new Date(targetDateStr).getTime(); // 입력받은 날짜
+
+    // 두 날짜의 차이를 밀리초(ms) 단위로 계산
+    const diffTime = targetDate - now;
+
+    // 밀리초를 일(day)로 변환 (1일 = 24시간 * 60분 * 60초 * 1000ms)
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    return diffDays; // 남은 D-Day 반환
+  }
+
+  // 사용 예시
+  const dDay = calculateDday("2025-02-03T00:00:00");
+  console.log(`D-Day: ${dDay}일 남음`);
 
   interface CustomModalProps {
     isOpen: boolean;
@@ -481,6 +577,7 @@ const IdeaContentsComponents = ({
     useState(false); // 투자의향전달 비밀유지협약서
   const [isInvestSecretAplDoneOpen, setInvestSecretAplDoneOpen] =
     useState(false); //  투자의향 신청 완료 팝업
+  const [isOnlineMeetScheduleOpen, setOnlineMeetScheduleOpen] = useState(false); //  온라인 사업설명회 일정 선택
   const [investorInfo, setInvestorInfo] = useState<any>(null);
 
   const showInvestSimulationModal = () => {
@@ -545,6 +642,9 @@ const IdeaContentsComponents = ({
   };
   const closInvestSecretAplDoneModal = () => {
     setInvestSecretAplDoneOpen(false);
+  };
+  const closOnlineMeetScheduleModal = () => {
+    setOnlineMeetScheduleOpen(false);
   };
 
   const openBeforeCheckContractPop = (data: any) => {
@@ -613,10 +713,8 @@ const IdeaContentsComponents = ({
                 showType={"viewer"}
               ></TextEditor>
             </div>
-
-            <div className={styled.ideaVideo} onClick={showLiveStreaming}>
-              {/* 화상채팅 */}
-            </div>
+            {/* 화상채팅 */}
+            {renderOnlineImg(data.presentation_date ? "Y" : "N")}
             <div className={styled.title}>첨부파일</div>
             <div className={styled.attachWrap}>
               <div className={styled.attachFile}>{attachSetArray}</div>
@@ -713,25 +811,25 @@ const IdeaContentsComponents = ({
                   <tr>
                     <td>투자자 수</td>
                     <td className={styled.tableRight}>
-                      {data.investments.length}
+                      {data.investments.length}명
                     </td>
                   </tr>
                   <tr>
                     <td>최대 투자자 수</td>
                     <td className={styled.tableRight}>
-                      {data.investments.length}
+                      {maxInvestPer.toLocaleString()}명
                     </td>
                   </tr>
                   <tr>
                     <td>모집금액</td>
-                    <td className={styled.tableRight}>{0}</td>
+                    <td className={styled.tableRight}>{0}원</td>
                   </tr>
                   {/* 온라인사업설명회 D-day */}
-                  {renderOnlineInfoRow("Y")}
+                  {renderOnlineInfoRow(data.presentation_date ? "Y" : "N")}
                 </tbody>
               </table>
               {/* 온라인사업설명회 버튼 */}
-              {renderOnlineBtn("Y")}
+              {renderOnlineBtn(data.presentation_date ? "Y" : "N")}
 
               <div
                 className={`${styled.btn} ${styled.whithBtn}`}
@@ -944,6 +1042,24 @@ const IdeaContentsComponents = ({
           customStyles={{
             width: "600px",
             height: "460px",
+            padding: "40px",
+          }}
+        />
+
+        {/* 온라인 사업설명회 일정 선택 팝업 */}
+        <ModalComponent
+          isOpen={isOnlineMeetScheduleOpen}
+          closeModal={closOnlineMeetScheduleModal}
+          content={
+            <OnlineMeetSchedulePop
+              closeModal={closOnlineMeetScheduleModal}
+              data={data}
+              saveOnlineUrl={saveOnlineUrlFn}
+            />
+          }
+          customStyles={{
+            width: "500px",
+            height: "350px",
             padding: "40px",
           }}
         />

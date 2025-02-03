@@ -10,6 +10,7 @@ export  type Category = {
 };
 
 export type IdeaContentsType = {
+  no:number;
   id: string;
   title: string;
   content: string;
@@ -20,6 +21,7 @@ export type IdeaContentsType = {
     description: string;
     psr_value:number;
   };
+  presentation_url: string;
   presentation_date: string;
   close_date: string;
   status: string;
@@ -66,6 +68,7 @@ export type IdeaContentsType = {
 
 export const initializeIdeaContents = (): IdeaContentsType => {
   return {
+    no:0,
     id: "",
     title: "",
     content: "",
@@ -76,6 +79,7 @@ export const initializeIdeaContents = (): IdeaContentsType => {
       description: "",
       psr_value: 0
     },
+    presentation_url:"",
     presentation_date: new Date().toISOString(),
     close_date: new Date().toISOString(),
     status: "",

@@ -10,6 +10,9 @@
   },
   "proxy": "http://222.239.126.176:8083",
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/material": "^6.4.2",
     "@tanstack/react-query": "^5.17.8",
     "@tanstack/react-query-next-experimental": "^5.32.1",
     "@types/jspdf": "^1.3.3",
