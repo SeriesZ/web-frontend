@@ -175,6 +175,7 @@ const IdeaContents = (props: Props) => {
         <IdeaContentsComponents
           activeIndex={activeIndex}
           data={contents}
+          refreshData={fetchSearchData}
           itemData={performanceParams}
           setActiveIndex={setActiveIndex}
         />

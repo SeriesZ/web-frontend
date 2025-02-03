@@ -70,6 +70,24 @@ const RegisterList = (props: Props) => {
     }
   }, [isDataFetched]); // 상태 변경 시 실행
 
+  useEffect(() => {
+    if (page && registerAllList.length > 0) {
+      let ideaDataList: IdeaContentsType[] = [];
+      for (let i = 1; i < registerAllList.length + 1; i++) {
+        var startIdx = (page - 1) * 10 + 1;
+        var endIdx =
+          page * 10 > registerAllList.length
+            ? registerAllList.length
+            : page * 10;
+
+        if (i >= startIdx && i <= endIdx) {
+          ideaDataList.push(registerAllList[i - 1]);
+        }
+      }
+      setRegisterList(ideaDataList);
+    }
+  }, [page]); // 상태 변경 시 실행
+
   // 이벤트
   const handleSelectTheme = (value: Category) => {
     setSelectedTheme(value);
@@ -89,10 +107,11 @@ const RegisterList = (props: Props) => {
 
       let ideaDataList: IdeaContentsType[] = [];
       let ideaDataListAll: IdeaContentsType[] = [];
-      let totalCount = 0;
+      let totalCount = 1;
       Object.keys(resData2).map((item, index) => {
         resData2[item].forEach((element: IdeaContentsType) => {
-          if (totalCount < 10) {
+          element.no = totalCount;
+          if (totalCount <= 10) {
             ideaDataList.push(element);
           }
           totalCount++;
@@ -103,9 +122,6 @@ const RegisterList = (props: Props) => {
       setTotalCount(totalCount);
       setRegisterList(ideaDataList);
       setRegisterAllList(ideaDataListAll);
-
-      // 페이징 처리
-      let pageCount = totalCount / 10 + 1;
     } catch (error) {
       console.error("Error fetching registerList data:", error);
     } finally {
@@ -117,6 +133,7 @@ const RegisterList = (props: Props) => {
     const isConfirmed = window.confirm("삭제하시겠습니까?");
     if (isConfirmed) {
       deleteIdeaFetchData(id);
+      setPage(1);
     } else {
       console.log("아니오");
     }
@@ -156,7 +173,7 @@ const RegisterList = (props: Props) => {
       {
         Header: "No",
         width: "3%",
-        Cell: ({ row }) => <span>{row.index + 1}</span>,
+        accessor: "no",
       },
       {
         Header: "",

@@ -729,7 +729,6 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
       }
     } catch (error) {
       console.error("An error occurred:", error);
-      alert("저장 권한이 없습니다.");
     }
   };
 
@@ -777,7 +776,6 @@ const RegisterComponents = ({ activeIndex, ideaId, setActiveIndex }: Props) => {
         }
       } catch (error) {
         console.error("An error occurred:", error);
-        alert("저장 권한이 없습니다.");
         reject("저장 권한 오류 발생");
       }
     });
