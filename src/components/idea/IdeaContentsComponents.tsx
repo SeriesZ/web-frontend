@@ -626,12 +626,20 @@ const IdeaContentsComponents = ({
     setInvestSimulationOpen(false);
   };
   const showInvestmentStatusModal = () => {
+    if (data.investments.length == 0) {
+      alert("신청된 내역이 없습니다.");
+      return;
+    }
     setInvestmentStatusOpen(true);
   };
   const closInvestmentStatusModal = () => {
     setInvestmentStatusOpen(false);
   };
   const showFinalInvestStatusModal = () => {
+    if (data.investments.length == 0) {
+      alert("매칭된 내역이 없습니다.");
+      return;
+    }
     setFinalInvestStatusOpen(true);
   };
   const closFinalInvestStatusModal = () => {
