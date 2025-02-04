@@ -22,9 +22,13 @@ import InvestSecretWritePop from "./popup/InvestSecretWritePop";
 import InvestSecretAplConfirmPop from "./popup/InvestSecretAplConfirmPop";
 import InvestSecretAplDonePop from "./popup/InvestSecretAplDonePop";
 import OnlineMeetSchedulePop from "./popup/OnlineMeetSchedulePop";
-import dynamic from "next/dynamic";
 
-import { Category, IdeaContentsType, Attachment } from "@/model/IdeaList";
+import {
+  Category,
+  IdeaContentsType,
+  Attachment,
+  investmentTy,
+} from "@/model/IdeaList";
 import { defaultYearData, defaultPriceData } from "@/model/financeDefaultData";
 import { calculateYearData } from "@/model/financeCalculationFormula";
 import {
@@ -506,6 +510,40 @@ const IdeaContentsComponents = ({
     });
   };
 
+  const createInvenstment = () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const investmentData: investmentTy = {
+          ideation_id: data.id,
+          investor_id: userInfo.id,
+          amount: investHopeAmt,
+          approval_status: false,
+        };
+
+        const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/investment`;
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${userInfo.bearer}`,
+            Accept: "application/json",
+            "Content-Type": "application/json;charset=utf-8",
+          },
+          body: JSON.stringify(investmentData),
+        });
+
+        if (response.ok) {
+          resolve("투자의향 신청 성공"); // 성공 시 resolve 호출
+        } else {
+          const error = "투자의향 신청 오류: " + response.statusText;
+          reject(error); // 실패 시 reject 호출
+        }
+      } catch (error) {
+        console.error("투자의향 신청 중 오류 발생:", error);
+        reject("투자의향 신청 오류: " + error); // 오류 발생 시 reject 호출
+      }
+    });
+  };
+
   // 디데이 구하는 함수
   function calculateDday(targetDateStr: string) {
     const now: number = new Date().getTime(); // 현재 날짜 및 시간
@@ -579,6 +617,7 @@ const IdeaContentsComponents = ({
     useState(false); //  투자의향 신청 완료 팝업
   const [isOnlineMeetScheduleOpen, setOnlineMeetScheduleOpen] = useState(false); //  온라인 사업설명회 일정 선택
   const [investorInfo, setInvestorInfo] = useState<any>(null);
+  const [investHopeAmt, setInvestHopeAmt] = useState<number>(0);
 
   const showInvestSimulationModal = () => {
     setInvestSimulationOpen(true);
@@ -668,8 +707,9 @@ const IdeaContentsComponents = ({
     setContractSignOpen(false);
     showChatModal();
   };
-  const openBeforeCheckInvestPop = (data: any) => {
-    setInvestorInfo(data);
+  const openBeforeCheckInvestPop = (amt: string) => {
+    const rawAmt = Number(amt.replace(/,/g, ""));
+    setInvestHopeAmt(rawAmt);
     setBeforeInvestOpen(true);
     setInvestSendOpen(false);
   };
@@ -694,8 +734,17 @@ const IdeaContentsComponents = ({
     setInvestSecretWriteOpen(false);
   };
   const clickInvestAplDone = () => {
-    setInvestSecretAplDoneOpen(true);
-    setInvestSecretAplConfirmOpen(false);
+    // 투자의향 신청 완료 => 서버로 저장
+    createInvenstment()
+      .then(() => {
+        setInvestSecretAplDoneOpen(true);
+      })
+      .catch(() => {
+        alert("투자의향 신청 중 오류가 발생했습니다.");
+      })
+      .finally(() => {
+        setInvestSecretAplConfirmOpen(false);
+      });
   };
   const moveInvestList = () => {
     router.push("/idea/investList");
@@ -848,6 +897,8 @@ const IdeaContentsComponents = ({
           content={
             <InvestStatusPop
               closeModal={closInvestmentStatusModal}
+              dataList={data}
+              itemData={performanceParams}
               viewOption={""}
               openBeforeCheckContractPop={openBeforeCheckContractPop}
             />
@@ -862,6 +913,8 @@ const IdeaContentsComponents = ({
           content={
             <InvestStatusPop
               closeModal={closFinalInvestStatusModal}
+              dataList={data}
+              itemData={performanceParams}
               viewOption={"final"}
               openBeforeCheckContractPop={openBeforeCheckContractPop}
             />

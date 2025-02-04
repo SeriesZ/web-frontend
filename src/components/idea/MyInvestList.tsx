@@ -310,7 +310,12 @@ const MyInvestList = (props: Props) => {
         </div>
       </div>
 
-      <Paging page={page} count={totalCount} setPage={setPage} />
+      <Paging
+        page={page}
+        count={totalCount}
+        setPage={setPage}
+        stytleDivCd={"grid"}
+      />
     </div>
   );
 };

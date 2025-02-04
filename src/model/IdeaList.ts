@@ -133,3 +133,18 @@ export interface Attachment {
   file_name: string;
   file_path: string;
 }
+
+export interface investmentTy {
+  ideation_id: string;
+  investor_id: string;
+  amount: number;
+  approval_status: boolean;
+}
+
+export interface investorsDataTy {
+  id: number;
+  name: string,
+  amount: number,
+  equity: number,
+  founder_name: string,
+}

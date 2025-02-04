@@ -14,7 +14,7 @@ type Investor = {
 const InvestSendPop: React.FC<{
   closeModal: () => void;
   data: any;
-  openBeforeCheckInvestPop: (data: any) => void;
+  openBeforeCheckInvestPop: (capitalAmt: string) => void;
   itemData: {
     costItems: ICostInputItem[];
     plan: YearData[];
@@ -209,7 +209,7 @@ const InvestSendPop: React.FC<{
         <button
           className={styled.submitBtn}
           onClick={() => {
-            openBeforeCheckInvestPop(data);
+            openBeforeCheckInvestPop(capitalAmt);
           }}
         >
           최종완료

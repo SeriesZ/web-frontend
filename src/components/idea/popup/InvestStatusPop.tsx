@@ -1,5 +1,8 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styled from "@/components/idea/InvestPop.module.scss";
+import { Category, IdeaContentsType, investorsDataTy } from "@/model/IdeaList";
+import { YearData, ICostInputItem } from "@/model/financeType";
+import Paging from "../PagingComponents";
 
 type Investor = {
   id: number;
@@ -11,81 +14,79 @@ type Investor = {
 
 const InvestStatusPop: React.FC<{
   closeModal: () => void;
+  dataList: IdeaContentsType;
+  itemData: {
+    costItems: ICostInputItem[];
+    plan: YearData[];
+    selectedTheme4Psr: Category;
+    averageSales: number;
+  };
   viewOption: string;
   openBeforeCheckContractPop: (data: any) => void;
-}> = ({ closeModal, viewOption, openBeforeCheckContractPop }) => {
-  const investorsData = [
-    {
-      id: 1,
-      name: "Taehyun",
-      amount: 2000000,
-      equity: 0.25,
-      founder_name: "고태현",
-    },
-    {
-      id: 2,
-      name: "Taehyun",
-      amount: 2000000,
-      equity: 0.25,
-      founder_name: "고태현",
-    },
-    {
-      id: 3,
-      name: "Taehyun",
-      amount: 2000000,
-      equity: 0.125,
-      founder_name: "고태현",
-    },
-    {
-      id: 4,
-      name: "Taehyun",
-      amount: 2000000,
-      equity: 0.125,
-      founder_name: "고태현",
-    },
-    {
-      id: 5,
-      name: "Taehyun",
-      amount: 2000000,
-      equity: 0.52,
-      founder_name: "고태현",
-    },
-    {
-      id: 6,
-      name: "Taehyun",
-      amount: 2000000,
-      equity: 0.52,
-      founder_name: "고태현",
-    },
-    {
-      id: 7,
-      name: "Taehyun",
-      amount: 2000000,
-      equity: 0.25,
-      founder_name: "고태현",
-    },
-    {
-      id: 8,
-      name: "Taehyun",
-      amount: 2000000,
-      equity: 0.125,
-      founder_name: "고태현",
-    },
-    {
-      id: 9,
-      name: "Taehyun",
-      amount: 2000000,
-      equity: 0.25,
-      founder_name: "고태현",
-    },
-    {
-      id: 10,
-      name: "Taehyun",
-      amount: 2000000,
-      equity: 0.25,
-      founder_name: "고태현",
-    },
-  ];
+}> = ({
+  closeModal,
+  dataList,
+  itemData,
+  viewOption,
+  openBeforeCheckContractPop,
+}) => {
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const [page, setPage] = useState<number>(1);
+  const { costItems, plan, selectedTheme4Psr, averageSales } = itemData;
+  const [investorsDataAllList, setInvestorsAllData] = useState<
+    investorsDataTy[]
+  >([]);
+  const [investorsDataShowList, setInvestorsShowData] = useState<
+    investorsDataTy[]
+  >([]);
+
+  useEffect(() => {
+    if (dataList) {
+      // 목록 넣을 데이터 생성성
+      const settingDataAllList: investorsDataTy[] = [];
+      const settingDataShowList: investorsDataTy[] = [];
+      dataList.investments.forEach((item, index) => {
+        // 지분율 계산
+        const psrValue = selectedTheme4Psr.psr_value
+          ? selectedTheme4Psr.psr_value
+          : 0;
+        const maraketCap = averageSales * psrValue;
+        const ownershipPercentageCal = (item.amount / maraketCap) * 100; // 지분율
+
+        const dataForm = {
+          id: index,
+          name: item.investor.name,
+          amount: item.amount,
+          equity: Number(Math.floor(ownershipPercentageCal * 10) / 10),
+          founder_name: item.investor.name,
+        };
+        settingDataAllList.push(dataForm);
+
+        if (index < 10) settingDataShowList.push(dataForm);
+      });
+      setTotalCount(settingDataAllList.length);
+      setInvestorsAllData(settingDataAllList);
+      setInvestorsShowData(settingDataShowList);
+    }
+  }, [dataList]);
+
+  useEffect(() => {
+    if (page && investorsDataAllList.length > 0) {
+      let data: investorsDataTy[] = [];
+      for (let i = 1; i < investorsDataAllList.length + 1; i++) {
+        var startIdx = (page - 1) * 10 + 1;
+        var endIdx =
+          page * 10 > investorsDataAllList.length
+            ? investorsDataAllList.length
+            : page * 10;
+
+        if (i >= startIdx && i <= endIdx) {
+          data.push(investorsDataAllList[i - 1]);
+        }
+      }
+      setInvestorsShowData(data);
+    }
+  }, [page]); // 상태 변경 시 실행
 
   const InvestorItem: React.FC<{ investor: Investor }> = ({ investor }) => (
     <div className={styled.investorItem}>
@@ -156,12 +157,14 @@ const InvestStatusPop: React.FC<{
         <div className={styled.summary}>
           <p>
             투자의향자{" "}
-            <span className={styled.highlight}>{investorsData.length}명</span>
+            <span className={styled.highlight}>
+              {investorsDataAllList.length}명
+            </span>
           </p>
           <p>
             투자의향금액{" "}
             <span className={styled.highlight}>
-              {investorsData
+              {investorsDataAllList
                 .reduce((acc, curr) => acc + curr.amount, 0)
                 .toLocaleString()}
               원
@@ -171,19 +174,26 @@ const InvestStatusPop: React.FC<{
         {showFinalBtnHeader(viewOption)}
       </div>
       <div className={styled.investorList}>
-        {investorsData.map((investor) => (
+        {investorsDataShowList.map((investor) => (
           <InvestorItem key={investor.id} investor={investor} />
         ))}
       </div>
+
       <div className={styled.pagination}>
-        <div className={styled.paginationLeft}></div>
+        <Paging
+          page={page}
+          count={totalCount}
+          setPage={setPage}
+          stytleDivCd={"pop-up"}
+        />
+        {/* <div className={styled.paginationLeft}></div>
         <button>1</button>
         <button className={styled.active}>2</button>
         <button>3</button>
         <button>4</button>
         <button>5</button>
         <button>6</button>
-        <div className={styled.paginationRight}></div>
+        <div className={styled.paginationRight}></div> */}
       </div>
     </div>
   );

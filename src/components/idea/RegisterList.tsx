@@ -357,7 +357,14 @@ const RegisterList = (props: Props) => {
         </div>
       </div>
 
-      <Paging page={page} count={totalCount} setPage={setPage} />
+      <div>
+        <Paging
+          page={page}
+          count={totalCount}
+          setPage={setPage}
+          stytleDivCd={"grid"}
+        />
+      </div>
     </div>
   );
 };

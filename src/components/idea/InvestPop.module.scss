@@ -320,12 +320,11 @@
   .pagination {
     display: flex;
     justify-content: center;
-    button {
+    .pageItem {
       width: 36px;
       height: 36px;
       border-radius: 6px;
       border: none;
-      margin: 0 5px;
       font-size: 18px;
       font-weight: 400;
       line-height: 18px;
@@ -334,11 +333,11 @@
       color: #78829D;
       cursor: pointer;
     }
-    button.active {
+    .pageItem.active {
       color: white;
       background: var(--main-color, #1363DF);
     }
-    button:hover {
+    .pageItem:hover {
       color: var(--main-color, #1363DF);
       background: #1363DF1A;
     }
