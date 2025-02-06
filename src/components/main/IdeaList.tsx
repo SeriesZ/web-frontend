@@ -84,10 +84,10 @@ const IdeaList = (props: Props) => {
           });
         });
 
-        // close_date가 최신순으로 정렬
+        // created_at 최신순으로 정렬
         ideaDataList.sort((a, b) => {
-          const dateA = new Date(a.close_date).getTime(); // close_date를 Date 객체로 변환
-          const dateB = new Date(b.close_date).getTime();
+          const dateA = new Date(a.created_at).getTime(); // close_date를 Date 객체로 변환
+          const dateB = new Date(b.created_at).getTime();
           return dateB - dateA; // 최신순 정렬
         });
 

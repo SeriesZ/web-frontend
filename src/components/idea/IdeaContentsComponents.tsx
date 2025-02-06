@@ -544,6 +544,44 @@ const IdeaContentsComponents = ({
     });
   };
 
+  // 투자신청 승인 또는 반려
+  const updateInvestmentState = (confirmState: boolean) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (!investorInfo?.investment_id) {
+          return reject("투자의향 신청 변경 오류: 투자 ID가 없습니다.");
+        }
+
+        const investmentData: investmentTy = {
+          ideation_id: data.id,
+          investor_id: investorInfo.investor_id,
+          amount: data.investments[investorInfo.id]?.amount || 0,
+          approval_status: confirmState,
+        };
+
+        const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/investment/${investorInfo.investment_id}`;
+        const response = await fetch(url, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${userInfo.bearer}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(investmentData),
+        });
+
+        if (response.ok) {
+          resolve("투자의향 신청 변경 성공"); // 성공 시 resolve 호출
+        } else {
+          const error = "투자의향 신청 변경 오류: " + JSON.stringify(response);
+          reject(error); // 실패 시 reject 호출
+        }
+      } catch (error) {
+        console.error("투자의향 신청 변경 중 오류 발생:", error);
+        reject("투자의향 신청 변경 오류: " + error); // 오류 발생 시 reject 호출
+      }
+    });
+  };
+
   // 디데이 구하는 함수
   function calculateDday(targetDateStr: string) {
     const now: number = new Date().getTime(); // 현재 날짜 및 시간
@@ -695,25 +733,36 @@ const IdeaContentsComponents = ({
   };
 
   const openBeforeCheckContractPop = (data: any) => {
-    setInvestorInfo(data);
+    setInvestorInfo(data); // 승인 또는 거절 할 상태
     setFinalInvestStatusOpen(false);
     showBeforeContractModal();
   };
   const openContractWritePop = (data: any) => {
-    setInvestorInfo(data);
     setBeforeContractOpen(false);
     showContractWriteModal();
   };
   const openContractSignPop = (data: any) => {
-    setInvestorInfo(data);
     setOpenRoot("contract");
     setContractWriteOpen(false);
     showContractSignModal();
   };
   const openChatPop = (data: any) => {
-    setInvestorInfo(data);
-    setContractSignOpen(false);
-    showChatModal();
+    if (investorInfo.investment_id == null) {
+      alert("투자자 ID가 존재하지 않습니다. 관리자에게 문의해주세요.");
+      return;
+    }
+    // 투자의향 신청 변경 완료 => 저장
+    updateInvestmentState(true)
+      .then(() => {
+        showChatModal();
+        alert("투자의향 승인/반려 저장을 하였습니다.");
+      })
+      .catch(() => {
+        alert("투자의향 승인/반려 저장 중 오류가 발생했습니다.");
+      })
+      .finally(() => {
+        setContractSignOpen(false);
+      });
   };
   const openBeforeCheckInvestPop = (amt: string) => {
     const rawAmt = Number(amt.replace(/,/g, ""));
@@ -776,10 +825,12 @@ const IdeaContentsComponents = ({
             <div className={styled.attachWrap}>
               <div className={styled.attachFile}>{attachSetArray}</div>
             </div>
-            <div className={styled.teamMemberWrap}>
+            {/* 
+              <div className={styled.teamMemberWrap}>
               <div className={styled.title}>멤버</div>
               <div className={styled.teamMemberArry}>{teamMemberSetArray}</div>
             </div>
+            */}
           </div>
           <div className={styled.contentsSideWrap}>
             <div className={styled.side1}>
@@ -801,7 +852,7 @@ const IdeaContentsComponents = ({
                     className={`${styled.statusImg} ${styled.updateDt}`}
                   ></div>
                   업데이트
-                  <div>{formatDate(data.close_date)}</div>
+                  <div>{formatDate(data.updated_at)}</div>
                 </div>
               </div>
               {renderInvestApplyBtn()}

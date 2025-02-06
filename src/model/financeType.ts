@@ -75,6 +75,7 @@ export interface YearData {
   calStockValueHeld?:number;
   calExitProfit?:number;
   calTransferTax?:number;
+  calFinalProfis?:number;
   calProtitRate?:number;
   calMultiple?:number;
 }

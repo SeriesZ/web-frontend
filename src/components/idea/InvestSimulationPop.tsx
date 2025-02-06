@@ -103,6 +103,7 @@ const InvestSimulationPop: React.FC<Props> = ({ itemData, contents }) => {
         calExitProfit(item.sales, ownershipCntCal, rawValue) > 0
           ? transferTax(item.sales, ownershipCntCal, rawValue)
           : 0;
+      item.calFinalProfis = item.calExitProfit - item.calTransferTax;
       item.calProtitRate =
         ((calExitProfit(item.sales, ownershipCntCal, rawValue) -
           transferTax(item.sales, ownershipCntCal, rawValue)) /
@@ -331,7 +332,7 @@ const InvestSimulationPop: React.FC<Props> = ({ itemData, contents }) => {
                   </td>
                 </tr>
                 <tr>
-                  <td>연 수익율</td>
+                  <td>(EXIT까지의)연 수익율</td>
                   <td>
                     {plusProfitYear
                       ? Number(

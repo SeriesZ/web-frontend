@@ -19,6 +19,9 @@ const MyInvestList = (props: Props) => {
   const [categoryList, setCategoryData] = useState<Category[]>([]);
   const [selectedTheme, setSelectedTheme] = useState<Category>();
   const [registerList, setRegisterList] = useState<IdeaContentsType[]>([]);
+  const [registerAllList, setRegisterAllList] = useState<IdeaContentsType[]>(
+    []
+  );
   const [isDataFetched, setIsDataFetched] = useState(false); // 성공 상태 관리
   const [totalCount, setTotalCount] = useState<number>(0);
   const [page, setPage] = useState<number>(1);
@@ -67,23 +70,68 @@ const MyInvestList = (props: Props) => {
     }
   }, [isDataFetched]); // 상태 변경 시 실행
 
+  useEffect(() => {
+    if (page && registerAllList.length > 0) {
+      let ideaDataList: IdeaContentsType[] = [];
+      for (let i = 1; i < registerAllList.length + 1; i++) {
+        var startIdx = (page - 1) * 10 + 1;
+        var endIdx =
+          page * 10 > registerAllList.length
+            ? registerAllList.length
+            : page * 10;
+
+        if (i >= startIdx && i <= endIdx) {
+          ideaDataList.push(registerAllList[i - 1]);
+        }
+      }
+      setRegisterList(ideaDataList);
+    }
+  }, [page]); // 상태 변경 시 실행
+
   // 이벤트
   const handleSelectTheme = (value: Category) => {
     setSelectedTheme(value);
     fetchData(value);
+    setPage(1);
   };
   const fetchData = async (value: Category) => {
-    let fetchUrl = "";
+    let fetchUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/user?offset=0&limit=1000`;
     try {
-      // 아이디어 리스트 로딩
-      if (value.id) {
-        fetchUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/themes?theme_id=${value.id}&limit=1000`;
-      } else {
-        fetchUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/ideation/themes?limit=1000`;
-      }
-      const response = await fetch(fetchUrl);
+      const response = await fetch(fetchUrl, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${userInfo.bearer}`,
+          Accept: "application/json",
+        },
+      });
       const resData2 = await response.json();
-      setRegisterList(resData2[value.name]);
+
+      let ideaDataList: IdeaContentsType[] = [];
+      let ideaDataListAll: IdeaContentsType[] = [];
+      let totalCount = 1;
+      resData2.forEach((element: IdeaContentsType) => {
+        if (element.theme.id == value.id || value.id == "") {
+          totalCount++;
+          ideaDataListAll.push(element);
+        }
+      });
+
+      // created_at 최신순으로 정렬
+      ideaDataListAll.sort((a, b) => {
+        const dateA = new Date(a.created_at).getTime();
+        const dateB = new Date(b.created_at).getTime();
+        return dateB - dateA; // 최신순 정렬
+      });
+
+      ideaDataListAll.forEach((element: IdeaContentsType) => {
+        if (ideaDataList.length < 10) {
+          ideaDataList.push(element);
+        }
+      });
+
+      setTotalCount(totalCount);
+      setRegisterList(ideaDataList);
+      setRegisterAllList(ideaDataListAll);
     } catch (error) {
       console.error("Error fetching registerList data:", error);
     } finally {
@@ -134,7 +182,7 @@ const MyInvestList = (props: Props) => {
       {
         Header: "No",
         width: "3%",
-        Cell: ({ row }) => <span>{row.index + 1}</span>,
+        Cell: ({ row }) => <span>{(page - 1) * 10 + row.index + 1}</span>,
       },
       {
         Header: "",
@@ -163,6 +211,7 @@ const MyInvestList = (props: Props) => {
         Header: "내 투자 제안(지분율)",
         accessor: "investment_goal",
         width: "9%",
+        minWidth: 160,
         Cell: ({ row }) => {
           const investments = row.original.investments || [];
           const totalInvestment =
@@ -180,7 +229,7 @@ const MyInvestList = (props: Props) => {
       },
       {
         Header: "등록일",
-        accessor: "close_date",
+        accessor: "created_at",
         width: "15%",
         Cell: ({ cell: { value } }) => <span>{formatDate(value)}</span>,
       },
@@ -192,7 +241,7 @@ const MyInvestList = (props: Props) => {
         Cell: ({ cell: { value } }) => <StatusBox value={value} />,
       },
     ],
-    []
+    [page]
   );
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable<IdeaContentsType>({ columns, data });
@@ -272,7 +321,10 @@ const MyInvestList = (props: Props) => {
                     <th
                       className={styled.tableTitle}
                       {...column.getHeaderProps({
-                        style: { width: column.width },
+                        style: {
+                          width: column.width,
+                          minWidth: column.minWidth,
+                        },
                       })}
                     >
                       {column.render("Header")}
@@ -304,6 +356,13 @@ const MyInvestList = (props: Props) => {
                     </tr>
                   );
                 })}
+                {/* 데이터가 부족할 경우 빈 행 추가 */}
+                {rows.length < 10 &&
+                  Array.from({ length: 10 - rows.length }).map((_, index) => (
+                    <tr key={`empty-${index}`} className={styled.emptyRow}>
+                      <td colSpan={columns.length}></td>
+                    </tr>
+                  ))}
               </tbody>
             }
           </table>

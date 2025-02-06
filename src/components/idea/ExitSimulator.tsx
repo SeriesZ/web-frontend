@@ -135,6 +135,18 @@ const ExitSimulator: React.FC<Props> = ({ itemData }) => {
               ))}
             </tr>
             <tr>
+              <th>최종 차익</th>
+              {plan.map((yearData, index) => (
+                <td key={index}>
+                  {yearData.calFinalProfis
+                    ? Number(
+                        yearData.calFinalProfis.toFixed(0)
+                      ).toLocaleString()
+                    : 0}
+                </td>
+              ))}
+            </tr>
+            <tr>
               <th>수익율</th>
               {plan.map((yearData, index) => (
                 <td key={index}>

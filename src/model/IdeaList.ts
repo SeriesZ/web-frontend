@@ -12,6 +12,8 @@ export  type Category = {
 export type IdeaContentsType = {
   no:number;
   id: string;
+  created_at:string;
+  updated_at:string;
   title: string;
   content: string;
   theme: {
@@ -28,8 +30,10 @@ export type IdeaContentsType = {
   view_count: number;
   investment_goal: number;
   investments: {
+    id:string;
     ideation_id: string;
     investor: {
+      id:string;
       name: string;
       description: string;
       image: string;
@@ -70,6 +74,8 @@ export const initializeIdeaContents = (): IdeaContentsType => {
   return {
     no:0,
     id: "",
+    created_at:"",
+    updated_at:"",
     title: "",
     content: "",
     theme: {
@@ -86,9 +92,11 @@ export const initializeIdeaContents = (): IdeaContentsType => {
     view_count: 0,
     investment_goal: 0,
     investments: [
-      {
+      { 
+        id:"",
         ideation_id: "",
         investor: {
+          id:"",
           name: "",
           description: "",
           image: "",
@@ -143,6 +151,7 @@ export interface investmentTy {
 
 export interface investorsDataTy {
   id: number;
+  investor_id:string;
   name: string,
   amount: number,
   equity: number,

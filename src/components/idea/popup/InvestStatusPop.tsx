@@ -4,14 +4,6 @@ import { Category, IdeaContentsType, investorsDataTy } from "@/model/IdeaList";
 import { YearData, ICostInputItem } from "@/model/financeType";
 import Paging from "../PagingComponents";
 
-type Investor = {
-  id: number;
-  name: string;
-  amount: number;
-  equity: number;
-  founder_name: string;
-};
-
 const InvestStatusPop: React.FC<{
   closeModal: () => void;
   dataList: IdeaContentsType;
@@ -55,6 +47,8 @@ const InvestStatusPop: React.FC<{
 
         const dataForm = {
           id: index,
+          investor_id: item.investor.id,
+          investment_id: item.id,
           name: item.investor.name,
           amount: item.amount,
           equity: Number(Math.floor(ownershipPercentageCal * 10) / 10),
@@ -88,7 +82,9 @@ const InvestStatusPop: React.FC<{
     }
   }, [page]); // 상태 변경 시 실행
 
-  const InvestorItem: React.FC<{ investor: Investor }> = ({ investor }) => (
+  const InvestorItem: React.FC<{ investor: investorsDataTy }> = ({
+    investor,
+  }) => (
     <div className={styled.investorItem}>
       <table className={styled.investorTable}>
         <tbody>
@@ -122,7 +118,10 @@ const InvestStatusPop: React.FC<{
     return null;
   };
 
-  const showFinalBtnItems = (viewOption: string, investorInfo: Investor) => {
+  const showFinalBtnItems = (
+    viewOption: string,
+    investorInfo: investorsDataTy
+  ) => {
     if (viewOption === "final") {
       return (
         <tr>

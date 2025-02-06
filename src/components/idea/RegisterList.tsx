@@ -110,13 +110,19 @@ const RegisterList = (props: Props) => {
       let totalCount = 1;
       Object.keys(resData2).map((item, index) => {
         resData2[item].forEach((element: IdeaContentsType) => {
-          element.no = totalCount;
           if (totalCount <= 10) {
             ideaDataList.push(element);
           }
           totalCount++;
           ideaDataListAll.push(element);
         });
+      });
+
+      // created_at 최신순으로 정렬
+      ideaDataList.sort((a, b) => {
+        const dateA = new Date(a.created_at).getTime(); // close_date를 Date 객체로 변환
+        const dateB = new Date(b.created_at).getTime();
+        return dateB - dateA; // 최신순 정렬
       });
 
       setTotalCount(totalCount);
@@ -173,7 +179,7 @@ const RegisterList = (props: Props) => {
       {
         Header: "No",
         width: "3%",
-        accessor: "no",
+        Cell: ({ row }) => <span>{(page - 1) * 10 + row.index + 1}</span>,
       },
       {
         Header: "",
@@ -219,7 +225,7 @@ const RegisterList = (props: Props) => {
       },
       {
         Header: "등록일",
-        accessor: "close_date",
+        accessor: "created_at",
         width: "15%",
         Cell: ({ cell: { value } }) => <span>{formatDate(value)}</span>,
       },
@@ -351,6 +357,13 @@ const RegisterList = (props: Props) => {
                     </tr>
                   );
                 })}
+                {/* 데이터가 부족할 경우 빈 행 추가 */}
+                {rows.length < 10 &&
+                  Array.from({ length: 10 - rows.length }).map((_, index) => (
+                    <tr key={`empty-${index}`} className={styled.emptyRow}>
+                      <td colSpan={columns.length}></td>
+                    </tr>
+                  ))}
               </tbody>
             }
           </table>
