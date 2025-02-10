@@ -80,6 +80,15 @@ export interface YearData {
   calMultiple?:number;
 }
 
+export type InvestAmtMap = {
+  capitalAmt: string;
+  ownershipPercentage: number;
+  ownershipCnt: number;
+  plusProfitYear: number;
+  plusProtitRate: number;
+  plusProfitYearRate: number;
+};
+
 // 기본 항목을 ICostItem 배열로 변환
 const initialBasicItems: ICostInputItem[] = [
 ];

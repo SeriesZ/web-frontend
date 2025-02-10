@@ -1,20 +1,15 @@
 import React, { useRef, useEffect, useState } from "react";
 import styled from "@/components/idea/InvestPop.module.scss";
-import { YearData, ICostInputItem } from "@/model/financeType";
-import { Category, IdeaContentsType, Attachment } from "@/model/IdeaList";
-
-type Investor = {
-  id: number;
-  name: string;
-  amount: number;
-  equity: number;
-  founder_name: string;
-};
+import { YearData, ICostInputItem, InvestAmtMap } from "@/model/financeType";
+import { Category } from "@/model/IdeaList";
 
 const InvestSendPop: React.FC<{
   closeModal: () => void;
   data: any;
-  openBeforeCheckInvestPop: (capitalAmt: string) => void;
+  openBeforeCheckInvestPop: (
+    capitalAmt: string,
+    investAmtMap: InvestAmtMap
+  ) => void;
   itemData: {
     costItems: ICostInputItem[];
     plan: YearData[];
@@ -32,6 +27,14 @@ const InvestSendPop: React.FC<{
   const [plusProtitRate, setPlusProtitRate] = useState(0); // exit까지의 수익율
   const [plusProfitYear, setPlusProfitYear] = useState(0);
   const [maraketCap, setMaraketCap] = useState(averageSales * psrValue);
+  const [investData, setInvestData] = useState<InvestAmtMap>({
+    capitalAmt: "0",
+    ownershipPercentage: 0,
+    ownershipCnt: 0,
+    plusProfitYear: 0,
+    plusProtitRate: 0,
+    plusProfitYearRate: 0,
+  });
   let isfirstPlusYear = true;
 
   const parValueItem = costItems.find((item) => item.apiId === "par_value");
@@ -123,6 +126,29 @@ const InvestSendPop: React.FC<{
     return calExitProfit(amt, ownershipCntCal, getinvsetAmt) * 0.2;
   };
 
+  // 최종완료 버튼
+
+  const handleComplete = () => {
+    setInvestData((prev) => ({
+      ...prev,
+      capitalAmt,
+      ownershipPercentage,
+      ownershipCnt,
+      plusProfitYear,
+      plusProtitRate,
+      plusProfitYearRate: plusProfitYear ? plusProtitRate / plusProfitYear : 0,
+    }));
+
+    openBeforeCheckInvestPop(capitalAmt, {
+      capitalAmt,
+      ownershipPercentage,
+      ownershipCnt,
+      plusProfitYear,
+      plusProtitRate,
+      plusProfitYearRate: plusProfitYear ? plusProtitRate / plusProfitYear : 0,
+    });
+  };
+
   return (
     <div className={styled.investSendContainer}>
       <div className={styled.topSection}>
@@ -206,12 +232,7 @@ const InvestSendPop: React.FC<{
         </div>
       </div>
       <div className={styled.buttonSection}>
-        <button
-          className={styled.submitBtn}
-          onClick={() => {
-            openBeforeCheckInvestPop(capitalAmt);
-          }}
-        >
+        <button className={styled.submitBtn} onClick={handleComplete}>
           최종완료
         </button>
         <button className={styled.cancelBtn} onClick={closeModal}>

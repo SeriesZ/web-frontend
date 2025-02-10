@@ -36,6 +36,7 @@ import {
   YearData,
   useFinanceStore,
   updatePriceDataFromServer,
+  InvestAmtMap,
 } from "@/model/financeType";
 import { useRouter } from "next/navigation";
 
@@ -106,6 +107,14 @@ const IdeaContentsComponents = ({
   const [openRoot, setOpenRoot] = useState<string>("contract");
   const [signImage, setSignImage] = useState<string>("");
   const router = useRouter();
+  const [investData, setInvestData] = useState<InvestAmtMap>({
+    capitalAmt: "0",
+    ownershipPercentage: 0,
+    ownershipCnt: 0,
+    plusProfitYear: 0,
+    plusProtitRate: 0,
+    plusProfitYearRate: 0,
+  });
 
   const performanceParams = {
     ideaName,
@@ -764,11 +773,12 @@ const IdeaContentsComponents = ({
         setContractSignOpen(false);
       });
   };
-  const openBeforeCheckInvestPop = (amt: string) => {
+  const openBeforeCheckInvestPop = (amt: string, investData: InvestAmtMap) => {
     const rawAmt = Number(amt.replace(/,/g, ""));
     setInvestHopeAmt(rawAmt);
     setBeforeInvestOpen(true);
     setInvestSendOpen(false);
+    setInvestData(investData);
   };
   const openInvestSecretWritePop = (data: any) => {
     setInvestorInfo(data);
@@ -1149,11 +1159,12 @@ const IdeaContentsComponents = ({
             <InvestSecretAplDonePop
               closeModal={closInvestSecretAplDoneModal}
               moveInvestList={moveInvestList}
+              investData={investData}
             />
           }
           customStyles={{
-            width: "600px",
-            height: "460px",
+            width: "800px",
+            height: "470px",
             padding: "40px",
           }}
         />
