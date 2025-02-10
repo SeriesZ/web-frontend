@@ -110,11 +110,10 @@ const RegisterList = (props: Props) => {
       let totalCount = 1;
       Object.keys(resData2).map((item, index) => {
         resData2[item].forEach((element: IdeaContentsType) => {
-          if (totalCount <= 10) {
-            ideaDataList.push(element);
+          if (element.theme.id == value.id || value.id == "") {
+            totalCount++;
+            ideaDataListAll.push(element);
           }
-          totalCount++;
-          ideaDataListAll.push(element);
         });
       });
 
